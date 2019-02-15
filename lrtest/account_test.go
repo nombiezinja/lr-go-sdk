@@ -1,4 +1,4 @@
-package integrationtest
+package lrtest
 
 import (
 	"fmt"
@@ -6,16 +6,16 @@ import (
 	"testing"
 	"time"
 
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/json"
+	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
 
-	loginradius "bitbucket.org/nombiezinja/lr-go-sdk"
+	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
 )
 
 func TestGetManageAccountProfilesByEmail(t *testing.T) {
 	fmt.Println("Starting test TestGetManageAccountProfilesByEmail")
 	_, _, testuid, testEmail, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
-	response, err := loginradius.GetManageAccountProfilesByEmail(testEmail)
+	response, err := lraccount.GetManageAccountProfilesByEmail(testEmail)
 	session, _ := lrjson.DynamicUnmarshal(response.Body)
 	uid := session["Uid"].(string)
 	if err != nil || uid != testuid {
@@ -28,7 +28,7 @@ func TestGetManageAccountProfilesByEmail(t *testing.T) {
 func TestDeleteManageAccount(t *testing.T) {
 	fmt.Println("Starting test TestDeleteManageAccount")
 	_, _, testuid, _, _ := setupAccount(t)
-	_, err := loginradius.DeleteManageAccount(testuid)
+	_, err := lraccount.DeleteManageAccount(testuid)
 	if err != nil {
 		t.Errorf("Error deleting account")
 		fmt.Println(err)
@@ -43,7 +43,7 @@ func TestPostManageAccountCreate(t *testing.T) {
 	testEmails := TestEmailArr{{"Primary", testEmail}}
 	testAccount := TestAccount{true, testEmails, testEmail}
 
-	response, err := loginradius.PostManageAccountCreate(testAccount)
+	response, err := lraccount.PostManageAccountCreate(testAccount)
 	if err != nil {
 		t.Errorf("Error calling PostManageAccountCreate: %v", err)
 	}
@@ -52,7 +52,7 @@ func TestPostManageAccountCreate(t *testing.T) {
 	if err != nil || uid == "" {
 		t.Errorf("Error returned from PostManageAccountCreate: %v", err)
 	}
-	_, err = loginradius.DeleteManageAccount(uid)
+	_, err = lraccount.DeleteManageAccount(uid)
 	if err != nil {
 		t.Errorf("Error cleaning up account: %v", err)
 	}
@@ -64,7 +64,7 @@ func TestPostManageEmailVerificationToken(t *testing.T) {
 	_, testEmail, _, teardownTestCase := setupEmailVerificationAccount(t)
 	defer teardownTestCase(t)
 	emailObj := TestEmail{testEmail}
-	response, err := loginradius.PostManageEmailVerificationToken(emailObj)
+	response, err := lraccount.PostManageEmailVerificationToken(emailObj)
 	if err != nil {
 		t.Errorf(" Error making call to PostManageEmailVerificationToken: %v", err)
 	}
@@ -81,7 +81,8 @@ func TestPutManageAccountUpdateSecurityQuestionConfig(t *testing.T) {
 	defer teardownTestCase(t)
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	response, err := loginradius.PutManageAccountUpdateSecurityQuestionConfig(testuid, securityTest)
+	fmt.Println(securityTest)
+	response, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(testuid, securityTest)
 	if err != nil {
 		t.Errorf("Error making PutManageAccountUpdateSecurityQuestionConfig call")
 	}
@@ -96,7 +97,7 @@ func TestPostManageForgotPasswordToken(t *testing.T) {
 	_, _, _, testEmail, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	email := TestEmail{testEmail}
-	response, err := loginradius.PostManageForgotPasswordToken(email)
+	response, err := lraccount.PostManageForgotPasswordToken(email)
 	if err != nil {
 		t.Errorf("Error making call to PostManageForgotPasswordToken: %+v", err)
 	}

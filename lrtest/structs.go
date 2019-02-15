@@ -1,4 +1,4 @@
-package integrationtest
+package lrtest
 
 // Helper Function Test Structs
 type Success struct {
@@ -231,5 +231,5 @@ type SecurityQuestionTest struct {
 // You can retrieve this key with a call to GetConfiguration, and replace the
 // json tag value with your question string
 type SecurityQuestion struct {
-	QuestionID string `json:"2acec20722394dc3bd6362ef27df824e"`
+	QuestionID string `json:"b8c8ac7593744113a1b37e1976a43488"`
 }

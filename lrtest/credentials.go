@@ -1,4 +1,4 @@
-package integrationtest
+package lrtest
 
 import (
 	"log"
@@ -12,8 +12,8 @@ func SetTestCredentials() {
 	cwd, _ := os.Getwd()
 
 	err := godotenv.Load(
-		filepath.Join(cwd, "../../config/secret.env"),
-		filepath.Join(cwd, "../../config/public.env"),
+		filepath.Join(cwd, "./config/secret.env"),
+		filepath.Join(cwd, "./config/public.env"),
 	)
 
 	if err != nil {

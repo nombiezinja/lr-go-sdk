@@ -1,4 +1,4 @@
-package integrationtest
+package lrtest
 
 import (
 	"fmt"
@@ -6,8 +6,9 @@ import (
 	"testing"
 	"time"
 
-	loginradius "bitbucket.org/nombiezinja/lr-go-sdk"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/json"
+	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
+	lrauthentication "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
+	"bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
 )
 
 func setupAccount(t *testing.T) (string, string, string, string, func(t *testing.T)) {
@@ -21,7 +22,7 @@ func setupAccount(t *testing.T) (string, string, string, string, func(t *testing
 	phoneID := "+1" + timeStamp
 	testAccount := AccountSetup{true, true, testEmails, testEmail, username, phoneID}
 
-	response, err := loginradius.PostManageAccountCreate(testAccount)
+	response, err := lraccount.PostManageAccountCreate(testAccount)
 	if err != nil {
 		t.Errorf("Error calling PostManageAccountCreate from setupAccount: %v", err)
 	}
@@ -34,7 +35,7 @@ func setupAccount(t *testing.T) (string, string, string, string, func(t *testing
 
 	return phoneID, username, uid, testEmail, func(t *testing.T) {
 		t.Log("Tearing down test case")
-		_, err = loginradius.DeleteManageAccount(uid)
+		_, err = lraccount.DeleteManageAccount(uid)
 		if err != nil {
 			t.Errorf("Error cleaning up account")
 			fmt.Println(err)
@@ -52,7 +53,7 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, func(t
 
 	phoneID := "+" + timeStamp
 	testAccount := AccountSetup{false, false, testEmails, testEmail, username, phoneID}
-	response, err := loginradius.PostManageAccountCreate(testAccount)
+	response, err := lraccount.PostManageAccountCreate(testAccount)
 	user, _ := lrjson.DynamicUnmarshal(response.Body)
 	uid := user["Uid"].(string)
 	if err != nil || uid == "" {
@@ -61,7 +62,7 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, func(t
 	}
 
 	tokenGen := TestEmail{testEmail}
-	response, err = loginradius.PostManageEmailVerificationToken(tokenGen)
+	response, err = lraccount.PostManageEmailVerificationToken(tokenGen)
 	data, _ := lrjson.DynamicUnmarshal(response.Body)
 	token := data["VerificationToken"].(string)
 	if err != nil {
@@ -71,7 +72,7 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, func(t
 
 	return phoneID, testEmail, token, func(t *testing.T) {
 		t.Log("Tearing down test case")
-		_, err2 := loginradius.DeleteManageAccount(uid)
+		_, err2 := lraccount.DeleteManageAccount(uid)
 		if err2 != nil {
 			t.Errorf("Error cleaning up account")
 			fmt.Println(err2)
@@ -83,7 +84,7 @@ func setupLogin(t *testing.T) (string, string, string, string, string, func(t *t
 	// SetTestCredentials()
 	phoneID, username, testuid, testEmail, teardownTestCase := setupAccount(t)
 	testLogin := TestEmailLogin{testEmail, testEmail}
-	response, err := loginradius.PostAuthLoginByEmail("", "", "", "", "", testLogin)
+	response, err := lrauthentication.PostAuthLoginByEmail("", "", "", "", "", testLogin)
 	session, _ := lrjson.DynamicUnmarshal(response.Body)
 	accessToken := session["access_token"].(string)
 	if err != nil || accessToken == "" {

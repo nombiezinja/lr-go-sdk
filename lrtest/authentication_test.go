@@ -1,4 +1,4 @@
-package integrationtest
+package lrtest
 
 import (
 	"encoding/json"
@@ -8,9 +8,11 @@ import (
 	"testing"
 	"time"
 
-	loginradius "bitbucket.org/nombiezinja/lr-go-sdk"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/json"
+	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
+	lrauthentication "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
 	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
+	"bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	"bitbucket.org/nombiezinja/lr-go-sdk/lrstruct"
 )
 
 type Email struct {
@@ -29,7 +31,7 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
 	user := User{}
 
-	res, err := loginradius.PostAuthUserRegistrationByEmail("", "", "", user)
+	res, err := lrauthentication.PostAuthUserRegistrationByEmail("", "", "", user)
 	if err == nil || err.(lrerror.Error).Code() != "LoginradiusRespondedWithError" {
 		t.Errorf("PostAuthUserRegistrationByEmail Fail: Expected Error %v, instead received res: %+v, received error: %+v", "LoginradiusRespondedWithError", res, err)
 	}
@@ -44,17 +46,17 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 		Password: "password",
 	}
 
-	res, err = loginradius.PostAuthUserRegistrationByEmail("", "", "", user)
+	res, err = lrauthentication.PostAuthUserRegistrationByEmail("", "", "", user)
 	if res.StatusCode != 200 {
 		t.Errorf("PostAuthUserRegistrationByEmail Success: Expected StatusCode %v, received %v", 200, res)
 	}
 
-	res, err = loginradius.PostAuthUserRegistrationByEmail("", "", "", user)
+	res, err = lrauthentication.PostAuthUserRegistrationByEmail("", "", "", user)
 	if err == nil || err.(lrerror.Error).Code() != "LoginradiusRespondedWithError" {
 		t.Errorf("PostAuthUserRegistrationByEmail Fail: Expected Error %v, instead received res: %+v, received error: %+v", "LoginradiusRespondedWithError", res, err)
 	}
 
-	res, err = loginradius.GetManageAccountProfilesByEmail(testEmail)
+	res, err = lraccount.GetManageAccountProfilesByEmail(testEmail)
 	if err != nil {
 		t.Errorf("Error retrieving uid of account to clean up.")
 		fmt.Println(err)
@@ -62,7 +64,7 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 
 	profile, _ := lrjson.DynamicUnmarshal(res.Body)
 	uid := profile["Uid"].(string)
-	_, err = loginradius.DeleteManageAccount(uid)
+	_, err = lraccount.DeleteManageAccount(uid)
 	if err != nil {
 		t.Errorf("Error cleaning up account.")
 		fmt.Println(err)
@@ -75,7 +77,7 @@ func TestPostAuthAddEmail(t *testing.T) {
 
 	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
 	testAddEmail := TestEmailCreator{testEmail, "secondary"}
-	res, err := loginradius.PostAuthAddEmail("", "", accessToken, testAddEmail)
+	res, err := lrauthentication.PostAuthAddEmail("", "", accessToken, testAddEmail)
 	if err != nil {
 		t.Errorf("Error making PostAuthAddEmail call: %v", err)
 	}
@@ -89,7 +91,7 @@ func TestPostAuthAddEmailInvalid(t *testing.T) {
 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
 	invalid := struct{ foo string }{"bar"}
-	response, err := loginradius.PostAuthAddEmail("", "", accessToken, invalid)
+	response, err := lrauthentication.PostAuthAddEmail("", "", accessToken, invalid)
 	if err == nil {
 		t.Errorf("Should fail but did not :%v", response.Body)
 	}
@@ -99,7 +101,7 @@ func TestPostAuthForgotPassword(t *testing.T) {
 	_, _, _, testEmail, _, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
 	testForgotPass := TestEmail{testEmail}
-	res, err := loginradius.PostAuthForgotPassword("resetpassword.com", "", testForgotPass)
+	res, err := lrauthentication.PostAuthForgotPassword("resetpassword.com", "", testForgotPass)
 	if err != nil {
 		t.Errorf("Error making PostAuthForgotPassword call: %v", err)
 	}
@@ -113,7 +115,7 @@ func TestPostAuthForgotPasswordInvalid(t *testing.T) {
 	_, _, _, _, _, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
 	invalid := struct{ foo string }{"bar"}
-	response, err := loginradius.PostAuthForgotPassword("resetpassword.com", "", invalid)
+	response, err := lrauthentication.PostAuthForgotPassword("resetpassword.com", "", invalid)
 	if err == nil {
 		t.Errorf("Should fail but did not: %v", response.Body)
 	}
@@ -123,7 +125,7 @@ func TestPostAuthLoginByEmail(t *testing.T) {
 	_, _, _, testEmail, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	testLogin := TestEmailLogin{testEmail, testEmail}
-	res, err := loginradius.PostAuthLoginByEmail("", "", "", "", "", testLogin)
+	res, err := lrauthentication.PostAuthLoginByEmail("", "", "", "", "", testLogin)
 	if err != nil {
 		t.Errorf("Error making PostAuthLoginByEmail call: %v", err)
 	}
@@ -137,7 +139,7 @@ func TestPostAuthLoginByEmailInvalid(t *testing.T) {
 	_, _, _, _, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	invalid := struct{ foo string }{"bar"}
-	response, err := loginradius.PostAuthLoginByEmail("", "", "", "", "", invalid)
+	response, err := lrauthentication.PostAuthLoginByEmail("", "", "", "", "", invalid)
 	if err == nil {
 		t.Errorf("Should fail but did not: %v", response.Body)
 	}
@@ -148,7 +150,7 @@ func TestPostAuthLoginByUsername(t *testing.T) {
 	defer teardownTestCase(t)
 
 	testLogin := TestUsernameLogin{userName, testEmail}
-	res, err := loginradius.PostAuthLoginByUsername("", "", "", "", "", testLogin)
+	res, err := lrauthentication.PostAuthLoginByUsername("", "", "", "", "", testLogin)
 	if err != nil {
 		t.Errorf("Error making PostAuthLoginByUsername call: %v", err)
 	}
@@ -162,7 +164,7 @@ func TestPostAuthLoginByUsernameInvalid(t *testing.T) {
 	_, _, _, _, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	invalid := struct{ foo string }{"bar"}
-	response, err := loginradius.PostAuthLoginByUsername("", "", "", "", "", invalid)
+	response, err := lrauthentication.PostAuthLoginByUsername("", "", "", "", "", invalid)
 	if err == nil {
 		t.Errorf("Should fail but did not: %v", response.Body)
 	}
@@ -171,7 +173,7 @@ func TestPostAuthLoginByUsernameInvalid(t *testing.T) {
 func TestGetAuthCheckEmailAvailability(t *testing.T) {
 	_, _, _, testEmail, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
-	res, err := loginradius.GetAuthCheckEmailAvailability(testEmail)
+	res, err := lrauthentication.GetAuthCheckEmailAvailability(testEmail)
 	if err != nil {
 		t.Errorf("Error making GetAuthCheckEmailAvailability call: %v", err)
 	}
@@ -184,7 +186,7 @@ func TestGetAuthCheckEmailAvailability(t *testing.T) {
 func TestGetAuthCheckUsernameAvailability(t *testing.T) {
 	_, username, _, _, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
-	res, err := loginradius.GetAuthCheckUsernameAvailability(username)
+	res, err := lrauthentication.GetAuthCheckUsernameAvailability(username)
 	if err != nil {
 		t.Errorf("Error making GetAuthCheckUsernameAvailability call: %v", err)
 	}
@@ -197,7 +199,7 @@ func TestGetAuthCheckUsernameAvailability(t *testing.T) {
 func TestGetAuthReadProfilesByToken(t *testing.T) {
 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	res, err := loginradius.GetAuthReadProfilesByToken(accessToken)
+	res, err := lrauthentication.GetAuthReadProfilesByToken(accessToken)
 	if err != nil {
 		t.Errorf("Error making GetAuthReadProfilesByToken call: %v", err)
 	}
@@ -213,7 +215,7 @@ func TestGetAuthPrivatePolicyAccept(t *testing.T) {
 	t.SkipNow()
 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	res, err := loginradius.GetAuthPrivatePolicyAccept(accessToken)
+	res, err := lrauthentication.GetAuthPrivatePolicyAccept(accessToken)
 	if err != nil {
 		t.Errorf("Error making GetAuthPrivatePolicyAccept call: %v", err)
 	}
@@ -226,7 +228,7 @@ func TestGetAuthPrivatePolicyAccept(t *testing.T) {
 func TestGetAuthSendWelcomeEmail(t *testing.T) {
 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	res, err := loginradius.GetAuthSendWelcomeEmail("", accessToken)
+	res, err := lrauthentication.GetAuthSendWelcomeEmail("", accessToken)
 	if err != nil {
 		t.Errorf("Error making GetAuthSendWelcomeEmail call: %v", err)
 	}
@@ -239,7 +241,7 @@ func TestGetAuthSendWelcomeEmail(t *testing.T) {
 func TestGetAuthSocialIdentity(t *testing.T) {
 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	res, err := loginradius.GetAuthSocialIdentity(accessToken)
+	res, err := lrauthentication.GetAuthSocialIdentity(accessToken)
 	if err != nil {
 		fmt.Println(err)
 		t.Errorf("Error making GetAuthSocialIdentity call")
@@ -253,7 +255,7 @@ func TestGetAuthSocialIdentity(t *testing.T) {
 
 func TestGetAuthSocialIdentityFail(t *testing.T) {
 	SetTestCredentials()
-	_, err := loginradius.GetAuthSocialIdentity("invalidtoken")
+	_, err := lrauthentication.GetAuthSocialIdentity("invalidtoken")
 	if err == nil {
 		t.Errorf("Should fail but did not.")
 		fmt.Println(err)
@@ -263,7 +265,7 @@ func TestGetAuthSocialIdentityFail(t *testing.T) {
 func TestGetAuthValidateAccessToken(t *testing.T) {
 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	res, err := loginradius.GetAuthValidateAccessToken(accessToken)
+	res, err := lrauthentication.GetAuthValidateAccessToken(accessToken)
 	if err != nil {
 		t.Errorf("Error making GetAuthValidateAccessToken call, %v", err)
 	}
@@ -276,7 +278,7 @@ func TestGetAuthValidateAccessToken(t *testing.T) {
 func TestGetAuthVerifyEmail(t *testing.T) {
 	_, _, verificationToken, teardownTestCase := setupEmailVerificationAccount(t)
 	defer teardownTestCase(t)
-	res, err := loginradius.GetAuthVerifyEmail(verificationToken, "", "")
+	res, err := lrauthentication.GetAuthVerifyEmail(verificationToken, "", "")
 	if err != nil {
 		t.Errorf("Error making TestAuthVerifyEmail call, %v", err)
 	}
@@ -289,7 +291,7 @@ func TestGetAuthVerifyEmail(t *testing.T) {
 func TestGetAuthInvalidateAccessToken(t *testing.T) {
 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	res, err := loginradius.GetAuthInvalidateAccessToken(accessToken)
+	res, err := lrauthentication.GetAuthInvalidateAccessToken(accessToken)
 	if err != nil {
 		fmt.Println(err)
 		t.Errorf("Error making GetAuthInvalidateAccessToken call")
@@ -306,21 +308,21 @@ func TestGetAuthInvalidateAccessToken(t *testing.T) {
 // }
 
 // Will return error unless security question feature is enabled
-// Follow instructions in this document: https://docs.loginradius.com/api/v2/dashboard/platform-security/password-policy
+// Follow instructions in this document: https://docs.lrauthentication.com/api/v2/dashboard/platform-security/password-policy
 func TestGetAuthSecurityQuestionByAccessToken(t *testing.T) {
 	_, _, uid, _, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := loginradius.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
 	if err != nil {
 		t.Errorf("Error setting up security question: %v", err)
 	}
-	response, err := loginradius.GetAuthSecurityQuestionByAccessToken(accessToken)
+	response, err := lrauthentication.GetAuthSecurityQuestionByAccessToken(accessToken)
 	if err != nil {
 		t.Errorf("Error making GetAuthSecurityQuestionByAccessToken call: %v", err)
 	}
-	question := loginradius.AuthSecurityQuestion{}
+	question := lrstruct.AuthSecurityQuestion{}
 	err = json.Unmarshal([]byte(response.Body), &question)
 	if err != nil || (question[0].QuestionID == "") {
 		t.Errorf("Error returned from GetAuthSecurityQuestionByUsername call: %v", err)
@@ -332,15 +334,15 @@ func TestGetAuthSecurityQuestionByEmail(t *testing.T) {
 	defer teardownTestCase(t)
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := loginradius.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
 	if err != nil {
 		t.Errorf("Error setting up security question: %v", err)
 	}
-	response, err := loginradius.GetAuthSecurityQuestionByEmail(email)
+	response, err := lrauthentication.GetAuthSecurityQuestionByEmail(email)
 	if err != nil {
 		t.Errorf("Error making GetAuthSecurityQuestionByUsername call: %v", err)
 	}
-	question := loginradius.AuthSecurityQuestion{}
+	question := lrstruct.AuthSecurityQuestion{}
 	err = json.Unmarshal([]byte(response.Body), &question)
 	if err != nil || (question[0].QuestionID == "") {
 		t.Errorf("Error returned from GetAuthSecurityQuestionByUsername call: %v", err)
@@ -352,15 +354,15 @@ func TestGetAuthSecurityQuestionByUsername(t *testing.T) {
 	defer teardownTestCase(t)
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := loginradius.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
 	if err != nil {
 		t.Errorf("Error setting up security question: %v", err)
 	}
-	response, err := loginradius.GetAuthSecurityQuestionByUsername(username)
+	response, err := lrauthentication.GetAuthSecurityQuestionByUsername(username)
 	if err != nil {
 		t.Errorf("Error making GetAuthSecurityQuestionByUsername call: %v", err)
 	}
-	question := loginradius.AuthSecurityQuestion{}
+	question := lrstruct.AuthSecurityQuestion{}
 	err = json.Unmarshal([]byte(response.Body), &question)
 	if err != nil || (question[0].QuestionID == "") {
 		t.Errorf("Error returned from GetAuthSecurityQuestionByUsername call: %v", err)
@@ -372,15 +374,15 @@ func TestGetAuthSecurityQuestionByPhone(t *testing.T) {
 	defer teardownTestCase(t)
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := loginradius.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
 	if err != nil {
 		t.Errorf("Error setting up security question: %v", err)
 	}
-	response, err := loginradius.GetAuthSecurityQuestionByPhone(phone)
+	response, err := lrauthentication.GetAuthSecurityQuestionByPhone(phone)
 	if err != nil {
 		t.Errorf("Error making GetAuthSecurityQuestionByPhone call: %v", err)
 	}
-	question := loginradius.AuthSecurityQuestion{}
+	question := lrstruct.AuthSecurityQuestion{}
 	err = json.Unmarshal([]byte(response.Body), &question)
 	if err != nil || (question[0].QuestionID == "") {
 		t.Errorf("Error returned from GetAuthSecurityQuestionByPhone call: %v", err)
@@ -391,7 +393,7 @@ func TestPutAuthChangePassword(t *testing.T) {
 	_, _, _, email, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
 	passwords := PassChange{email, email + "1"}
-	resp, err := loginradius.PutAuthChangePassword(accessToken, passwords)
+	resp, err := lrauthentication.PutAuthChangePassword(accessToken, passwords)
 	if err != nil {
 		t.Errorf("Error calling PutAuthChangePassword: %+v", err)
 	}
@@ -405,7 +407,7 @@ func TestPutResendEmailVerification(t *testing.T) {
 	_, retEmail, _, teardownTestCase := setupEmailVerificationAccount(t)
 	defer teardownTestCase(t)
 	emailRef := TestEmail{retEmail}
-	resp, err := loginradius.PutResendEmailVerification("", "", emailRef)
+	resp, err := lrauthentication.PutResendEmailVerification("", "", emailRef)
 	if err != nil {
 		t.Errorf("Error calling PutResendEmailVerification: %v", err)
 	}
@@ -420,7 +422,7 @@ func TestPutAuthResetPasswordByResetToken(t *testing.T) {
 	defer teardownTestCase(t)
 
 	resetEmail := TestEmail{email}
-	response, err := loginradius.PostManageForgotPasswordToken(resetEmail)
+	response, err := lraccount.PostManageForgotPasswordToken(resetEmail)
 	if err != nil {
 		t.Errorf(
 			"Error calling PostManageForgotPasswordToken for PutAuthResetPasswordByResetToken: %v",
@@ -429,7 +431,7 @@ func TestPutAuthResetPasswordByResetToken(t *testing.T) {
 	}
 	data, _ := lrjson.DynamicUnmarshal(response.Body)
 	req := PasswordReset{data["ForgotToken"].(string), email + "1"}
-	response, err = loginradius.PutAuthResetPasswordByResetToken(req)
+	response, err = lrauthentication.PutAuthResetPasswordByResetToken(req)
 	if err != nil {
 		t.Errorf("Error calling PutAuthResetPasswordByResetToken: %v", err)
 	}
@@ -449,13 +451,13 @@ func TestPutAuthResetPasswordBySecurityAnswerAndEmail(t *testing.T) {
 
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := loginradius.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
 	if err != nil {
 		t.Errorf("Error setting up security question: %v", err)
 	}
 
 	request := ResetWithEmailSecurity{securityQuestion, email, email + "1", ""}
-	response, err := loginradius.PutAuthResetPasswordBySecurityAnswerAndEmail(request)
+	response, err := lrauthentication.PutAuthResetPasswordBySecurityAnswerAndEmail(request)
 	if err != nil {
 		t.Errorf("Error making call to PutAuthResetPasswordBySecurityAnswerAndEmail: %+v", err)
 	}
@@ -471,13 +473,13 @@ func TestPutAuthResetPasswordBySecurityAnswerAndUsername(t *testing.T) {
 
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := loginradius.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
 	if err != nil {
 		t.Errorf("Error setting up security question: %v", err)
 	}
 
 	request := ResetWithUsernameSecurity{securityQuestion, username, email + "1", ""}
-	response, err := loginradius.PutAuthResetPasswordBySecurityAnswerAndUsername(request)
+	response, err := lrauthentication.PutAuthResetPasswordBySecurityAnswerAndUsername(request)
 	if err != nil {
 		t.Errorf("Error making call to PutAuthResetPasswordBySecurityAnswerAndUsername: %+v", err)
 	}
@@ -491,11 +493,11 @@ func TestPutAuthSetOrChangeUsername(t *testing.T) {
 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
 	newName := TestUsername{"newusername"}
-	_, err := loginradius.PutAuthSetOrChangeUsername(accessToken, newName)
+	_, err := lrauthentication.PutAuthSetOrChangeUsername(accessToken, newName)
 	if err != nil {
 		t.Errorf("Error making call to PutAuthSetOrChangeUsername: %+v", err)
 	}
-	response, err := loginradius.GetAuthReadProfilesByToken(accessToken)
+	response, err := lrauthentication.GetAuthReadProfilesByToken(accessToken)
 	if err != nil {
 		t.Errorf("Error making call to GetAuthReadProfilesByToken for PutAuthSetOrChangeUsername: %+v", err)
 	}
@@ -512,11 +514,11 @@ func TestPutAuthUpdateProfileByToken(t *testing.T) {
 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
 	request := TestUsername{"newname"}
-	_, err := loginradius.PutAuthUpdateProfileByToken("", "", "", accessToken, request)
+	_, err := lrauthentication.PutAuthUpdateProfileByToken("", "", "", accessToken, request)
 	if err != nil {
 		t.Errorf("Error making call to PutAuthUpdateProfileByToken: %+v", err)
 	}
-	response, err := loginradius.GetAuthReadProfilesByToken(accessToken)
+	response, err := lrauthentication.GetAuthReadProfilesByToken(accessToken)
 	if err != nil {
 		t.Errorf("Error making call to GetAuthReadProfilesByToken for PutAuthUpdateProfileByToken: %+v", err)
 	}
@@ -534,7 +536,7 @@ func TestPutAuthUpdateSecurityQuestionByAccessToken(t *testing.T) {
 	defer teardownTestCase(t)
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := loginradius.PutAuthUpdateSecurityQuestionByAccessToken(accessToken, securityTest)
+	_, err := lrauthentication.PutAuthUpdateSecurityQuestionByAccessToken(accessToken, securityTest)
 	if err != nil {
 		t.Errorf("Error making PutAuthUpdateSecurityQuestionByAccessToken call: %v", err)
 	}
@@ -543,7 +545,7 @@ func TestPutAuthUpdateSecurityQuestionByAccessToken(t *testing.T) {
 func TestDeleteAuthDeleteAccountEmailConfirmation(t *testing.T) {
 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	resp, err := loginradius.DeleteAuthDeleteAccountEmailConfirmation("", "", accessToken)
+	resp, err := lrauthentication.DeleteAuthDeleteAccountEmailConfirmation("", "", accessToken)
 	if err != nil {
 		t.Errorf("Error making call to DeleteAuthDeleteAccountEmailConfirmation: %+v", err)
 	}
@@ -557,7 +559,7 @@ func TestDeleteAuthRemoveEmail(t *testing.T) {
 	_, _, _, testEmail, accessToken, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
 	removeEmail := TestEmail{testEmail}
-	resp, err := loginradius.DeleteAuthRemoveEmail(accessToken, removeEmail)
+	resp, err := lrauthentication.DeleteAuthRemoveEmail(accessToken, removeEmail)
 	if err != nil {
 		t.Errorf("Error making call to DeleteAuthRemoveEmail: %+v", err)
 	}
@@ -575,7 +577,7 @@ func TestDeleteAuthUnlinkSocialIdentities(t *testing.T) {
 	t.SkipNow()
 	SetTestCredentials()
 	accessToken := os.Getenv("USERTOKEN")
-	response, err := loginradius.GetAuthReadProfilesByToken(accessToken)
+	response, err := lrauthentication.GetAuthReadProfilesByToken(accessToken)
 	if err != nil {
 		t.Errorf("Error making call to GetAuthReadProfilesByToken: %+v", err)
 	}
@@ -601,7 +603,7 @@ func TestDeleteAuthUnlinkSocialIdentities(t *testing.T) {
 
 	provider := Provider{providerstr, id}
 
-	response, err = loginradius.DeleteAuthUnlinkSocialIdentities(accessToken, provider)
+	response, err = lrauthentication.DeleteAuthUnlinkSocialIdentities(accessToken, provider)
 	if err != nil {
 		t.Errorf("Error making call to DeleteAuthUnlinkSocialIdentities: %+v", err)
 	}
@@ -615,7 +617,7 @@ func TestDeleteAuthUnlinkSocialIdentities(t *testing.T) {
 func TestGetPasswordlessLoginByEmail(t *testing.T) {
 	_, _, _, email, _, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	response, err := loginradius.GetPasswordlessLoginByEmail(email, "", "")
+	response, err := lrauthentication.GetPasswordlessLoginByEmail(email, "", "")
 	if err != nil {
 		t.Errorf("Error making call to GetPasswordlessLoginByEmail: %+v", err)
 	}
@@ -628,7 +630,7 @@ func TestGetPasswordlessLoginByEmail(t *testing.T) {
 func TestGetPasswordlessLoginByUsername(t *testing.T) {
 	_, username, _, _, _, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	response, err := loginradius.GetPasswordlessLoginByUsername(username, "", "")
+	response, err := lrauthentication.GetPasswordlessLoginByUsername(username, "", "")
 	if err != nil {
 		t.Errorf("Error making call to GetPasswordlessLoginByUsername: %+v", err)
 	}
