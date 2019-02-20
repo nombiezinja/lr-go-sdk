@@ -5,50 +5,27 @@ import (
 	"os"
 
 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrvalidate"
+	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
 )
 
 // GetAuthVerifyEmail is used to verify the email of user.
 // Note: This API will only return the full profile if you have
 // 'Enable auto login after email verification' set in your
 // LoginRadius Dashboard's Email Workflow settings under 'Verification Email'.
-// func GetAuthVerifyEmail(verificationToken, url, welcomeEmailTemplate string) (*httprutils.Response, error) {
-// 	request := httprutils.Request{
-// 		Method: httprutils.Get,
-// 		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/email",
-// 		Headers: map[string]string{
-// 			"content-Type": "application/x-www-form-urlencoded",
-// 		},
-// 		QueryParams: map[string]string{
-// 			"apiKey":               os.Getenv("APIKEY"),
-// 			"verificationtoken":    verificationToken,
-// 			"url":                  url,
-// 			"welcomeemailtemplate": welcomeEmailTemplate,
-// 		},
-// 	}
-
-// 	response, err := httprutils.TimeoutClient.Send(request)
-// 	return response, err
-// }
-
 func (lr Loginradius) GetAuthVerifyEmail(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{
 		"url": true, "verificationtoken": true, "welcomeemailtemplate": true,
 	}
-
 	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
-
 	if err != nil {
 		return nil, err
 	}
 	validatedQueries["apiKey"] = lr.Context.ApiKey
 
 	request := httprutils.Request{
-		Method: httprutils.Get,
-		URL:    lr.Domain + "/identity/v2/auth/email",
-		Headers: map[string]string{
-			"content-Type": "application/x-www-form-urlencoded",
-		},
+		Method:      httprutils.Get,
+		URL:         lr.Domain + "/identity/v2/auth/email",
+		Headers:     httprutils.URLEncodedHeader,
 		QueryParams: validatedQueries,
 	}
 
@@ -56,19 +33,20 @@ func (lr Loginradius) GetAuthVerifyEmail(queries interface{}) (*httprutils.Respo
 	return response, err
 }
 
-// // GetAuthCheckEmailAvailability is used to check whether an email exists or not on your site.
-// // Post parameters are email: string, password: string and optional securityanswer: string
-func GetAuthCheckEmailAvailability(email string) (*httprutils.Response, error) {
+// GetAuthCheckEmailAvailability is used to check whether an email exists or not on your site.
+func (lr Loginradius) GetAuthCheckEmailAvailability(queries interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{"email": true}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+	validatedQueries["apiKey"] = lr.Context.ApiKey
+
 	request := httprutils.Request{
-		Method: httprutils.Get,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/email",
-		Headers: map[string]string{
-			"content-Type": "application/x-www-form-urlencoded",
-		},
-		QueryParams: map[string]string{
-			"apiKey": os.Getenv("APIKEY"),
-			"email":  email,
-		},
+		Method:      httprutils.Get,
+		URL:         lr.Domain + "/identity/v2/auth/email",
+		Headers:     httprutils.URLEncodedHeader,
+		QueryParams: validatedQueries,
 	}
 
 	response, err := httprutils.TimeoutClient.Send(request)
@@ -76,17 +54,19 @@ func GetAuthCheckEmailAvailability(email string) (*httprutils.Response, error) {
 }
 
 // GetAuthCheckUsernameAvailability is used to check the UserName exists or not on your site.
-func GetAuthCheckUsernameAvailability(username string) (*httprutils.Response, error) {
+func (lr Loginradius) GetAuthCheckUsernameAvailability(queries interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{"username": true}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+	validatedQueries["apiKey"] = lr.Context.ApiKey
+
 	request := httprutils.Request{
-		Method: httprutils.Get,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/username",
-		Headers: map[string]string{
-			"content-Type": "application/x-www-form-urlencoded",
-		},
-		QueryParams: map[string]string{
-			"apiKey":   os.Getenv("APIKEY"),
-			"username": username,
-		},
+		Method:      httprutils.Get,
+		URL:         lr.Domain + "/identity/v2/auth/username",
+		Headers:     httprutils.URLEncodedHeader,
+		QueryParams: validatedQueries,
 	}
 
 	response, err := httprutils.TimeoutClient.Send(request)

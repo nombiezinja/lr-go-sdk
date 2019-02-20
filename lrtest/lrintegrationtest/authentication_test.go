@@ -178,18 +178,18 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 // 	}
 // }
 
-// func TestGetAuthCheckEmailAvailability(t *testing.T) {
-// 	_, _, _, testEmail, teardownTestCase := setupAccount(t)
-// 	defer teardownTestCase(t)
-// 	res, err := lrauthentication.GetAuthCheckEmailAvailability(testEmail)
-// 	if err != nil {
-// 		t.Errorf("Error making GetAuthCheckEmailAvailability call: %v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || !data["IsExist"].(bool) {
-// 		t.Errorf("Error returned from GetAuthCheckEmailAvailability call: %v", err)
-// 	}
-// }
+func TestGetAuthCheckEmailAvailability(t *testing.T) {
+	_, _, _, testEmail, loginradius, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{loginradius}).GetAuthCheckEmailAvailability(map[string]string{"email": testEmail})
+	if err != nil {
+		t.Errorf("Error making GetAuthCheckEmailAvailability call: %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !data["IsExist"].(bool) {
+		t.Errorf("Error returned from GetAuthCheckEmailAvailability call: %v", err)
+	}
+}
 
 // func TestGetAuthCheckUsernameAvailability(t *testing.T) {
 // 	_, username, _, _, teardownTestCase := setupAccount(t)
@@ -283,18 +283,18 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 // 	}
 // }
 
-// func TestGetAuthVerifyEmail(t *testing.T) {
-// 	_, _, verificationToken, teardownTestCase := setupEmailVerificationAccount(t)
-// 	defer teardownTestCase(t)
-// 	res, err := lrauthentication.GetAuthVerifyEmail(verificationToken, "", "")
-// 	if err != nil {
-// 		t.Errorf("Error making TestAuthVerifyEmail call, %v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || !data["IsPosted"].(bool) {
-// 		t.Errorf("Error returned from TestAuthVerifyEmail call, %v", err)
-// 	}
-// }
+func TestGetAuthVerifyEmail(t *testing.T) {
+	_, _, verificationToken, loginradius, teardownTestCase := setupEmailVerificationAccount(t)
+	defer teardownTestCase(t)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{loginradius}).GetAuthVerifyEmail(map[string]string{"verificationtoken": verificationToken})
+	if err != nil {
+		t.Errorf("Error making TestAuthVerifyEmail call, %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !data["IsPosted"].(bool) {
+		t.Errorf("Error returned from TestAuthVerifyEmail call, %v", err)
+	}
+}
 
 // func TestGetAuthInvalidateAccessToken(t *testing.T) {
 // 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)

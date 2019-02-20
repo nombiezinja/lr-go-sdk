@@ -3,7 +3,7 @@ package lrauthentication
 import (
 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
 	"bitbucket.org/nombiezinja/lr-go-sdk/internal/sott"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrvalidate"
+	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
 )
 
 // import (

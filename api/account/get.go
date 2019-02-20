@@ -33,7 +33,7 @@ func GetManageAccountIdentitiesByEmail(email string) (*httprutils.Response, erro
 	request := httprutils.Request{
 		Method: httprutils.Get,
 		URL:    os.Getenv("DOMAIN") + "/identity/v2/manage/account/identities",
-		Headers: map[string]string{
+		QueryParams: map[string]string{
 			"content-Type":            "application/x-www-form-urlencoded",
 			"X-LoginRadius-ApiKey":    os.Getenv("APIKEY"),
 			"X-LoginRadius-ApiSecret": os.Getenv("APISECRET"),
