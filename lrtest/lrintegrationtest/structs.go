@@ -1,4 +1,4 @@
-package lrtest
+package lrintegrationtest
 
 // Helper Function Test Structs
 type Success struct {

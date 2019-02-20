@@ -5,25 +5,51 @@ import (
 	"os"
 
 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+	"bitbucket.org/nombiezinja/lr-go-sdk/lrvalidate"
 )
 
 // GetAuthVerifyEmail is used to verify the email of user.
 // Note: This API will only return the full profile if you have
 // 'Enable auto login after email verification' set in your
 // LoginRadius Dashboard's Email Workflow settings under 'Verification Email'.
-func GetAuthVerifyEmail(verificationToken, url, welcomeEmailTemplate string) (*httprutils.Response, error) {
+// func GetAuthVerifyEmail(verificationToken, url, welcomeEmailTemplate string) (*httprutils.Response, error) {
+// 	request := httprutils.Request{
+// 		Method: httprutils.Get,
+// 		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/email",
+// 		Headers: map[string]string{
+// 			"content-Type": "application/x-www-form-urlencoded",
+// 		},
+// 		QueryParams: map[string]string{
+// 			"apiKey":               os.Getenv("APIKEY"),
+// 			"verificationtoken":    verificationToken,
+// 			"url":                  url,
+// 			"welcomeemailtemplate": welcomeEmailTemplate,
+// 		},
+// 	}
+
+// 	response, err := httprutils.TimeoutClient.Send(request)
+// 	return response, err
+// }
+
+func (lr Loginradius) GetAuthVerifyEmail(queries interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{
+		"url": true, "verificationtoken": true, "welcomeemailtemplate": true,
+	}
+
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+
+	if err != nil {
+		return nil, err
+	}
+	validatedQueries["apiKey"] = lr.Context.ApiKey
+
 	request := httprutils.Request{
 		Method: httprutils.Get,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/email",
+		URL:    lr.Domain + "/identity/v2/auth/email",
 		Headers: map[string]string{
 			"content-Type": "application/x-www-form-urlencoded",
 		},
-		QueryParams: map[string]string{
-			"apiKey":               os.Getenv("APIKEY"),
-			"verificationtoken":    verificationToken,
-			"url":                  url,
-			"welcomeemailtemplate": welcomeEmailTemplate,
-		},
+		QueryParams: validatedQueries,
 	}
 
 	response, err := httprutils.TimeoutClient.Send(request)

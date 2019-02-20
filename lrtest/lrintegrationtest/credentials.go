@@ -1,4 +1,4 @@
-package lrtest
+package lrintegrationtest
 
 import (
 	"log"
@@ -8,7 +8,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func SetTestCredentials() {
+func SetTestEnv() {
 	cwd, _ := os.Getwd()
 
 	err := godotenv.Load(

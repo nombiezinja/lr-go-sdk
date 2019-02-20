@@ -1,19 +1,30 @@
-package lrtest
+package lrintegrationtest
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"testing"
 	"time"
 
+	lr "bitbucket.org/nombiezinja/lr-go-sdk"
 	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
 	lrauthentication "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
 	"bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
 )
 
-func setupAccount(t *testing.T) (string, string, string, string, func(t *testing.T)) {
+func setupAccount(t *testing.T) (string, string, string, string, *lr.Loginradius, func(t *testing.T)) {
 	t.Log("Setting up test case")
-	SetTestCredentials()
+
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	loginradius, _ := lr.NewLoginradius(&cfg)
+	authlr := lraccount.Loginradius{loginradius}
 
 	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
 	testEmail := "lrtest" + timeStamp + "@mailinator.com"
@@ -22,7 +33,7 @@ func setupAccount(t *testing.T) (string, string, string, string, func(t *testing
 	phoneID := "+1" + timeStamp
 	testAccount := AccountSetup{true, true, testEmails, testEmail, username, phoneID}
 
-	response, err := lraccount.PostManageAccountCreate(testAccount)
+	response, err := lraccount.Loginradius(authlr).PostManageAccountCreate(testAccount)
 	if err != nil {
 		t.Errorf("Error calling PostManageAccountCreate from setupAccount: %v", err)
 	}
@@ -33,7 +44,7 @@ func setupAccount(t *testing.T) (string, string, string, string, func(t *testing
 		fmt.Println(err)
 	}
 
-	return phoneID, username, uid, testEmail, func(t *testing.T) {
+	return phoneID, username, uid, testEmail, loginradius, func(t *testing.T) {
 		t.Log("Tearing down test case")
 		_, err = lraccount.DeleteManageAccount(uid)
 		if err != nil {
@@ -43,9 +54,19 @@ func setupAccount(t *testing.T) (string, string, string, string, func(t *testing
 	}
 }
 
-func setupEmailVerificationAccount(t *testing.T) (string, string, string, func(t *testing.T)) {
+func setupEmailVerificationAccount(t *testing.T) (string, string, string, *lr.Loginradius, func(t *testing.T)) {
 	t.Log("Setting up test case")
-	SetTestCredentials()
+
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	loginradius, _ := lr.NewLoginradius(&cfg)
+	authlr := lrauthentication.Loginradius{loginradius}
+
 	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
 	testEmail := "lrtest" + timeStamp + "@mailinator.com"
 	testEmails := TestEmailArr{{"Primary", testEmail}}
@@ -53,7 +74,7 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, func(t
 
 	phoneID := "+" + timeStamp
 	testAccount := AccountSetup{false, false, testEmails, testEmail, username, phoneID}
-	response, err := lraccount.PostManageAccountCreate(testAccount)
+	response, err := lraccount.Loginradius(authlr).PostManageAccountCreate(testAccount)
 	user, _ := lrjson.DynamicUnmarshal(response.Body)
 	uid := user["Uid"].(string)
 	if err != nil || uid == "" {
@@ -62,7 +83,7 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, func(t
 	}
 
 	tokenGen := TestEmail{testEmail}
-	response, err = lraccount.PostManageEmailVerificationToken(tokenGen)
+	response, err = lraccount.Loginradius(authlr).PostManageEmailVerificationToken(tokenGen)
 	data, _ := lrjson.DynamicUnmarshal(response.Body)
 	token := data["VerificationToken"].(string)
 	if err != nil {
@@ -70,7 +91,7 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, func(t
 		fmt.Println(err)
 	}
 
-	return phoneID, testEmail, token, func(t *testing.T) {
+	return phoneID, testEmail, token, loginradius, func(t *testing.T) {
 		t.Log("Tearing down test case")
 		_, err2 := lraccount.DeleteManageAccount(uid)
 		if err2 != nil {
@@ -81,10 +102,16 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, func(t
 }
 
 func setupLogin(t *testing.T) (string, string, string, string, string, func(t *testing.T)) {
-	// SetTestCredentials()
-	phoneID, username, testuid, testEmail, teardownTestCase := setupAccount(t)
+	// SetTestEnv()
+	// cfg := lr.Config{
+	// 	ApiKey:    os.Getenv("APIKEY"),
+	// 	ApiSecret: os.Getenv("APISECRET"),
+	// }
+
+	phoneID, username, testuid, testEmail, loginradius, teardownTestCase := setupAccount(t)
+	authlr := lrauthentication.Loginradius{loginradius}
 	testLogin := TestEmailLogin{testEmail, testEmail}
-	response, err := lrauthentication.PostAuthLoginByEmail("", "", "", "", "", testLogin)
+	response, err := lrauthentication.Loginradius(authlr).PostAuthLoginByEmail(map[string]string{}, testLogin)
 	session, _ := lrjson.DynamicUnmarshal(response.Body)
 	accessToken := session["access_token"].(string)
 	if err != nil || accessToken == "" {

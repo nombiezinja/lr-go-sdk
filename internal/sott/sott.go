@@ -10,7 +10,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"time"
 
@@ -20,18 +19,17 @@ import (
 
 // Generates a SOTT through the methods described here:
 // https://docs.loginradius.com/api/v2/user-registration/sott
-func Generate() string {
-	plainText := generatePlainText()
-	tempToken := encrypt(plainText)
+func Generate(key string, secret string) string {
+	plainText := generatePlainText(key)
+	tempToken := encrypt(plainText, secret)
 	token := strings.Replace(tempToken, "-", "+", -1)
 	readyToken := strings.Replace(token, "_", "/", -1)
 	hash := getMD5Hash(readyToken)
-	retToken := readyToken + "*" + hash
-	return retToken
+	return readyToken + "*" + hash
 }
 
-func generatePlainText() string {
-	key := os.Getenv("APIKEY")
+func generatePlainText(k string) string {
+	key := k
 	initTime := time.Now().UTC().Add(time.Duration(-10) * time.Minute)
 	endTime := time.Now().UTC().Add(time.Duration(10) * time.Minute)
 	initTimestamp := fmt.Sprintf("%s %d%s", initTime.Format("2006/1/2"), initTime.Hour(), initTime.Format(":4:5"))
@@ -46,8 +44,7 @@ func pKCS5Padding(src []byte, blockSize int) []byte {
 	return append(src, padtext...)
 }
 
-func encrypt(plaintext string) string {
-	secret := os.Getenv("APISECRET")
+func encrypt(plaintext string, secret string) string {
 	initVector := "tu89geji340t89u2"
 	salt := make([]byte, 8)
 	password := pbkdf2.Key([]byte(secret), salt, 10000, 32, sha1.New)

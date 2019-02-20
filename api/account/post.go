@@ -1,8 +1,6 @@
 package lraccount
 
 import (
-	"os"
-
 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
 )
 
@@ -11,7 +9,7 @@ import (
 // In order to use this API, you need to format a JSON request body with all of the mandatory fields
 // Required post parameters are email object and password:string. Rest are optional profile parameters.
 // Pass data in struct lrbody.AccountCreate as body to help ensure parameters satisfy API requirements
-func PostManageAccountCreate(body interface{}) (*httprutils.Response, error) {
+func (lr Loginradius) PostManageAccountCreate(body interface{}) (*httprutils.Response, error) {
 	requestBody, error := httprutils.EncodeBody(body)
 	if error != nil {
 		return nil, error
@@ -19,11 +17,11 @@ func PostManageAccountCreate(body interface{}) (*httprutils.Response, error) {
 
 	request := httprutils.Request{
 		Method: httprutils.Post,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/manage/account",
+		URL:    lr.Domain + "/identity/v2/manage/account",
 		Headers: map[string]string{
 			"content-Type":            "application/json",
-			"X-LoginRadius-ApiKey":    os.Getenv("APIKEY"),
-			"X-LoginRadius-ApiSecret": os.Getenv("APISECRET"),
+			"X-LoginRadius-ApiKey":    lr.Context.ApiKey,
+			"X-LoginRadius-ApiSecret": lr.Context.ApiSecret,
 		},
 		Body: requestBody,
 	}
@@ -36,16 +34,16 @@ func PostManageAccountCreate(body interface{}) (*httprutils.Response, error) {
 // UserName workflow enabled, you may replace the 'email' parameter with 'username'.
 // Post parameter is either the username: string or the email: string
 // Pass data in struct lrbody.Username or lrbody.Email as body to help ensure parameters satisfy API requirements
-func PostManageForgotPasswordToken(body interface{}) (*httprutils.Response, error) {
+func (lr Loginradius) PostManageForgotPasswordToken(body interface{}) (*httprutils.Response, error) {
 	encoded, err := httprutils.EncodeBody(body)
 	request := httprutils.Request{
 
 		Method: httprutils.Post,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/manage/account/forgot/token",
+		URL:    lr.Domain + "/identity/v2/manage/account/forgot/token",
 		Headers: map[string]string{
 			"content-Type":            "application/json",
-			"X-LoginRadius-ApiKey":    os.Getenv("APIKEY"),
-			"X-LoginRadius-ApiSecret": os.Getenv("APISECRET"),
+			"X-LoginRadius-ApiKey":    lr.Context.ApiKey,
+			"X-LoginRadius-ApiSecret": lr.Context.ApiSecret,
 		},
 		Body: encoded,
 	}
@@ -57,15 +55,15 @@ func PostManageForgotPasswordToken(body interface{}) (*httprutils.Response, erro
 // PostManageEmailVerificationToken Returns an Email Verification token.
 // Post parameter is the email: string
 // Pass data in struct lrbody.EmailForVToken as body to help ensure parameters satisfy API requirements
-func PostManageEmailVerificationToken(body interface{}) (*httprutils.Response, error) {
+func (lr Loginradius) PostManageEmailVerificationToken(body interface{}) (*httprutils.Response, error) {
 	encoded, err := httprutils.EncodeBody(body)
 	request := httprutils.Request{
 		Method: httprutils.Post,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/manage/account/verify/token",
+		URL:    lr.Domain + "/identity/v2/manage/account/verify/token",
 		Headers: map[string]string{
 			"content-Type":            "application/json",
-			"X-LoginRadius-ApiKey":    os.Getenv("APIKEY"),
-			"X-LoginRadius-ApiSecret": os.Getenv("APISECRET"),
+			"X-LoginRadius-ApiKey":    lr.Context.ApiKey,
+			"X-LoginRadius-ApiSecret": lr.Context.ApiSecret,
 		},
 		Body: encoded,
 	}
