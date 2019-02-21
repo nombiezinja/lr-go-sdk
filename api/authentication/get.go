@@ -76,34 +76,26 @@ func (lr Loginradius) GetAuthPrivatePolicyAccept() (*httprutils.Response, error)
 }
 
 // GetAuthSendWelcomeEmail sends the welcome email.
+// Queries are optional and can be passed as variadic argument
 func (lr Loginradius) GetAuthSendWelcomeEmail(queries ...interface{}) (*httprutils.Response, error) {
-	// tokenHeader := "Bearer " + token
-	// request := httprutils.Request{
-	// 	Method: httprutils.Get,
-	// 	URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/account/sendwelcomeemail",
-	// 	Headers: map[string]string{
-	// 		"content-Type":  "application/x-www-form-urlencoded",
-	// 		"Authorization": tokenHeader,
-	// 	},
-	// 	QueryParams: map[string]string{
-	// 		"apiKey":               os.Getenv("APIKEY"),
-	// 		"welcomeemailtemplate": welcomeEmailTemplate,
-	// 	},
-	// }
 	request, err := lr.NewAuthGetReqWithAccessToken("/identity/v2/auth/account/sendwelcomeemail")
 	if err != nil {
 		return nil, err
 	}
 
-	allowedQueries := map[string]bool{"welcomeemailtemplate": true}
-	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
-	if err != nil {
-		return nil, err
+	// fmt.Printf("%+v", request)
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{"welcomeemailtemplate": true}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
+
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			request.QueryParams[k] = v
+		}
 	}
-	for k, v := range validatedQueries {
-		request.QueryParams[k] = v
-	}
-	fmt.Printf("%+v", request)
+
 	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }

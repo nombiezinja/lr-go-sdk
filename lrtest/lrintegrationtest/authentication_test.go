@@ -238,14 +238,25 @@ func TestGetAuthPrivatePolicyAccept(t *testing.T) {
 func TestGetAuthSendWelcomeEmail(t *testing.T) {
 	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSendWelcomeEmail(map[string]string{"welcomemailtoken": "hello"})
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSendWelcomeEmail(map[string]string{"welcomeemailtemplate": "hello"})
 
 	if err != nil {
-		t.Errorf("Error making GetAuthSendWelcomeEmail call: %v", err)
+		t.Errorf("Error making GetAuthSendWelcomeEmail call with optional argument: %v", err)
 	}
 	data, err := lrjson.DynamicUnmarshal(res.Body)
 	if err != nil || !data["IsPosted"].(bool) {
 		t.Errorf("Error returned from GetAuthSendWelcomeEmail call: %v", err)
+	}
+
+	res, err = lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSendWelcomeEmail(map[string]string{"wrong argument": "hello"})
+
+	if err == nil {
+		t.Errorf("Optional argument validation was supposed to return error, did not return error")
+	}
+
+	res, err = lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSendWelcomeEmail()
+	if err != nil {
+		t.Errorf("Error making GetAuthSendWelcomeEmail call with no optional argument: %v", err)
 	}
 }
 
