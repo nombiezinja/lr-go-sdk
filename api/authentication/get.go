@@ -14,7 +14,7 @@ import (
 // LoginRadius Dashboard's Email Workflow settings under 'Verification Email'.
 func (lr Loginradius) GetAuthVerifyEmail(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{
-		"url": true, "verificationtoken": true, "welcomeemailtemplate": true,
+		"url": true, "verificationtoken": true,
 	}
 	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
 	if err != nil {
@@ -22,14 +22,8 @@ func (lr Loginradius) GetAuthVerifyEmail(queries interface{}) (*httprutils.Respo
 	}
 	validatedQueries["apiKey"] = lr.Context.ApiKey
 
-	request := httprutils.Request{
-		Method:      httprutils.Get,
-		URL:         lr.Domain + "/identity/v2/auth/email",
-		Headers:     httprutils.URLEncodedHeader,
-		QueryParams: validatedQueries,
-	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+	request := lr.NewAuthGetReq("/identity/v2/auth/email", validatedQueries)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
@@ -42,14 +36,8 @@ func (lr Loginradius) GetAuthCheckEmailAvailability(queries interface{}) (*httpr
 	}
 	validatedQueries["apiKey"] = lr.Context.ApiKey
 
-	request := httprutils.Request{
-		Method:      httprutils.Get,
-		URL:         lr.Domain + "/identity/v2/auth/email",
-		Headers:     httprutils.URLEncodedHeader,
-		QueryParams: validatedQueries,
-	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+	request := lr.NewAuthGetReq("/identity/v2/auth/email", validatedQueries)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
@@ -62,73 +50,61 @@ func (lr Loginradius) GetAuthCheckUsernameAvailability(queries interface{}) (*ht
 	}
 	validatedQueries["apiKey"] = lr.Context.ApiKey
 
-	request := httprutils.Request{
-		Method:      httprutils.Get,
-		URL:         lr.Domain + "/identity/v2/auth/username",
-		Headers:     httprutils.URLEncodedHeader,
-		QueryParams: validatedQueries,
-	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+	request := lr.NewAuthGetReq("/identity/v2/auth/username", validatedQueries)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
 // GetAuthReadProfilesByToken retrieves a copy of the user data based on the access_token.
-func GetAuthReadProfilesByToken(token string) (*httprutils.Response, error) {
-	tokenHeader := "Bearer " + token
-	request := httprutils.Request{
-		Method: httprutils.Get,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/account",
-		Headers: map[string]string{
-			"content-Type":  "application/x-www-form-urlencoded",
-			"Authorization": tokenHeader,
-		},
-		QueryParams: map[string]string{
-			"apiKey": os.Getenv("APIKEY"),
-		},
+func (lr Loginradius) GetAuthReadProfilesByToken() (*httprutils.Response, error) {
+	request, err := lr.NewAuthGetReqWithAccessToken("/identity/v2/auth/account")
+	if err != nil {
+		return nil, err
 	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
-// GetAuthPrivatePolicyAccept is used update the privacy policy stored in the user's profile
-// by providing the access_token of the user accepting the privacy policy.
-func GetAuthPrivatePolicyAccept(token string) (*httprutils.Response, error) {
-	tokenHeader := "Bearer " + token
-	request := httprutils.Request{
-		Method: httprutils.Get,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/privacypolicy/accept",
-		Headers: map[string]string{
-			"content-Type":  "application/x-www-form-urlencoded",
-			"Authorization": tokenHeader,
-		},
-		QueryParams: map[string]string{
-			"apiKey": os.Getenv("APIKEY"),
-		},
+// GetAuthPrivatePolicyAccept is used update the privacy policy stored in the user's profile based on user's access token
+func (lr Loginradius) GetAuthPrivatePolicyAccept() (*httprutils.Response, error) {
+	request, err := lr.NewAuthGetReqWithAccessToken("/identity/v2/auth/privacypolicy/accept")
+	if err != nil {
+		return nil, err
 	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
-// // GetAuthSendWelcomeEmail will send the welcome email.
-func GetAuthSendWelcomeEmail(welcomeEmailTemplate, token string) (*httprutils.Response, error) {
-	tokenHeader := "Bearer " + token
-	request := httprutils.Request{
-		Method: httprutils.Get,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/account/sendwelcomeemail",
-		Headers: map[string]string{
-			"content-Type":  "application/x-www-form-urlencoded",
-			"Authorization": tokenHeader,
-		},
-		QueryParams: map[string]string{
-			"apiKey":               os.Getenv("APIKEY"),
-			"welcomeemailtemplate": welcomeEmailTemplate,
-		},
+// GetAuthSendWelcomeEmail sends the welcome email.
+func (lr Loginradius) GetAuthSendWelcomeEmail(queries ...interface{}) (*httprutils.Response, error) {
+	// tokenHeader := "Bearer " + token
+	// request := httprutils.Request{
+	// 	Method: httprutils.Get,
+	// 	URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/account/sendwelcomeemail",
+	// 	Headers: map[string]string{
+	// 		"content-Type":  "application/x-www-form-urlencoded",
+	// 		"Authorization": tokenHeader,
+	// 	},
+	// 	QueryParams: map[string]string{
+	// 		"apiKey":               os.Getenv("APIKEY"),
+	// 		"welcomeemailtemplate": welcomeEmailTemplate,
+	// 	},
+	// }
+	request, err := lr.NewAuthGetReqWithAccessToken("/identity/v2/auth/account/sendwelcomeemail")
+	if err != nil {
+		return nil, err
 	}
 
-	response, err := httprutils.TimeoutClient.Send(request)
+	allowedQueries := map[string]bool{"welcomeemailtemplate": true}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range validatedQueries {
+		request.QueryParams[k] = v
+	}
+	fmt.Printf("%+v", request)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 

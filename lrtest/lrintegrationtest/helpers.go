@@ -101,7 +101,7 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, *lr.Lo
 	}
 }
 
-func setupLogin(t *testing.T) (string, string, string, string, string, func(t *testing.T)) {
+func setupLogin(t *testing.T) (string, string, string, string, string, *lr.Loginradius, func(t *testing.T)) {
 	// SetTestEnv()
 	// cfg := lr.Config{
 	// 	ApiKey:    os.Getenv("APIKEY"),
@@ -118,7 +118,8 @@ func setupLogin(t *testing.T) (string, string, string, string, string, func(t *t
 		t.Errorf("Error logging in")
 		fmt.Println(err)
 	}
-	return phoneID, username, testuid, testEmail, accessToken, func(t *testing.T) {
+	loginradius.Context.Token = accessToken
+	return phoneID, username, testuid, testEmail, accessToken, loginradius, func(t *testing.T) {
 		defer teardownTestCase(t)
 	}
 }

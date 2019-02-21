@@ -191,60 +191,63 @@ func TestGetAuthCheckEmailAvailability(t *testing.T) {
 	}
 }
 
-// func TestGetAuthCheckUsernameAvailability(t *testing.T) {
-// 	_, username, _, _, teardownTestCase := setupAccount(t)
-// 	defer teardownTestCase(t)
-// 	res, err := lrauthentication.GetAuthCheckUsernameAvailability(username)
-// 	if err != nil {
-// 		t.Errorf("Error making GetAuthCheckUsernameAvailability call: %v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || !data["IsExist"].(bool) {
-// 		t.Errorf("Error returned from GetAuthCheckUsernameAvailability call: %v", err)
-// 	}
-// }
+func TestGetAuthCheckUsernameAvailability(t *testing.T) {
+	_, username, _, _, loginradius, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{loginradius}).GetAuthCheckUsernameAvailability(map[string]string{"username": username})
 
-// func TestGetAuthReadProfilesByToken(t *testing.T) {
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	res, err := lrauthentication.GetAuthReadProfilesByToken(accessToken)
-// 	if err != nil {
-// 		t.Errorf("Error making GetAuthReadProfilesByToken call: %v", err)
-// 	}
-// 	profile, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || profile["Uid"].(string) == "" {
-// 		t.Errorf("Error returned from GetAuthReadProfilesByToken call: %v", err)
-// 	}
-// }
+	if err != nil {
+		t.Errorf("Error making GetAuthCheckUsernameAvailability call: %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !data["IsExist"].(bool) {
+		t.Errorf("Error returned from GetAuthCheckUsernameAvailability call: %v", err)
+	}
+}
+
+func TestGetAuthReadProfilesByToken(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthReadProfilesByToken()
+	if err != nil {
+		t.Errorf("Error making GetAuthReadProfilesByToken call: %v", err)
+	}
+	profile, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || profile["Uid"].(string) == "" {
+		t.Errorf("Error returned from GetAuthReadProfilesByToken call: %v", err)
+	}
+}
 
 // // Test will fail if the feature Privacy Policy Versioning is not enabled through the dashboard
 // // To run test, comment out t.SkipNow()
-// func TestGetAuthPrivatePolicyAccept(t *testing.T) {
-// 	t.SkipNow()
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	res, err := lrauthentication.GetAuthPrivatePolicyAccept(accessToken)
-// 	if err != nil {
-// 		t.Errorf("Error making GetAuthPrivatePolicyAccept call: %v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || data["Uid"].(string) == "" {
-// 		t.Errorf("Error returned from GetAuthPrivatePolicyAccept call: %v", err)
-// 	}
-// }
+func TestGetAuthPrivatePolicyAccept(t *testing.T) {
+	// t.SkipNow()
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	// res, err := lrauthentication.GetAuthPrivatePolicyAccept(accessToken)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthPrivatePolicyAccept()
+	if err != nil {
+		t.Errorf("Error making GetAuthPrivatePolicyAccept call: %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || data["Uid"].(string) == "" {
+		t.Errorf("Error returned from GetAuthPrivatePolicyAccept call: %v", err)
+	}
+}
 
-// func TestGetAuthSendWelcomeEmail(t *testing.T) {
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	res, err := lrauthentication.GetAuthSendWelcomeEmail("", accessToken)
-// 	if err != nil {
-// 		t.Errorf("Error making GetAuthSendWelcomeEmail call: %v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || !data["IsPosted"].(bool) {
-// 		t.Errorf("Error returned from GetAuthSendWelcomeEmail call: %v", err)
-// 	}
-// }
+func TestGetAuthSendWelcomeEmail(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSendWelcomeEmail(map[string]string{"welcomemailtoken": "hello"})
+
+	if err != nil {
+		t.Errorf("Error making GetAuthSendWelcomeEmail call: %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !data["IsPosted"].(bool) {
+		t.Errorf("Error returned from GetAuthSendWelcomeEmail call: %v", err)
+	}
+}
 
 // func TestGetAuthSocialIdentity(t *testing.T) {
 // 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)

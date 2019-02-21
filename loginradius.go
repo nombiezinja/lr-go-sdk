@@ -3,7 +3,6 @@ package loginradius
 import (
 	"errors"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
 	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
 )
 
@@ -22,8 +21,7 @@ type Config struct {
 type Context struct {
 	ApiKey    string
 	ApiSecret string
-
-	Request *httprutils.Request
+	Token     string
 }
 
 func NewLoginradius(cfg *Config, optionalArgs ...map[string]string) (*Loginradius, error) {
@@ -35,19 +33,18 @@ func NewLoginradius(cfg *Config, optionalArgs ...map[string]string) (*Loginradiu
 	}
 
 	ctx := Context{
-		Request: &httprutils.Request{},
+		ApiKey:    cfg.ApiKey,
+		ApiSecret: cfg.ApiSecret,
 	}
 
 	// If an access token is passed on initiation, create Auth Bearer token header
 	for _, arg := range optionalArgs {
 		if arg["token"] != "" {
-			tokenHeader := "Bearer " + arg["token"]
-			ctx.Request.Headers = map[string]string{"Authorization": tokenHeader}
+			ctx.Token = arg["token"]
+		} else {
+			ctx.Token = ""
 		}
 	}
-
-	ctx.ApiKey = cfg.ApiKey
-	ctx.ApiSecret = cfg.ApiSecret
 
 	return &Loginradius{
 		Context: &ctx,
