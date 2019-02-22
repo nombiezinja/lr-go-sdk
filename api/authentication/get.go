@@ -280,19 +280,4 @@ func (lr Loginradius) GetPasswordlessLoginVerification(queries interface{}) (*ht
 	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 
-	// request := httprutils.Request{
-	// 	Method: httprutils.Get,
-	// 	URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/login/passwordlesslogin/email",
-	// 	Headers: map[string]string{
-	// 		"content-Type": "x-www-form-urlencoded",
-	// 	},
-	// 	QueryParams: map[string]string{
-	// 		"apikey":               os.Getenv("APIKEY"),
-	// 		"welcomeemailtemplate": welcomeEmailTemplate,
-	// 		"verificationtoken":    verificationToken,
-	// 	},
-	// }
-
-	// response, err := httprutils.TimeoutClient.Send(request)
-	// return response, err
 }

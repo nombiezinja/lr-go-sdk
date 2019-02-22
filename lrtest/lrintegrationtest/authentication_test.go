@@ -691,7 +691,7 @@ func TestGetPasswordlessLoginByUsername(t *testing.T) {
 
 //Comment out t.SkipNow() and manually set verificationtoken to run test
 //verificationtoken needs to be retrieved from email inbox after
-// calling GetPasswordlessLoginByEmail or ByUsername APIs
+//calling GetPasswordlessLoginByEmail or ByUsername APIs
 func TestGetPasswordlessLoginVerification(t *testing.T) {
 	SetTestEnv()
 
