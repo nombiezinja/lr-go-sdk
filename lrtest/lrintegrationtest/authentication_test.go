@@ -1,7 +1,7 @@
 package lrintegrationtest
 
 import (
-	"fmt"
+	"encoding/json"
 	"os"
 	"strconv"
 	"testing"
@@ -12,6 +12,7 @@ import (
 	lrauthentication "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
 	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
 	"bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	"bitbucket.org/nombiezinja/lr-go-sdk/lrstruct"
 )
 
 type Email struct {
@@ -66,16 +67,14 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 
 	res, err = lraccount.GetManageAccountProfilesByEmail(testEmail)
 	if err != nil {
-		t.Errorf("Error retrieving uid of account to clean up.")
-		fmt.Println(err)
+		t.Errorf("Error retrieving uid of account to clean up: %v.", err)
 	}
 
 	profile, _ := lrjson.DynamicUnmarshal(res.Body)
 	uid := profile["Uid"].(string)
 	_, err = lraccount.DeleteManageAccount(uid)
 	if err != nil {
-		t.Errorf("Error cleaning up account.")
-		fmt.Println(err)
+		t.Errorf("Error cleaning up account: %v", err)
 	}
 }
 
@@ -260,42 +259,49 @@ func TestGetAuthSendWelcomeEmail(t *testing.T) {
 	}
 }
 
-// func TestGetAuthSocialIdentity(t *testing.T) {
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	res, err := lrauthentication.GetAuthSocialIdentity(accessToken)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		t.Errorf("Error making GetAuthSocialIdentity call")
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || data["Uid"].(string) == "" {
-// 		t.Errorf("Error returned from GetAuthSocialIdentity call")
-// 		fmt.Println(err)
-// 	}
-// }
+func TestGetAuthSocialIdentity(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSocialIdentity()
 
-// func TestGetAuthSocialIdentityFail(t *testing.T) {
-// 	SetTestCredentials()
-// 	_, err := lrauthentication.GetAuthSocialIdentity("invalidtoken")
-// 	if err == nil {
-// 		t.Errorf("Should fail but did not.")
-// 		fmt.Println(err)
-// 	}
-// }
+	if err != nil {
+		t.Errorf("Error making GetAuthSocialIdentity call: %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || data["Uid"].(string) == "" {
+		t.Errorf("Error returned from GetAuthSocialIdentity call: %v", err)
+	}
+}
 
-// func TestGetAuthValidateAccessToken(t *testing.T) {
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	res, err := lrauthentication.GetAuthValidateAccessToken(accessToken)
-// 	if err != nil {
-// 		t.Errorf("Error making GetAuthValidateAccessToken call, %v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || data["access_token"].(string) == "" {
-// 		t.Errorf("Error returned from GetAuthValidateAccessToken call %v", err)
-// 	}
-// }
+func TestGetAuthSocialIdentityFail(t *testing.T) {
+
+	SetTestEnv()
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	//initialize lrclient without access token
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSocialIdentity()
+	if err.(lrerror.Error).Code() != "MissingTokenErr" {
+		t.Errorf("TestGetAuthSocialIdentityFail Should fail with MissingTokenErr but instead got: %v, %v", res, err)
+	}
+}
+
+func TestGetAuthValidateAccessToken(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthValidateAccessToken()
+	if err != nil {
+		t.Errorf("Error making GetAuthValidateAccessToken call, %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || data["access_token"].(string) == "" {
+		t.Errorf("Error returned from GetAuthValidateAccessToken call %v", err)
+	}
+}
 
 func TestGetAuthVerifyEmail(t *testing.T) {
 	_, _, verificationToken, loginradius, teardownTestCase := setupEmailVerificationAccount(t)
@@ -310,106 +316,127 @@ func TestGetAuthVerifyEmail(t *testing.T) {
 	}
 }
 
-// func TestGetAuthInvalidateAccessToken(t *testing.T) {
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	res, err := lrauthentication.GetAuthInvalidateAccessToken(accessToken)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		t.Errorf("Error making GetAuthInvalidateAccessToken call")
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || !data["IsPosted"].(bool) {
-// 		fmt.Println(err)
-// 		t.Errorf("Error returned from GetAuthInvalidateAccessToken call")
-// 	}
-// }
+func TestGetAuthInvalidateAccessToken(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthInvalidateAccessToken()
+	if err != nil {
+		t.Errorf("Error making GetAuthInvalidateAccessToken call, %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !data["IsPosted"].(bool) {
+		t.Errorf("Error returned from GetAuthInvalidateAccessToken call, %v", err)
+	}
+}
 
-// // func TestGetAuthDeleteAccount(t *testing.T) {
+// Comment out skipnow and manually set a delete token to run test
+// Delete token must be retrieved from email inbox after calling DeleteAuthDeleteAccountEmailConfirmation with
+// an account that was manually set up
+func TestGetAuthDeleteAccount(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+	lrclient, err := lr.NewLoginradius(&cfg)
 
-// // }
+	if err != nil {
+		t.Errorf("Error initiating lrclient")
+	}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthDeleteAccount(map[string]string{"deletetoken": "064102295d22491aae48aaddb0e818c0"})
+
+	if err != nil {
+		t.Errorf("Error making GetAuthDeleteAccount call: %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !data["IsPosted"].(bool) {
+		t.Errorf("Error returned from GetAuthDeleteAccount call: %v", err)
+	}
+}
 
 // // Will return error unless security question feature is enabled
 // // Follow instructions in this document: https://docs.lrauthentication.com/api/v2/dashboard/platform-security/password-policy
-// func TestGetAuthSecurityQuestionByAccessToken(t *testing.T) {
-// 	_, _, uid, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	securityQuestion := SecurityQuestion{"Answer"}
-// 	securityTest := SecurityQuestionTest{securityQuestion}
-// 	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
-// 	if err != nil {
-// 		t.Errorf("Error setting up security question: %v", err)
-// 	}
-// 	response, err := lrauthentication.GetAuthSecurityQuestionByAccessToken(accessToken)
-// 	if err != nil {
-// 		t.Errorf("Error making GetAuthSecurityQuestionByAccessToken call: %v", err)
-// 	}
-// 	question := lrstruct.AuthSecurityQuestion{}
-// 	err = json.Unmarshal([]byte(response.Body), &question)
-// 	if err != nil || (question[0].QuestionID == "") {
-// 		t.Errorf("Error returned from GetAuthSecurityQuestionByUsername call: %v", err)
-// 	}
-// }
+func TestGetAuthSecurityQuestionByAccessToken(t *testing.T) {
+	_, _, uid, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	securityQuestion := SecurityQuestion{"Answer"}
+	securityTest := SecurityQuestionTest{securityQuestion}
+	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	if err != nil {
+		t.Errorf("Error setting up security question: %v", err)
+	}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSecurityQuestionByAccessToken()
+	if err != nil {
+		t.Errorf("Error making GetAuthSecurityQuestionByAccessToken call: %v", err)
+	}
+	question := lrstruct.AuthSecurityQuestion{}
+	err = json.Unmarshal([]byte(res.Body), &question)
+	if err != nil || (question[0].QuestionID == "") {
+		t.Errorf("Error returned from GetAuthSecurityQuestionByUsername call: %v", err)
+	}
+}
 
-// func TestGetAuthSecurityQuestionByEmail(t *testing.T) {
-// 	_, _, uid, email, _, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	securityQuestion := SecurityQuestion{"Answer"}
-// 	securityTest := SecurityQuestionTest{securityQuestion}
-// 	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
-// 	if err != nil {
-// 		t.Errorf("Error setting up security question: %v", err)
-// 	}
-// 	response, err := lrauthentication.GetAuthSecurityQuestionByEmail(email)
-// 	if err != nil {
-// 		t.Errorf("Error making GetAuthSecurityQuestionByUsername call: %v", err)
-// 	}
-// 	question := lrstruct.AuthSecurityQuestion{}
-// 	err = json.Unmarshal([]byte(response.Body), &question)
-// 	if err != nil || (question[0].QuestionID == "") {
-// 		t.Errorf("Error returned from GetAuthSecurityQuestionByUsername call: %v", err)
-// 	}
-// }
+func TestGetAuthSecurityQuestionByEmail(t *testing.T) {
+	_, _, uid, email, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	securityQuestion := SecurityQuestion{"Answer"}
+	securityTest := SecurityQuestionTest{securityQuestion}
+	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	if err != nil {
+		t.Errorf("Error setting up security question: %v", err)
+	}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSecurityQuestionByEmail(map[string]string{"email": email})
 
-// func TestGetAuthSecurityQuestionByUsername(t *testing.T) {
-// 	_, username, uid, _, _, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	securityQuestion := SecurityQuestion{"Answer"}
-// 	securityTest := SecurityQuestionTest{securityQuestion}
-// 	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
-// 	if err != nil {
-// 		t.Errorf("Error setting up security question: %v", err)
-// 	}
-// 	response, err := lrauthentication.GetAuthSecurityQuestionByUsername(username)
-// 	if err != nil {
-// 		t.Errorf("Error making GetAuthSecurityQuestionByUsername call: %v", err)
-// 	}
-// 	question := lrstruct.AuthSecurityQuestion{}
-// 	err = json.Unmarshal([]byte(response.Body), &question)
-// 	if err != nil || (question[0].QuestionID == "") {
-// 		t.Errorf("Error returned from GetAuthSecurityQuestionByUsername call: %v", err)
-// 	}
-// }
+	if err != nil {
+		t.Errorf("Error making GetAuthSecurityQuestionByUsername call: %v", err)
+	}
+	question := lrstruct.AuthSecurityQuestion{}
+	err = json.Unmarshal([]byte(res.Body), &question)
+	if err != nil || (question[0].QuestionID == "") {
+		t.Errorf("Error returned from GetAuthSecurityQuestionByUsername call: %v", err)
+	}
+}
 
-// func TestGetAuthSecurityQuestionByPhone(t *testing.T) {
-// 	phone, _, uid, _, _, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	securityQuestion := SecurityQuestion{"Answer"}
-// 	securityTest := SecurityQuestionTest{securityQuestion}
-// 	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
-// 	if err != nil {
-// 		t.Errorf("Error setting up security question: %v", err)
-// 	}
-// 	response, err := lrauthentication.GetAuthSecurityQuestionByPhone(phone)
-// 	if err != nil {
-// 		t.Errorf("Error making GetAuthSecurityQuestionByPhone call: %v", err)
-// 	}
-// 	question := lrstruct.AuthSecurityQuestion{}
-// 	err = json.Unmarshal([]byte(response.Body), &question)
-// 	if err != nil || (question[0].QuestionID == "") {
-// 		t.Errorf("Error returned from GetAuthSecurityQuestionByPhone call: %v", err)
-// 	}
-// }
+func TestGetAuthSecurityQuestionByUsername(t *testing.T) {
+	_, username, uid, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	securityQuestion := SecurityQuestion{"Answer"}
+	securityTest := SecurityQuestionTest{securityQuestion}
+	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	if err != nil {
+		t.Errorf("Error setting up security question: %v", err)
+	}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSecurityQuestionByUsername(map[string]string{"username": username})
+	if err != nil {
+		t.Errorf("Error making GetAuthSecurityQuestionByUsername call: %v", err)
+	}
+	question := lrstruct.AuthSecurityQuestion{}
+	err = json.Unmarshal([]byte(res.Body), &question)
+	if err != nil || (question[0].QuestionID == "") {
+		t.Errorf("Error returned from GetAuthSecurityQuestionByUsername call: %v", err)
+	}
+}
+
+func TestGetAuthSecurityQuestionByPhone(t *testing.T) {
+	phone, _, uid, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	securityQuestion := SecurityQuestion{"Answer"}
+	securityTest := SecurityQuestionTest{securityQuestion}
+	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	if err != nil {
+		t.Errorf("Error setting up security question: %v", err)
+	}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSecurityQuestionByPhone(map[string]string{"phone": phone})
+	if err != nil {
+		t.Errorf("Error making GetAuthSecurityQuestionByPhone call: %v", err)
+	}
+	question := lrstruct.AuthSecurityQuestion{}
+	err = json.Unmarshal([]byte(res.Body), &question)
+	if err != nil || (question[0].QuestionID == "") {
+		t.Errorf("Error returned from GetAuthSecurityQuestionByPhone call: %v", err)
+	}
+}
 
 // func TestPutAuthChangePassword(t *testing.T) {
 // 	_, _, _, email, accessToken, teardownTestCase := setupLogin(t)
@@ -636,28 +663,51 @@ func TestGetAuthVerifyEmail(t *testing.T) {
 // 	}
 // }
 
-// func TestGetPasswordlessLoginByEmail(t *testing.T) {
-// 	_, _, _, email, _, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	response, err := lrauthentication.GetPasswordlessLoginByEmail(email, "", "")
-// 	if err != nil {
-// 		t.Errorf("Error making call to GetPasswordlessLoginByEmail: %+v", err)
-// 	}
-// 	posted, err := lrjson.DynamicUnmarshal(response.Body)
-// 	if err != nil || !posted["IsPosted"].(bool) {
-// 		t.Errorf("Error returned from GetPasswordlessLoginByEmail: %+v", err)
-// 	}
-// }
+func TestGetPasswordlessLoginByEmail(t *testing.T) {
+	_, _, _, email, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetPasswordlessLoginByEmail(map[string]string{"email": email})
+	if err != nil {
+		t.Errorf("Error making call to GetPasswordlessLoginByEmail: %+v", err)
+	}
+	posted, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !posted["IsPosted"].(bool) {
+		t.Errorf("Error returned from GetPasswordlessLoginByEmail: %+v", err)
+	}
+}
 
-// func TestGetPasswordlessLoginByUsername(t *testing.T) {
-// 	_, username, _, _, _, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	response, err := lrauthentication.GetPasswordlessLoginByUsername(username, "", "")
-// 	if err != nil {
-// 		t.Errorf("Error making call to GetPasswordlessLoginByUsername: %+v", err)
-// 	}
-// 	posted, err := lrjson.DynamicUnmarshal(response.Body)
-// 	if err != nil || !posted["IsPosted"].(bool) {
-// 		t.Errorf("Error returned from GetPasswordlessLoginByUsername: %+v", err)
-// 	}
-// }
+func TestGetPasswordlessLoginByUsername(t *testing.T) {
+	_, username, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetPasswordlessLoginByUsername(map[string]string{"username": username})
+	if err != nil {
+		t.Errorf("Error making call to GetPasswordlessLoginByUsername: %+v", err)
+	}
+	posted, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !posted["IsPosted"].(bool) {
+		t.Errorf("Error returned from GetPasswordlessLoginByUsername: %+v", err)
+	}
+}
+
+//Comment out t.SkipNow() and manually set verificationtoken to run test
+//verificationtoken needs to be retrieved from email inbox after
+// calling GetPasswordlessLoginByEmail or ByUsername APIs
+func TestGetPasswordlessLoginVerification(t *testing.T) {
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetPasswordlessLoginVerification(map[string]string{"verificationtoken": "7108eccb667940dcbcf6a6c31685f96a"})
+	if err != nil {
+		t.Errorf("Error making call to GetPasswordlessLoginVerification: %+v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	profile := data["Profile"].(map[string]interface{})
+	if err != nil || profile["Uid"].(string) == "" {
+		t.Errorf("Error returned from GetPasswordlessLoginVerification call: %v", err)
+	}
+}

@@ -9,7 +9,7 @@ import (
 
 // NewAuthGetRequest constructs the request for Auth api end points requiring
 // Access token in the header and ApiKey in query param
-func (lr Loginradius) NewAuthGetReqWithAccessToken(path string) (*httprutils.Request, error) {
+func (lr Loginradius) NewAuthGetReqWithAccessToken(path string, queries ...map[string]string) (*httprutils.Request, error) {
 
 	if lr.Context.Token == "" {
 		errMsg := "Must initialize Loginradius with access token for this API call."
@@ -17,7 +17,7 @@ func (lr Loginradius) NewAuthGetReqWithAccessToken(path string) (*httprutils.Req
 		return nil, err
 	}
 
-	return &httprutils.Request{
+	request := &httprutils.Request{
 		Method: httprutils.Get,
 		URL:    lr.Domain + path,
 		Headers: map[string]string{
@@ -27,7 +27,15 @@ func (lr Loginradius) NewAuthGetReqWithAccessToken(path string) (*httprutils.Req
 		QueryParams: map[string]string{
 			"apiKey": lr.Context.ApiKey,
 		},
-	}, nil
+	}
+
+	for _, q := range queries {
+		for k, v := range q {
+			request.QueryParams[k] = v
+		}
+	}
+
+	return request, nil
 }
 
 func (lr Loginradius) NewAuthGetReq(path string, queries map[string]string) *httprutils.Request {

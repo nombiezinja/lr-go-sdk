@@ -20,7 +20,7 @@ func SprintError(code, message, extra string, origErr error) string {
 // A baseError wraps the code and message which defines an error. It also
 // can be used to wrap an original error object.
 //
-// Should be used as the root for errors satisfying the awserr.Error. Also
+// Should be used as the root for errors satisfying the lrerror.Error. Also
 // for any error which does not fit into a specific error wrapper type.
 type baseError struct {
 	// Classification of error
