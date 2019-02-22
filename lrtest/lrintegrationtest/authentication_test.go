@@ -78,31 +78,47 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 	}
 }
 
-// func TestPostAuthAddEmail(t *testing.T) {
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
+func TestPostAuthAddEmail(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
 
-// 	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
-// 	testAddEmail := TestEmailCreator{testEmail, "secondary"}
-// 	res, err := lrauthentication.PostAuthAddEmail("", "", accessToken, testAddEmail)
-// 	if err != nil {
-// 		t.Errorf("Error making PostAuthAddEmail call: %v", err)
-// 	}
-// 	success, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || !success["IsPosted"].(bool) {
-// 		t.Errorf("Error returned from PostAuthAddEmail call: %v", err)
-// 	}
-// }
+	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
+	testAddEmail := TestEmailCreator{testEmail, "secondary"}
 
-// func TestPostAuthAddEmailInvalid(t *testing.T) {
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	invalid := struct{ foo string }{"bar"}
-// 	response, err := lrauthentication.PostAuthAddEmail("", "", accessToken, invalid)
-// 	if err == nil {
-// 		t.Errorf("Should fail but did not :%v", response.Body)
-// 	}
-// }
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthAddEmail(testAddEmail)
+
+	if err != nil {
+		t.Errorf("Error making PostAuthAddEmail call: %v", err)
+	}
+	success, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !success["IsPosted"].(bool) {
+		t.Errorf("Error returned from PostAuthAddEmail call: %v", err)
+	}
+}
+
+func TestPostAuthAddEmailInvalidBody(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	invalid := struct{ foo string }{"bar"}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthAddEmail(invalid)
+
+	if err == nil {
+		t.Errorf("PostAuthAddEmail should fail but did not :%v", res.Body)
+	}
+}
+
+func TestPostAuthAddEmailInvalidQueries(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
+	testAddEmail := TestEmailCreator{testEmail, "secondary"}
+
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthAddEmail(testAddEmail, map[string]string{"wrongquery": "value"})
+
+	if err.(lrerror.Error).Code() != "ValidationError" {
+		t.Errorf("PostAuthAddEmail should fail with ValidationError but did not :%v, %+v", res.Body, err)
+	}
+}
 
 // func TestPostAuthForgotPassword(t *testing.T) {
 // 	_, _, _, testEmail, _, teardownTestCase := setupLogin(t)

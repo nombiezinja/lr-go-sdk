@@ -1,50 +1,48 @@
 package lrauthentication
 
 import (
+	"fmt"
+
 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
 	"bitbucket.org/nombiezinja/lr-go-sdk/internal/sott"
 	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
 )
 
-// import (
-// 	"fmt"
-// 	"os"
+// PostAuthAddEmail is used to add additional emails to a user's account.
+// Pass data in struct lrbody.AddEmail as body to help ensure parameters satisfy API requirements
+// Required queries: apiKey; optional queries: verificationurl, emailtemplate
+// Body params: email(string), type(string)
+func (lr Loginradius) PostAuthAddEmail(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
 
-// 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
-// 	"bitbucket.org/nombiezinja/lr-go-sdk/internal/sott"
-// )
+	request, err := lr.NewAuthPostReqWithToken("/identity/v2/auth/email", body)
+	if err != nil {
+		return nil, err
+	}
 
-// // PostAuthAddEmail is used to add additional emails to a user's account.
-// // Pass data in struct lrbody.AddEmail as body to help ensure parameters satisfy API requirements
-// func PostAuthAddEmail(verificationURL, emailTemplate, token string, body interface{}) (*httprutils.Response, error) {
-// 	tokenHeader := "Bearer " + token
+	fmt.Printf("body is %+v", body)
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{
+			"verificationurl": true, "emailtemplate": true,
+		}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
 
-// 	requestBody, error := httprutils.EncodeBody(body)
-// 	if error != nil {
-// 		return nil, error
-// 	}
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			request.QueryParams[k] = v
+		}
+	}
 
-// 	request := httprutils.Request{
-// 		Method: httprutils.Post,
-// 		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/email",
-// 		Headers: map[string]string{
-// 			"content-Type":  "application/json",
-// 			"Authorization": tokenHeader,
-// 		},
-// 		QueryParams: map[string]string{
-// 			"apiKey": os.Getenv("APIKEY"),
-// 		},
-// 		Body: requestBody,
-// 	}
+	fmt.Println(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
+	return response, err
+}
 
-// 	response, err := httprutils.TimeoutClient.Send(request)
-// 	return response, err
-// }
-
-// // PostAuthForgotPassword is used to send the reset password url to a specified account.
-// // Note: If you have the UserName workflow enabled, you may replace the 'email' parameter with 'username'
-// // Post parameter is email: string
-// // Pass data in struct lrbody.EmailStr as body to help ensure parameters satisfy API requirements
+// PostAuthForgotPassword is used to send the reset password url to a specified account.
+// Note: If you have the UserName workflow enabled, you may replace the 'email' parameter with 'username'
+// Post parameter is email: string
+// Pass data in struct lrbody.EmailStr as body to help ensure parameters satisfy API requirements
 // func PostAuthForgotPassword(resetPasswordURL, emailTemplate string, body interface{}) (*httprutils.Response, error) {
 // 	requestBody, error := httprutils.EncodeBody(body)
 // 	if error != nil {
