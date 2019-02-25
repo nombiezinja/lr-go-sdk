@@ -38,6 +38,7 @@ func setupAccount(t *testing.T) (string, string, string, string, *lr.Loginradius
 		t.Errorf("Error calling PostManageAccountCreate from setupAccount: %v", err)
 	}
 	user, err := lrjson.DynamicUnmarshal(response.Body)
+	fmt.Println("user created", user)
 	uid := user["Uid"].(string)
 	if err != nil || uid == "" {
 		t.Errorf("Error creating account")
@@ -111,7 +112,10 @@ func setupLogin(t *testing.T) (string, string, string, string, string, *lr.Login
 	phoneID, username, testuid, testEmail, loginradius, teardownTestCase := setupAccount(t)
 	authlr := lrauthentication.Loginradius{loginradius}
 	testLogin := TestEmailLogin{testEmail, testEmail}
-	response, err := lrauthentication.Loginradius(authlr).PostAuthLoginByEmail(map[string]string{}, testLogin)
+	fmt.Println("testemail", testEmail)
+	response, err := lrauthentication.Loginradius(authlr).PostAuthLoginByEmail(testLogin, map[string]string{})
+	fmt.Println("response", response)
+	fmt.Println("err", err)
 	session, _ := lrjson.DynamicUnmarshal(response.Body)
 	accessToken := session["access_token"].(string)
 	if err != nil || accessToken == "" {
