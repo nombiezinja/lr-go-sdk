@@ -85,7 +85,7 @@ func TestPostAuthAddEmail(t *testing.T) {
 	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
 	testAddEmail := TestEmailCreator{testEmail, "secondary"}
 
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthAddEmail(testAddEmail)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{Client: lrclient}).PostAuthAddEmail(testAddEmail)
 
 	if err != nil {
 		t.Errorf("Error making PostAuthAddEmail call: %v", err)

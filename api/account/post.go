@@ -18,11 +18,11 @@ func (lr Loginradius) PostManageAccountCreate(body interface{}) (*httprutils.Res
 
 	request := httprutils.Request{
 		Method: httprutils.Post,
-		URL:    lr.Domain + "/identity/v2/manage/account",
+		URL:    lr.Client.Domain + "/identity/v2/manage/account",
 		Headers: map[string]string{
 			"content-Type":            "application/json",
-			"X-LoginRadius-ApiKey":    lr.Context.ApiKey,
-			"X-LoginRadius-ApiSecret": lr.Context.ApiSecret,
+			"X-LoginRadius-ApiKey":    lr.Client.Context.ApiKey,
+			"X-LoginRadius-ApiSecret": lr.Client.Context.ApiSecret,
 		},
 		Body: requestBody,
 	}
@@ -40,11 +40,11 @@ func (lr Loginradius) PostManageForgotPasswordToken(body interface{}) (*httpruti
 	request := httprutils.Request{
 
 		Method: httprutils.Post,
-		URL:    lr.Domain + "/identity/v2/manage/account/forgot/token",
+		URL:    lr.Client.Domain + "/identity/v2/manage/account/forgot/token",
 		Headers: map[string]string{
 			"content-Type":            "application/json",
-			"X-LoginRadius-ApiKey":    lr.Context.ApiKey,
-			"X-LoginRadius-ApiSecret": lr.Context.ApiSecret,
+			"X-LoginRadius-ApiKey":    lr.Client.Context.ApiKey,
+			"X-LoginRadius-ApiSecret": lr.Client.Context.ApiSecret,
 		},
 		Body: encoded,
 	}
@@ -60,11 +60,11 @@ func (lr Loginradius) PostManageEmailVerificationToken(body interface{}) (*httpr
 	encoded, err := httprutils.EncodeBody(body)
 	request := httprutils.Request{
 		Method: httprutils.Post,
-		URL:    lr.Domain + "/identity/v2/manage/account/verify/token",
+		URL:    lr.Client.Domain + "/identity/v2/manage/account/verify/token",
 		Headers: map[string]string{
 			"content-Type":            "application/json",
-			"X-LoginRadius-ApiKey":    lr.Context.ApiKey,
-			"X-LoginRadius-ApiSecret": lr.Context.ApiSecret,
+			"X-LoginRadius-ApiKey":    lr.Client.Context.ApiKey,
+			"X-LoginRadius-ApiSecret": lr.Client.Context.ApiSecret,
 		},
 		Body: encoded,
 	}

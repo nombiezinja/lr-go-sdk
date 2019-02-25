@@ -26,6 +26,7 @@ func setupAccount(t *testing.T) (string, string, string, string, *lr.Loginradius
 	loginradius, _ := lr.NewLoginradius(&cfg)
 	authlr := lraccount.Loginradius{loginradius}
 
+	fmt.Println(&authlr)
 	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
 	testEmail := "lrtest" + timeStamp + "@mailinator.com"
 	testEmails := TestEmailArr{{"Primary", testEmail}, {"Secondary", "1" + testEmail}}
@@ -65,7 +66,7 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, *lr.Lo
 	}
 
 	loginradius, _ := lr.NewLoginradius(&cfg)
-	authlr := lrauthentication.Loginradius{loginradius}
+	authlr := lrauthentication.Loginradius{Client: loginradius}
 
 	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
 	testEmail := "lrtest" + timeStamp + "@mailinator.com"

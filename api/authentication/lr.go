@@ -6,5 +6,5 @@ import (
 
 // Embed Loginradius struct
 type Loginradius struct {
-	*lr.Loginradius
+	Client *lr.Loginradius
 }

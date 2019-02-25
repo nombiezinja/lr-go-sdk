@@ -1,4 +1,4 @@
-package lrauthentication
+package loginradius
 
 import (
 	"errors"
