@@ -2,6 +2,7 @@ package lrvalidate
 
 import (
 	"errors"
+	"fmt"
 
 	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
 )
@@ -10,10 +11,12 @@ import (
 // It returns a map[string]string if type assertion is successful and all params are validated
 // It returns an error if the submitted params cannot be type asserted into map[string]string, or if the submitted params contain keys that is not included in the allowed map[string]bool
 func Validate(allowed map[string]bool, params interface{}) (map[string]string, error) {
+	fmt.Println("params are", params)
 	asserted, ok := params.(map[string]string)
 
 	if !ok {
-		err := lrerror.New("ValidationError", "Error validating params - params type error", errors.New("Error validating params"))
+		errMsg := fmt.Sprintf("Error validating params: %+v:", params)
+		err := lrerror.New("ValidationError", "Error validating params - params type error", errors.New(errMsg))
 		return nil, err
 	}
 

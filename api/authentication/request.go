@@ -81,3 +81,31 @@ func (lr Loginradius) NewAuthPostReqWithToken(path string, body interface{}, que
 
 	return request, nil
 }
+
+func (lr Loginradius) NewAuthPostReq(path string, body interface{}, queries ...map[string]string) (*httprutils.Request, error) {
+
+	encodedBody, error := httprutils.EncodeBody(body)
+	if error != nil {
+		return nil, error
+	}
+
+	request := &httprutils.Request{
+		Method: httprutils.Post,
+		URL:    lr.Domain + path,
+		Headers: map[string]string{
+			"content-Type": "application/json",
+		},
+		QueryParams: map[string]string{
+			"apiKey": lr.Context.ApiKey,
+		},
+		Body: encodedBody,
+	}
+
+	for _, q := range queries {
+		for k, v := range q {
+			request.QueryParams[k] = v
+		}
+	}
+
+	return request, nil
+}

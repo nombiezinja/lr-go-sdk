@@ -110,78 +110,108 @@ func TestPostAuthAddEmailInvalidBody(t *testing.T) {
 func TestPostAuthAddEmailInvalidQueries(t *testing.T) {
 	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
-	testAddEmail := TestEmailCreator{testEmail, "secondary"}
+	generated := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
+	email := TestEmailCreator{generated, "secondary"}
 
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthAddEmail(testAddEmail, map[string]string{"wrongquery": "value"})
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthAddEmail(email, map[string]string{"wrongquery": "value"})
 
 	if err.(lrerror.Error).Code() != "ValidationError" {
 		t.Errorf("PostAuthAddEmail should fail with ValidationError but did not :%v, %+v", res.Body, err)
 	}
 }
 
-// func TestPostAuthForgotPassword(t *testing.T) {
-// 	_, _, _, testEmail, _, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	testForgotPass := TestEmail{testEmail}
-// 	res, err := lrauthentication.PostAuthForgotPassword("resetpassword.com", "", testForgotPass)
-// 	if err != nil {
-// 		t.Errorf("Error making PostAuthForgotPassword call: %v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || !data["IsPosted"].(bool) {
-// 		t.Errorf("Error returned from PostAuthForgotPassword call: %v", err)
-// 	}
-// }
+func TestPostAuthForgotPassword(t *testing.T) {
+	_, _, _, testEmail, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	email := TestEmail{testEmail}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthForgotPassword(email, map[string]string{"resetpasswordurl": "resetpassword.com"})
+	if err != nil {
+		t.Errorf("Error making PostAuthForgotPassword call: %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !data["IsPosted"].(bool) {
+		t.Errorf("Error returned from PostAuthForgotPassword call: %v", err)
+	}
+}
 
-// func TestPostAuthForgotPasswordInvalid(t *testing.T) {
-// 	_, _, _, _, _, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	invalid := struct{ foo string }{"bar"}
-// 	response, err := lrauthentication.PostAuthForgotPassword("resetpassword.com", "", invalid)
-// 	if err == nil {
-// 		t.Errorf("Should fail but did not: %v", response.Body)
-// 	}
-// }
+func TestPostAuthForgotPasswordInvalidQUery(t *testing.T) {
+	_, _, _, testEmail, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	email := TestEmail{testEmail}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthForgotPassword(email, map[string]string{"wrongqueryname": "www.example.com"})
+	if err.(lrerror.Error).Code() != "ValidationError" {
+		t.Errorf("PostAuthForgotPassword should fail with ValidationError but did not :%v, %+v", res.Body, err)
+	}
+}
 
-// func TestPostAuthLoginByEmail(t *testing.T) {
-// 	_, _, _, testEmail, teardownTestCase := setupAccount(t)
-// 	defer teardownTestCase(t)
-// 	testLogin := TestEmailLogin{testEmail, testEmail}
-// 	res, err := lrauthentication.PostAuthLoginByEmail("", "", "", "", "", testLogin)
-// 	if err != nil {
-// 		t.Errorf("Error making PostAuthLoginByEmail call: %v", err)
-// 	}
-// 	session, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || session["access_token"].(string) == "" {
-// 		t.Errorf("Error returned from PostAuthLoginByEmail call: %v", err)
-// 	}
-// }
+func TestPostAuthForgotPasswordInvalid(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	invalid := struct{ foo string }{"bar"}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthForgotPassword(invalid, map[string]string{"resetpasswordurl": "www.example.com"})
+	if err.(lrerror.Error).Code() != "LoginradiusRespondedWithError" {
+		t.Errorf("PostAuthForgotPassword should fail with LoginradiusRespondedWithError but did not :%v, %+v", res.Body, err)
+	}
+}
 
-// func TestPostAuthLoginByEmailInvalid(t *testing.T) {
-// 	_, _, _, _, teardownTestCase := setupAccount(t)
-// 	defer teardownTestCase(t)
-// 	invalid := struct{ foo string }{"bar"}
-// 	response, err := lrauthentication.PostAuthLoginByEmail("", "", "", "", "", invalid)
-// 	if err == nil {
-// 		t.Errorf("Should fail but did not: %v", response.Body)
-// 	}
-// }
+func TestPostAuthLoginByEmail(t *testing.T) {
+	_, _, _, testEmail, lrclient, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	testLogin := TestEmailLogin{testEmail, testEmail}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthLoginByEmail(testLogin)
+	if err != nil {
+		t.Errorf("Error making PostAuthLoginByEmail call: %v", err)
+	}
+	session, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || session["access_token"].(string) == "" {
+		t.Errorf("Error returned from PostAuthLoginByEmail call: %v", err)
+	}
 
-// func TestPostAuthLoginByUsername(t *testing.T) {
-// 	_, userName, _, testEmail, teardownTestCase := setupAccount(t)
-// 	defer teardownTestCase(t)
+	res, err = lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthLoginByEmail(testLogin, map[string]string{"emailtemplate": "hello"})
 
-// 	testLogin := TestUsernameLogin{userName, testEmail}
-// 	res, err := lrauthentication.PostAuthLoginByUsername("", "", "", "", "", testLogin)
-// 	if err != nil {
-// 		t.Errorf("Error making PostAuthLoginByUsername call: %v", err)
-// 	}
-// 	session, err := lrjson.DynamicUnmarshal(res.Body)
-// 	if err != nil || session["access_token"].(string) == "" {
-// 		t.Errorf("Error returned from PostAuthLoginByUsername call: %v", err)
-// 	}
-// }
+	if err != nil {
+		t.Errorf("Error making PostAuthLoginByEmail call with optional queries: %v", err)
+	}
+	session, err = lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || session["access_token"].(string) == "" {
+		t.Errorf("Error returned from PostAuthLoginByEmail call with optional queries: %v", err)
+	}
+}
+
+func TestPostAuthLoginByEmailInvalidBody(t *testing.T) {
+	_, _, _, _, lrclient, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	invalid := struct{ foo string }{"bar"}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthLoginByEmail(invalid)
+	if err.(lrerror.Error).Code() != "LoginradiusRespondedWithError" {
+		t.Errorf("PostAuthLoginByEmail should fail with LoginradiusRespondedWithError but did not: %v", res.Body)
+	}
+}
+
+func TestPostAuthLoginByEmailInvalidQuery(t *testing.T) {
+	_, _, _, email, lrclient, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	user := TestEmailLogin{email, email}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthLoginByEmail(user, map[string]string{"invalidparam": "value"})
+	if err.(lrerror.Error).Code() != "ValidationError" {
+		t.Errorf("PostAuthLoginByEmail should fail with ValidationError but did not :%v, %+v", res.Body, err)
+	}
+}
+
+func TestPostAuthLoginByUsername(t *testing.T) {
+	_, userName, _, testEmail, lrclient, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+
+	testLogin := TestUsernameLogin{userName, testEmail}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthLoginByUsername(testLogin)
+	if err != nil {
+		t.Errorf("Error making PostAuthLoginByUsername call: %v", err)
+	}
+	session, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || session["access_token"].(string) == "" {
+		t.Errorf("Error returned from PostAuthLoginByUsername call: %v", err)
+	}
+}
 
 // func TestPostAuthLoginByUsernameInvalid(t *testing.T) {
 // 	_, _, _, _, teardownTestCase := setupAccount(t)
