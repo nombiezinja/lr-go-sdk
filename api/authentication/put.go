@@ -149,117 +149,42 @@ func PutAuthResetPasswordByOTP(body interface{}) (*httprutils.Response, error) {
 }
 
 // PutAuthResetPasswordBySecurityAnswerAndEmail is used to reset password for the specified account by security question.
-// Post parameters are the password: string, email: string, securityanswer: string
-// and optional resetpasswordemailtemplate: string
+// Required post parameters - password: string; email: string; securityanswer: string
+// Optional post parameters: resetpasswordemailtemplate: string
+// Required query parameter: apiKey
 // Pass data in struct lrbody.ResetPwSecurityQuestionEmail as body to help ensure parameters satisfy API requirements
-func PutAuthResetPasswordBySecurityAnswerAndEmail(body interface{}) (*httprutils.Response, error) {
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
-	}
-
-	request := httprutils.Request{
-		Method: httprutils.Put,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/password/securityanswer",
-		Headers: map[string]string{
-			"content-Type": "application/json",
-		},
-		QueryParams: map[string]string{
-			"apikey": os.Getenv("APIKEY"),
-		},
-		Body: requestBody,
-	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+func (lr Loginradius) PutAuthResetPasswordBySecurityAnswerAndEmail(body interface{}) (*httprutils.Response, error) {
+	request, err := lr.Client.NewPutReq("/identity/v2/auth/password/securityanswer", body)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
 // PutAuthResetPasswordBySecurityAnswerAndPhone is used to reset password for the specified account by security question.
-// Post parameters are the password: string, phone: string, securityanswer: string
-// and optional resetpasswordemailtemplate: string
+// Required post parameters - password: string; email: string; securityanswer: string
+// Optional post parameters: resetpasswordemailtemplate: string
+// Required query parameter: apiKey
 // Pass data in struct lrbody.ResetPwSecurityQuestionPhone as body to help ensure parameters satisfy API requirements
-func PutAuthResetPasswordBySecurityAnswerAndPhone(body interface{}) (*httprutils.Response, error) {
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
-	}
-
-	request := httprutils.Request{
-		Method: httprutils.Put,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/password/securityanswer",
-		Headers: map[string]string{
-			"content-Type": "application/json",
-		},
-		QueryParams: map[string]string{
-			"apikey": os.Getenv("APIKEY"),
-		},
-		Body: requestBody,
-	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+func (lr Loginradius) PutAuthResetPasswordBySecurityAnswerAndPhone(body interface{}) (*httprutils.Response, error) {
+	request, err := lr.Client.NewPutReq("/identity/v2/auth/password/securityanswer", body)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
 // PutAuthResetPasswordBySecurityAnswerAndUsername is used to reset password for the specified account by security question.
-// Post parameters are the password: string, username: string, securityanswer: string
-// and optional resetpasswordemailtemplate: string
+// Required post parameters - password: string; email: string; securityanswer: string
+// Optional post parameters: resetpasswordemailtemplate: string
+// Required query parameter: apiKey
 // Pass data in struct lrbody.ResetPwSecurityQuestionusername as body to help ensure parameters satisfy API requirements
-func PutAuthResetPasswordBySecurityAnswerAndUsername(body interface{}) (*httprutils.Response, error) {
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
-	}
-
-	request := httprutils.Request{
-		Method: httprutils.Put,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/password/securityanswer",
-		Headers: map[string]string{
-			"content-Type": "application/json",
-		},
-		QueryParams: map[string]string{
-			"apikey": os.Getenv("APIKEY"),
-		},
-		Body: requestBody,
-	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+func (lr Loginradius) PutAuthResetPasswordBySecurityAnswerAndUsername(body interface{}) (*httprutils.Response, error) {
+	request, err := lr.Client.NewPutReq("/identity/v2/auth/password/securityanswer", body)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
 // PutAuthSetOrChangeUsername is used to set or change UserName by access token.
 // Post parameter is username: string
 // Pass data in struct lrbody.AuthUsername as body to help ensure parameters satisfy API requirements
-func PutAuthSetOrChangeUsername(token string, body interface{}) (*httprutils.Response, error) {
-	tokenHeader := "Bearer " + token
-
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
-	}
-
-	request := httprutils.Request{
-		Method: httprutils.Put,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/username",
-		Headers: map[string]string{
-			"content-Type":  "application/json",
-			"Authorization": tokenHeader,
-		},
-		QueryParams: map[string]string{
-			"apikey": os.Getenv("APIKEY"),
-		},
-		Body: requestBody,
-	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
-	return response, err
-}
-
-// PutAuthUpdateProfileByToken is used to update the user's profile by passing the access_token.
-// Post parameters are fields in the profile that need to be updated
-// Pass data in struct lrbody.UpdateProfile as body to help ensure parameters satisfy API requirements
-// modify struct fields based on need
-// Required query parameter: apiKey; optional query parameters: smstemplate, emailtemplate, verificationurl
-func (lr Loginradius) PutAuthUpdateProfileByToken(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
+func (lr Loginradius) PutAuthSetOrChangeUsername(body interface{}) (*httprutils.Response, error) {
 	// tokenHeader := "Bearer " + token
 
 	// requestBody, error := httprutils.EncodeBody(body)
@@ -269,20 +194,31 @@ func (lr Loginradius) PutAuthUpdateProfileByToken(body interface{}, queries ...i
 
 	// request := httprutils.Request{
 	// 	Method: httprutils.Put,
-	// 	URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/account",
+	// 	URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/username",
 	// 	Headers: map[string]string{
 	// 		"content-Type":  "application/json",
 	// 		"Authorization": tokenHeader,
 	// 	},
 	// 	QueryParams: map[string]string{
-	// 		"apikey":          os.Getenv("APIKEY"),
-	// 		"verificationurl": verificationURL,
-	// 		"emailtemplate":   emailTemplate,
-	// 		"smstemplate":     smsTemplate,
+	// 		"apikey": os.Getenv("APIKEY"),
 	// 	},
 	// 	Body: requestBody,
 	// }
+	request, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/username", body)
 
+	if err != nil {
+		return nil, err
+	}
+	response, err := httprutils.TimeoutClient.Send(*request)
+	return response, err
+}
+
+// PutAuthUpdateProfileByToken is used to update the user's profile by passing the access_token.
+// Post parameters are fields in the profile that need to be updated
+// Pass data in struct lrbody.UpdateProfile as body to help ensure parameters satisfy API requirements
+// modify struct fields based on need
+// Required query parameter: apiKey; optional query parameters: smstemplate, emailtemplate, verificationurl
+func (lr Loginradius) PutAuthUpdateProfileByToken(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
 	request, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/account", body)
 	if err != nil {
 		return nil, err
@@ -307,31 +243,14 @@ func (lr Loginradius) PutAuthUpdateProfileByToken(body interface{}, queries ...i
 }
 
 // PutAuthUpdateSecurityQuestionByAccessToken is used to update security questions by the access token.
-// Body parameter is the securityquestionanswer: string
+// Required body parameter: securityquestionanswer: string
 // Pass data in struct lrbody.SecurityQuestionAnswer as body to help ensure parameters satisfy API requirements
 // For more information on this parameter, please see: https://www.loginradius.com/docs/api/v2/dashboard/platform-security/password-policy#securityquestion4
-func PutAuthUpdateSecurityQuestionByAccessToken(token string, body interface{}) (*httprutils.Response, error) {
-
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
+func (lr Loginradius) PutAuthUpdateSecurityQuestionByAccessToken(body interface{}) (*httprutils.Response, error) {
+	request, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/account", body)
+	if err != nil {
+		return nil, err
 	}
-
-	tokenHeader := "Bearer " + token
-
-	request := httprutils.Request{
-		Method: httprutils.Put,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/account",
-		Headers: map[string]string{
-			"content-Type":  "application/json",
-			"Authorization": tokenHeader,
-		},
-		QueryParams: map[string]string{
-			"apikey": os.Getenv("APIKEY"),
-		},
-		Body: requestBody,
-	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }

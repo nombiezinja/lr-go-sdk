@@ -560,70 +560,70 @@ func TestPutAuthResetPasswordByOTP(t *testing.T) {
 	t.SkipNow()
 }
 
-// func TestPutAuthResetPasswordBySecurityAnswerAndEmail(t *testing.T) {
-// 	_, _, uid, email, _, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
+func TestPutAuthResetPasswordBySecurityAnswerAndEmail(t *testing.T) {
+	_, _, uid, email, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
 
-// 	securityQuestion := SecurityQuestion{"Answer"}
-// 	securityTest := SecurityQuestionTest{securityQuestion}
-// 	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
-// 	if err != nil {
-// 		t.Errorf("Error setting up security question: %v", err)
-// 	}
+	securityQuestion := SecurityQuestion{"Answer"}
+	securityTest := SecurityQuestionTest{securityQuestion}
+	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	if err != nil {
+		t.Errorf("Error setting up security question: %v", err)
+	}
 
-// 	request := ResetWithEmailSecurity{securityQuestion, email, email + "1", ""}
-// 	response, err := lrauthentication.PutAuthResetPasswordBySecurityAnswerAndEmail(request)
-// 	if err != nil {
-// 		t.Errorf("Error making call to PutAuthResetPasswordBySecurityAnswerAndEmail: %+v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(response.Body)
-// 	if err != nil || !data["IsPosted"].(bool) {
-// 		t.Errorf("Error returned from call to PutAuthResetPasswordBySecurityAnswerAndEmail: %+v", err)
-// 	}
-// }
+	request := ResetWithEmailSecurity{securityQuestion, email, email + "1", ""}
+	response, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutAuthResetPasswordBySecurityAnswerAndEmail(request)
+	if err != nil {
+		t.Errorf("Error making call to PutAuthResetPasswordBySecurityAnswerAndEmail: %+v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(response.Body)
+	if err != nil || !data["IsPosted"].(bool) {
+		t.Errorf("Error returned from call to PutAuthResetPasswordBySecurityAnswerAndEmail: %+v", err)
+	}
+}
 
-// func TestPutAuthResetPasswordBySecurityAnswerAndUsername(t *testing.T) {
-// 	_, username, uid, email, _, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
+func TestPutAuthResetPasswordBySecurityAnswerAndUsername(t *testing.T) {
+	_, username, uid, email, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
 
-// 	securityQuestion := SecurityQuestion{"Answer"}
-// 	securityTest := SecurityQuestionTest{securityQuestion}
-// 	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
-// 	if err != nil {
-// 		t.Errorf("Error setting up security question: %v", err)
-// 	}
+	securityQuestion := SecurityQuestion{"Answer"}
+	securityTest := SecurityQuestionTest{securityQuestion}
+	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	if err != nil {
+		t.Errorf("Error setting up security question: %v", err)
+	}
 
-// 	request := ResetWithUsernameSecurity{securityQuestion, username, email + "1", ""}
-// 	response, err := lrauthentication.PutAuthResetPasswordBySecurityAnswerAndUsername(request)
-// 	if err != nil {
-// 		t.Errorf("Error making call to PutAuthResetPasswordBySecurityAnswerAndUsername: %+v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(response.Body)
-// 	if err != nil || !data["IsPosted"].(bool) {
-// 		t.Errorf("Error returned from PutAuthResetPasswordBySecurityAnswerAndUsername: %+v", err)
-// 	}
-// }
+	request := ResetWithUsernameSecurity{securityQuestion, username, email + "1", ""}
+	response, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutAuthResetPasswordBySecurityAnswerAndUsername(request)
+	if err != nil {
+		t.Errorf("Error making call to PutAuthResetPasswordBySecurityAnswerAndUsername: %+v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(response.Body)
+	if err != nil || !data["IsPosted"].(bool) {
+		t.Errorf("Error returned from PutAuthResetPasswordBySecurityAnswerAndUsername: %+v", err)
+	}
+}
 
-// func TestPutAuthSetOrChangeUsername(t *testing.T) {
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	newName := TestUsername{"newusername"}
-// 	_, err := lrauthentication.PutAuthSetOrChangeUsername(accessToken, newName)
-// 	if err != nil {
-// 		t.Errorf("Error making call to PutAuthSetOrChangeUsername: %+v", err)
-// 	}
-// 	response, err := lrauthentication.GetAuthReadProfilesByToken(accessToken)
-// 	if err != nil {
-// 		t.Errorf("Error making call to GetAuthReadProfilesByToken for PutAuthSetOrChangeUsername: %+v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(response.Body)
-// 	if err != nil {
-// 		t.Errorf("Error returned from GetAuthReadProfilesByToken for PutAuthSetOrChangeUsername: %+v", err)
-// 	}
-// 	if data["UserName"].(string) != "newusername" {
-// 		t.Errorf("PutAuthSetOrChangeUsername failed, expected username NewUserName, but instead got: %v", data["UserName"].(string))
-// 	}
-// }
+func TestPutAuthSetOrChangeUsername(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	newName := TestUsername{"newusername"}
+	_, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutAuthSetOrChangeUsername(newName)
+	if err != nil {
+		t.Errorf("Error making call to PutAuthSetOrChangeUsername: %+v", err)
+	}
+	response, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthReadProfilesByToken()
+	if err != nil {
+		t.Errorf("Error making call to GetAuthReadProfilesByToken for PutAuthSetOrChangeUsername: %+v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(response.Body)
+	if err != nil {
+		t.Errorf("Error returned from GetAuthReadProfilesByToken for PutAuthSetOrChangeUsername: %+v", err)
+	}
+	if data["UserName"].(string) != "newusername" {
+		t.Errorf("PutAuthSetOrChangeUsername failed, expected username NewUserName, but instead got: %v", data["UserName"].(string))
+	}
+}
 
 func TestPutAuthUpdateProfileByToken(t *testing.T) {
 	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
@@ -646,16 +646,16 @@ func TestPutAuthUpdateProfileByToken(t *testing.T) {
 	}
 }
 
-// func TestPutAuthUpdateSecurityQuestionByAccessToken(t *testing.T) {
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	securityQuestion := SecurityQuestion{"Answer"}
-// 	securityTest := SecurityQuestionTest{securityQuestion}
-// 	_, err := lrauthentication.PutAuthUpdateSecurityQuestionByAccessToken(accessToken, securityTest)
-// 	if err != nil {
-// 		t.Errorf("Error making PutAuthUpdateSecurityQuestionByAccessToken call: %v", err)
-// 	}
-// }
+func TestPutAuthUpdateSecurityQuestionByAccessToken(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	securityQuestion := SecurityQuestion{"Answer"}
+	securityTest := SecurityQuestionTest{securityQuestion}
+	_, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutAuthUpdateSecurityQuestionByAccessToken(securityTest)
+	if err != nil {
+		t.Errorf("Error making PutAuthUpdateSecurityQuestionByAccessToken call: %v", err)
+	}
+}
 
 // func TestDeleteAuthDeleteAccountEmailConfirmation(t *testing.T) {
 // 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
