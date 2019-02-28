@@ -380,7 +380,7 @@ func TestGetAuthInvalidateAccessToken(t *testing.T) {
 // Delete token must be retrieved from email inbox after calling DeleteAuthDeleteAccountEmailConfirmation with
 // an account that was manually set up
 func TestGetAuthDeleteAccount(t *testing.T) {
-	t.SkipNow()
+	// t.SkipNow()
 	SetTestEnv()
 	cfg := lr.Config{
 		ApiKey:    os.Getenv("APIKEY"),
@@ -658,9 +658,9 @@ func TestPutAuthUpdateSecurityQuestionByAccessToken(t *testing.T) {
 }
 
 func TestDeleteAuthDeleteAccountEmailConfirmation(t *testing.T) {
-	_, _, _, _, accessToken, _, teardownTestCase := setupLogin(t)
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	resp, err := lrauthentication.DeleteAuthDeleteAccountEmailConfirmation("", "", accessToken)
+	resp, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).DeleteAuthDeleteAccountEmailConfirmation()
 	if err != nil {
 		t.Errorf("Error making call to DeleteAuthDeleteAccountEmailConfirmation: %+v", err)
 	}
@@ -737,7 +737,6 @@ func TestDeleteAuthUnlinkSocialIdentities(t *testing.T) {
 		t.Errorf("Error returned from DeleteAuthUnlinkSocialIdentities: %+v", err)
 	}
 }
-
 func TestGetPasswordlessLoginByEmail(t *testing.T) {
 	_, _, _, email, _, lrclient, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)

@@ -181,6 +181,12 @@ func (lr Loginradius) NewDeleteReqWithToken(path string, body interface{}, queri
 		return nil, err
 	}
 
+	if lr.Context.Token == "" {
+		errMsg := "Must initialize Loginradius with access token for this API call."
+		err := lrerror.New("MissingTokenErr", errMsg, errors.New(errMsg))
+		return nil, err
+	}
+
 	encodedBody, error := httprutils.EncodeBody(body)
 	if error != nil {
 		return nil, error

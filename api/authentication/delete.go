@@ -1,28 +1,33 @@
 package lrauthentication
 
 import (
-	"os"
-
 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
 )
 
-// DeleteAuthDeleteAccountEmailConfirmation deletes a user account by passing the user's access token.
-func DeleteAuthDeleteAccountEmailConfirmation(deleteURL, emailTemplate, token string) (*httprutils.Response, error) {
-	tokenHeader := "Bearer " + token
-
-	request := httprutils.Request{
-		Method: httprutils.Delete,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/account",
-		Headers: map[string]string{
-			"content-Type":  "application/x-www-form-urlencoded",
-			"Authorization": tokenHeader,
-		},
-		QueryParams: map[string]string{
-			"apikey": os.Getenv("APIKEY"),
-		},
+// DeleteAuthDeleteAccountEmailConfirmation sends a confirmation email for account deletion to the customer's email when passed the access token
+// Required query param: apiKey
+// Optional query params: deleteurl, emailtemplate
+func (lr Loginradius) DeleteAuthDeleteAccountEmailConfirmation(queries ...interface{}) (*httprutils.Response, error) {
+	request, err := lr.Client.NewDeleteReqWithToken("/identity/v2/auth/account", "")
+	if err != nil {
+		return nil, err
 	}
 
-	response, err := httprutils.TimeoutClient.Send(request)
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{
+			"deleteurl": true, "emailtemplate": true,
+		}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
+
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			request.QueryParams[k] = v
+		}
+	}
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
@@ -30,6 +35,7 @@ func DeleteAuthDeleteAccountEmailConfirmation(deleteURL, emailTemplate, token st
 // Post parameter - e-mail: string.
 // Pass data in struct lrbody.AuthUsername as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) DeleteAuthRemoveEmail(body interface{}) (*httprutils.Response, error) {
+
 	request, err := lr.Client.NewDeleteReqWithToken("/identity/v2/auth/email", body)
 	if err != nil {
 		return nil, err
