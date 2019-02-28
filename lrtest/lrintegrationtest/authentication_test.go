@@ -657,18 +657,18 @@ func TestPutAuthUpdateSecurityQuestionByAccessToken(t *testing.T) {
 	}
 }
 
-// func TestDeleteAuthDeleteAccountEmailConfirmation(t *testing.T) {
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	resp, err := lrauthentication.DeleteAuthDeleteAccountEmailConfirmation("", "", accessToken)
-// 	if err != nil {
-// 		t.Errorf("Error making call to DeleteAuthDeleteAccountEmailConfirmation: %+v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(resp.Body)
-// 	if err != nil || !data["IsDeleteRequestAccepted"].(bool) {
-// 		t.Errorf("Error returned from DeleteAuthDeleteAccountEmailConfirmation: %+v", err)
-// 	}
-// }
+func TestDeleteAuthDeleteAccountEmailConfirmation(t *testing.T) {
+	_, _, _, _, accessToken, _, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	resp, err := lrauthentication.DeleteAuthDeleteAccountEmailConfirmation("", "", accessToken)
+	if err != nil {
+		t.Errorf("Error making call to DeleteAuthDeleteAccountEmailConfirmation: %+v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(resp.Body)
+	if err != nil || !data["IsDeleteRequestAccepted"].(bool) {
+		t.Errorf("Error returned from DeleteAuthDeleteAccountEmailConfirmation: %+v", err)
+	}
+}
 
 // func TestDeleteAuthRemoveEmail(t *testing.T) {
 // 	_, _, _, testEmail, accessToken, teardownTestCase := setupLogin(t)

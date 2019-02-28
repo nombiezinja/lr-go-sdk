@@ -1,36 +1,36 @@
 package lrauthentication
 
 import (
-	"os"
-
 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
 	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
 )
 
 // PutAuthVerifyEmailByOtp will send the welcome email.
-// Post parameters include otp: string, email: string, optional securityanswer: string, optional qq_captcha_ticket: string,
-// optional qq_captcha_randstr: string and optional g-recaptcha-response:string
-func PutAuthVerifyEmailByOtp(url, welcomeEmailTemplate string, body interface{}) (*httprutils.Response, error) {
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
+// Required post parameters - otp: string; email: string
+// Optional post parameters - qq_captcha_randstr: string;g-recaptcha-response:string; securityanswer; string; qq_captcha_ticket: string;
+// Required query parameter: apiKey
+// Optional query parameters: url, welcometemplate
+func (lr Loginradius) PutAuthVerifyEmailByOtp(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
+	request, err := lr.Client.NewPutReq("/identity/v2/auth/email", body)
+	if err != nil {
+		return nil, err
 	}
 
-	request := httprutils.Request{
-		Method: httprutils.Get,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/email",
-		Headers: map[string]string{
-			"content-Type": "application/json",
-		},
-		QueryParams: map[string]string{
-			"apikey":          os.Getenv("APIKEY"),
-			"url":             url,
-			"welcomeTemplate": welcomeEmailTemplate,
-		},
-		Body: requestBody,
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{
+			"url": true, "welcomeemailtemplate": true,
+		}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
+
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			request.QueryParams[k] = v
+		}
 	}
 
-	response, err := httprutils.TimeoutClient.Send(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
@@ -54,28 +54,13 @@ func (lr Loginradius) PutAuthChangePassword(body interface{}) (*httprutils.Respo
 // account based on the access token and the social providers user access token.
 // Post parameters- candidatetoken: string
 // Pass data in struct lrbody.LinkSocialIds as body to help ensure parameters satisfy API requirements
-func PutAuthLinkSocialIdentities(token string, body interface{}) (*httprutils.Response, error) {
-	tokenHeader := "Bearer " + token
-
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
+func (lr Loginradius) PutAuthLinkSocialIdentities(token string, body interface{}) (*httprutils.Response, error) {
+	request, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/socialidentity", body)
+	if err != nil {
+		return nil, err
 	}
 
-	request := httprutils.Request{
-		Method: httprutils.Put,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/socialidentity",
-		Headers: map[string]string{
-			"content-Type":  "application/json",
-			"Authorization": tokenHeader,
-		},
-		QueryParams: map[string]string{
-			"apikey": os.Getenv("APIKEY"),
-		},
-		Body: requestBody,
-	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
@@ -123,28 +108,31 @@ func (lr Loginradius) PutAuthResetPasswordByResetToken(body interface{}) (*httpr
 }
 
 // PutAuthResetPasswordByOTP is used to set a new password for the specified account.
-// Post parameters are the password: string, otp: string, email: string,
-// optional welcomeemailtemplate: string and optional resetpasswordemailtemplate: string
+// Required post parameters -the password: string; otp: string; email: string,
+// Optional post parameters: welcomeemailtemplate: string; resetpasswordemailtemplate: string
 // Pass data in struct lrbody.ResetPwOtp as body to help ensure parameters satisfy API requirements
-func PutAuthResetPasswordByOTP(body interface{}) (*httprutils.Response, error) {
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
+func (lr Loginradius) PutAuthResetPasswordByOTP(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
+	request, err := lr.Client.NewPutReq("/identity/v2/auth/password/reset", body)
+
+	if err != nil {
+		return nil, err
 	}
 
-	request := httprutils.Request{
-		Method: httprutils.Put,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/password/reset",
-		Headers: map[string]string{
-			"content-Type": "application/json",
-		},
-		QueryParams: map[string]string{
-			"apikey": os.Getenv("APIKEY"),
-		},
-		Body: requestBody,
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{
+			"welcomeemailtemplate": true, "resetpasswordemailtemplate": true, "otp": true, "email": true, "password": true,
+		}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
+
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			request.QueryParams[k] = v
+		}
 	}
 
-	response, err := httprutils.TimeoutClient.Send(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
@@ -185,25 +173,6 @@ func (lr Loginradius) PutAuthResetPasswordBySecurityAnswerAndUsername(body inter
 // Post parameter is username: string
 // Pass data in struct lrbody.AuthUsername as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) PutAuthSetOrChangeUsername(body interface{}) (*httprutils.Response, error) {
-	// tokenHeader := "Bearer " + token
-
-	// requestBody, error := httprutils.EncodeBody(body)
-	// if error != nil {
-	// 	return nil, error
-	// }
-
-	// request := httprutils.Request{
-	// 	Method: httprutils.Put,
-	// 	URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/username",
-	// 	Headers: map[string]string{
-	// 		"content-Type":  "application/json",
-	// 		"Authorization": tokenHeader,
-	// 	},
-	// 	QueryParams: map[string]string{
-	// 		"apikey": os.Getenv("APIKEY"),
-	// 	},
-	// 	Body: requestBody,
-	// }
 	request, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/username", body)
 
 	if err != nil {
