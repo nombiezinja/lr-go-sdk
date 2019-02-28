@@ -11,7 +11,7 @@ import (
 // Required queries: apiKey; optional queries: verificationurl, emailtemplate
 // Body params: email(string), type(string)
 func (lr Loginradius) PostAuthAddEmail(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
-	request, err := lr.NewAuthPostReqWithToken("/identity/v2/auth/email", body)
+	request, err := lr.Client.NewPostReqWithToken("/identity/v2/auth/email", body)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (lr Loginradius) PostAuthForgotPassword(body interface{}, queries interface
 		return nil, err
 	}
 
-	request, err := lr.NewAuthPostReq("/identity/v2/auth/password", body, validatedQueries)
+	request, err := lr.Client.NewPostReq("/identity/v2/auth/password", body, validatedQueries)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (lr Loginradius) PostAuthForgotPassword(body interface{}, queries interface
 // Post parameters are an array of email objects (Check docs for more info) and password: string
 // Pass data in struct lrbody.RegistrationUser as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) PostAuthUserRegistrationByEmail(queries interface{}, body interface{}) (*httprutils.Response, error) {
-	sott := sott.Generate(lr.Context.ApiKey, lr.Context.ApiSecret)
+	sott := sott.Generate(lr.Client.Context.ApiKey, lr.Client.Context.ApiSecret)
 	allowedQueries := map[string]bool{
 		"verificationurl": true, "emailtemplate": true, "options": true,
 	}
@@ -69,8 +69,8 @@ func (lr Loginradius) PostAuthUserRegistrationByEmail(queries interface{}, body 
 		return nil, err
 	}
 
-	validatedParams["apiKey"] = lr.Context.ApiKey
-	request, err := lr.NewAuthPostReq("/identity/v2/auth/register", body, validatedParams)
+	validatedParams["apiKey"] = lr.Client.Context.ApiKey
+	request, err := lr.Client.NewPostReq("/identity/v2/auth/register", body, validatedParams)
 
 	request.Headers["X-LoginRadius-Sott"] = sott
 	response, err := httprutils.TimeoutClient.Send(*request)
@@ -83,7 +83,7 @@ func (lr Loginradius) PostAuthUserRegistrationByEmail(queries interface{}, body 
 // Required queries: apiKey; optional queries: verificationurl, loginurl, emailtemplate, g-recaptcha-response
 // Required body param: email, password; optional body param: security answer
 func (lr Loginradius) PostAuthLoginByEmail(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
-	request, err := lr.NewAuthPostReq("/identity/v2/auth/login", body)
+	request, err := lr.Client.NewPostReq("/identity/v2/auth/login", body)
 	for _, arg := range queries {
 		allowedQueries := map[string]bool{
 			"verificationurl": true, "loginurl": true, "emailtemplate": true, "g-recaptcha-response": true,
@@ -106,7 +106,7 @@ func (lr Loginradius) PostAuthLoginByEmail(body interface{}, queries ...interfac
 // Post parameters are username: string, password: string and optional securityanswer: string
 // Pass data in struct lrbody.UsernameLogin as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) PostAuthLoginByUsername(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
-	request, err := lr.NewAuthPostReq("/identity/v2/auth/login", body)
+	request, err := lr.Client.NewPostReq("/identity/v2/auth/login", body)
 	for _, arg := range queries {
 		allowedQueries := map[string]bool{
 			"verificationurl": true, "loginurl": true, "emailtemplate": true, "g-recaptcha-response": true,

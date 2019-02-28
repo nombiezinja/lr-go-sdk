@@ -26,6 +26,7 @@ func setupAccount(t *testing.T) (string, string, string, string, *lr.Loginradius
 	loginradius, _ := lr.NewLoginradius(&cfg)
 	authlr := lraccount.Loginradius{loginradius}
 
+	fmt.Println(&authlr)
 	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
 	testEmail := "lrtest" + timeStamp + "@mailinator.com"
 	testEmails := TestEmailArr{{"Primary", testEmail}, {"Secondary", "1" + testEmail}}
@@ -66,7 +67,7 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, *lr.Lo
 	}
 
 	loginradius, _ := lr.NewLoginradius(&cfg)
-	authlr := lrauthentication.Loginradius{loginradius}
+	authlr := lrauthentication.Loginradius{Client: loginradius}
 
 	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
 	testEmail := "lrtest" + timeStamp + "@mailinator.com"
@@ -112,10 +113,7 @@ func setupLogin(t *testing.T) (string, string, string, string, string, *lr.Login
 	phoneID, username, testuid, testEmail, loginradius, teardownTestCase := setupAccount(t)
 	authlr := lrauthentication.Loginradius{loginradius}
 	testLogin := TestEmailLogin{testEmail, testEmail}
-	fmt.Println("testemail", testEmail)
-	response, err := lrauthentication.Loginradius(authlr).PostAuthLoginByEmail(testLogin, map[string]string{})
-	fmt.Println("response", response)
-	fmt.Println("err", err)
+	response, err := lrauthentication.Loginradius(authlr).PostAuthLoginByEmail(testLogin)
 	session, _ := lrjson.DynamicUnmarshal(response.Body)
 	accessToken := session["access_token"].(string)
 	if err != nil || accessToken == "" {

@@ -85,7 +85,7 @@ func TestPostAuthAddEmail(t *testing.T) {
 	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
 	testAddEmail := TestEmailCreator{testEmail, "secondary"}
 
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthAddEmail(testAddEmail)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{Client: lrclient}).PostAuthAddEmail(testAddEmail)
 
 	if err != nil {
 		t.Errorf("Error making PostAuthAddEmail call: %v", err)
@@ -484,33 +484,33 @@ func TestGetAuthSecurityQuestionByPhone(t *testing.T) {
 	}
 }
 
-// func TestPutAuthChangePassword(t *testing.T) {
-// 	_, _, _, email, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	passwords := PassChange{email, email + "1"}
-// 	resp, err := lrauthentication.PutAuthChangePassword(accessToken, passwords)
-// 	if err != nil {
-// 		t.Errorf("Error calling PutAuthChangePassword: %+v", err)
-// 	}
-// 	posted, err := lrjson.DynamicUnmarshal(resp.Body)
-// 	if err != nil || !posted["IsPosted"].(bool) {
-// 		t.Errorf("Error returned from PutAuthChangePassword: %+v", err)
-// 	}
-// }
+func TestPutAuthChangePassword(t *testing.T) {
+	_, _, _, email, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	passwords := PassChange{email, email + "1"}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutAuthChangePassword(passwords)
+	if err != nil {
+		t.Errorf("Error calling PutAuthChangePassword: %+v", err)
+	}
+	posted, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !posted["IsPosted"].(bool) {
+		t.Errorf("Error returned from PutAuthChangePassword: %+v", err)
+	}
+}
 
-// func TestPutResendEmailVerification(t *testing.T) {
-// 	_, retEmail, _, teardownTestCase := setupEmailVerificationAccount(t)
-// 	defer teardownTestCase(t)
-// 	emailRef := TestEmail{retEmail}
-// 	resp, err := lrauthentication.PutResendEmailVerification("", "", emailRef)
-// 	if err != nil {
-// 		t.Errorf("Error calling PutResendEmailVerification: %v", err)
-// 	}
-// 	posted, err := lrjson.DynamicUnmarshal(resp.Body)
-// 	if err != nil || !posted["IsPosted"].(bool) {
-// 		t.Errorf("Error returned for PutResendEmailVerification: %v", err)
-// 	}
-// }
+func TestPutResendEmailVerification(t *testing.T) {
+	_, retEmail, _, _, teardownTestCase := setupEmailVerificationAccount(t)
+	defer teardownTestCase(t)
+	emailRef := TestEmail{retEmail}
+	resp, err := lrauthentication.PutResendEmailVerification("", "", emailRef)
+	if err != nil {
+		t.Errorf("Error calling PutResendEmailVerification: %v", err)
+	}
+	posted, err := lrjson.DynamicUnmarshal(resp.Body)
+	if err != nil || !posted["IsPosted"].(bool) {
+		t.Errorf("Error returned for PutResendEmailVerification: %v", err)
+	}
+}
 
 // func TestPutAuthResetPasswordByResetToken(t *testing.T) {
 // 	_, _, _, email, teardownTestCase := setupAccount(t)
@@ -739,6 +739,7 @@ func TestGetPasswordlessLoginByUsername(t *testing.T) {
 //verificationtoken needs to be retrieved from email inbox after
 //calling GetPasswordlessLoginByEmail or ByUsername APIs
 func TestGetPasswordlessLoginVerification(t *testing.T) {
+	t.SkipNow()
 	SetTestEnv()
 
 	cfg := lr.Config{
