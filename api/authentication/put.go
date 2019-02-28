@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
 )
 
 // PutAuthVerifyEmailByOtp will send the welcome email.
@@ -34,33 +35,16 @@ func PutAuthVerifyEmailByOtp(url, welcomeEmailTemplate string, body interface{})
 }
 
 // PutAuthChangePassword is used to change the accounts password based on the previous password.
-// Post parameters include oldpassword: string and newpassword: string
+// Post parameters- oldpassword: string;newpassword: string
+// Required query paramter: apikey
 // Pass data in struct lrbody.ChangePassword as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) PutAuthChangePassword(body interface{}) (*httprutils.Response, error) {
-	// tokenHeader := "Bearer " + token
-
-	// requestBody, error := httprutils.EncodeBody(body)
-	// if error != nil {
-	// 	return nil, error
-	// }
 
 	request, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/password/change", body)
 
 	if err != nil {
 		return nil, err
 	}
-	// request := httprutils.Request{
-	// 	Method: httprutils.Put,
-	// 	URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/password/change",
-	// 	Headers: map[string]string{
-	// 		"content-Type":  "application/json",
-	// 		"Authorization": tokenHeader,
-	// 	},
-	// 	QueryParams: map[string]string{
-	// 		"apikey": os.Getenv("APIKEY"),
-	// 	},
-	// 	Body: requestBody,
-	// }
 
 	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
@@ -68,7 +52,7 @@ func (lr Loginradius) PutAuthChangePassword(body interface{}) (*httprutils.Respo
 
 // PutAuthLinkSocialIdentities is used to link up a social provider account with the specified
 // account based on the access token and the social providers user access token.
-// Post parameter is the candidatetoken: string
+// Post parameters- candidatetoken: string
 // Pass data in struct lrbody.LinkSocialIds as body to help ensure parameters satisfy API requirements
 func PutAuthLinkSocialIdentities(token string, body interface{}) (*httprutils.Response, error) {
 	tokenHeader := "Bearer " + token
@@ -96,55 +80,45 @@ func PutAuthLinkSocialIdentities(token string, body interface{}) (*httprutils.Re
 }
 
 // PutResendEmailVerification resends the verification email to the user.
-// Post parameter is the email: string
+// Post parameter- email: string
+// Required query parameter: apikey ; optional query parameters: emailtemplate, verificationurl
 // Pass data in struct lrbody.EmailStr as body to help ensure parameters satisfy API requirements
-func PutResendEmailVerification(verificationURL, emailTemplate string, body interface{}) (*httprutils.Response, error) {
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
+func (lr Loginradius) PutResendEmailVerification(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
+	request, err := lr.Client.NewPutReq("/identity/v2/auth/register", body)
+	if err != nil {
+		return nil, err
 	}
 
-	request := httprutils.Request{
-		Method: httprutils.Put,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/register",
-		Headers: map[string]string{
-			"content-Type": "application/json",
-		},
-		QueryParams: map[string]string{
-			"apikey":          os.Getenv("APIKEY"),
-			"emailtemplate":   emailTemplate,
-			"verificationurl": verificationURL,
-		},
-		Body: requestBody,
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{
+			"verificationurl": true, "emailtemplate": true,
+		}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
+
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			request.QueryParams[k] = v
+		}
 	}
 
-	response, err := httprutils.TimeoutClient.Send(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
 // PutAuthResetPasswordByResetToken is used to set a new password for the specified account.
-// Post parameters are the resettoken: string, password: string, optional welcomeemailtemplate: string
-// and optional resetpasswordemailtemplate: string
+// Required post parameters- resettoken: string; password: string
+// optional post parameters- welcomeemailtemplate: string; resetpasswordemailtemplate: string
+// Required query parameter: apiKey
 // Pass data in struct lrbody.ResetPw as body to help ensure parameters satisfy API requirements
-func PutAuthResetPasswordByResetToken(body interface{}) (*httprutils.Response, error) {
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
+func (lr Loginradius) PutAuthResetPasswordByResetToken(body interface{}) (*httprutils.Response, error) {
+	request, err := lr.Client.NewPutReq("/identity/v2/auth/password/reset", body)
+	if err != nil {
+		return nil, err
 	}
 
-	request := httprutils.Request{
-		Method: httprutils.Put,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/password/reset",
-		Headers: map[string]string{
-			"content-Type": "application/json",
-		},
-		QueryParams: map[string]string{
-			"apikey": os.Getenv("APIKEY"),
-		},
-		Body: requestBody,
-	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 

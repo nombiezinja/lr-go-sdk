@@ -58,27 +58,36 @@ func DeleteAuthRemoveEmail(token string, body interface{}) (*httprutils.Response
 // based on the access token and the social providers user id, the latter is returned with any API call that returns the full
 // user profile
 // The unlinked account will automatically get removed from your database.
-func DeleteAuthUnlinkSocialIdentities(token string, body interface{}) (*httprutils.Response, error) {
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
+// Required body parameters: provider, providerid
+// Required query parameter: apiKey
+func (lr Loginradius) DeleteAuthUnlinkSocialIdentities(body interface{}) (*httprutils.Response, error) {
+	// requestBody, error := httprutils.EncodeBody(body)
+	// if error != nil {
+	// 	return nil, error
+	// }
+
+	// tokenHeader := "Bearer " + token
+
+	// request := httprutils.Request{
+	// 	Method: httprutils.Delete,
+	// 	URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/socialidentity",
+	// 	Headers: map[string]string{
+	// 		"content-Type":  "application/json",
+	// 		"Authorization": tokenHeader,
+	// 	},
+	// 	QueryParams: map[string]string{
+	// 		"apikey": os.Getenv("APIKEY"),
+	// 	},
+	// 	Body: requestBody,
+	// }
+
+	// response, err := httprutils.TimeoutClient.Send(request)
+	// return response, err
+	req, err := lr.Client.NewDeleteReqWithToken("/identity/v2/auth/socialidentity", body)
+
+	if err != nil {
+		return nil, err
 	}
-
-	tokenHeader := "Bearer " + token
-
-	request := httprutils.Request{
-		Method: httprutils.Delete,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/socialidentity",
-		Headers: map[string]string{
-			"content-Type":  "application/json",
-			"Authorization": tokenHeader,
-		},
-		QueryParams: map[string]string{
-			"apikey": os.Getenv("APIKEY"),
-		},
-		Body: requestBody,
-	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+	response, err := httprutils.TimeoutClient.Send(*req)
 	return response, err
 }

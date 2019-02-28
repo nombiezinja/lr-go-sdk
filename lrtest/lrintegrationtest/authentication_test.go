@@ -2,6 +2,7 @@ package lrintegrationtest
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
 	"testing"
@@ -499,46 +500,65 @@ func TestPutAuthChangePassword(t *testing.T) {
 }
 
 func TestPutResendEmailVerification(t *testing.T) {
-	_, retEmail, _, _, teardownTestCase := setupEmailVerificationAccount(t)
+	_, retEmail, _, lrclient, teardownTestCase := setupEmailVerificationAccount(t)
 	defer teardownTestCase(t)
 	emailRef := TestEmail{retEmail}
-	resp, err := lrauthentication.PutResendEmailVerification("", "", emailRef)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutResendEmailVerification(emailRef)
 	if err != nil {
 		t.Errorf("Error calling PutResendEmailVerification: %v", err)
 	}
-	posted, err := lrjson.DynamicUnmarshal(resp.Body)
+	posted, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !posted["IsPosted"].(bool) {
+		t.Errorf("Error returned for PutResendEmailVerification: %v", err)
+	}
+
+	res, err = lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutResendEmailVerification(emailRef, map[string]string{"emailtemplate": "hello"})
+	if err != nil {
+		t.Errorf("Error calling PutResendEmailVerification: %v", err)
+	}
+	posted, err = lrjson.DynamicUnmarshal(res.Body)
 	if err != nil || !posted["IsPosted"].(bool) {
 		t.Errorf("Error returned for PutResendEmailVerification: %v", err)
 	}
 }
 
-// func TestPutAuthResetPasswordByResetToken(t *testing.T) {
-// 	_, _, _, email, teardownTestCase := setupAccount(t)
-// 	defer teardownTestCase(t)
+func TestPutResendEmailVerificationInvalid(t *testing.T) {
+	_, retEmail, _, lrclient, teardownTestCase := setupEmailVerificationAccount(t)
+	defer teardownTestCase(t)
+	emailRef := TestEmail{retEmail}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutResendEmailVerification(map[string]string{"invalidquery": "hello"}, emailRef)
+	if err == nil || err.(lrerror.Error).Code() != "ValidationError" {
+		t.Errorf("Should fail with ValidationError, but got instead:%+v, %v", res, err)
+	}
+}
 
-// 	resetEmail := TestEmail{email}
-// 	response, err := lraccount.PostManageForgotPasswordToken(resetEmail)
-// 	if err != nil {
-// 		t.Errorf(
-// 			"Error calling PostManageForgotPasswordToken for PutAuthResetPasswordByResetToken: %v",
-// 			err,
-// 		)
-// 	}
-// 	data, _ := lrjson.DynamicUnmarshal(response.Body)
-// 	req := PasswordReset{data["ForgotToken"].(string), email + "1"}
-// 	response, err = lrauthentication.PutAuthResetPasswordByResetToken(req)
-// 	if err != nil {
-// 		t.Errorf("Error calling PutAuthResetPasswordByResetToken: %v", err)
-// 	}
-// 	data, err = lrjson.DynamicUnmarshal(response.Body)
-// 	if err != nil || !data["IsPosted"].(bool) {
-// 		t.Errorf("Error returned from PutAuthResetPasswordByResetToken: %+v", err)
-// 	}
-// }
+func TestPutAuthResetPasswordByResetToken(t *testing.T) {
+	_, _, _, email, lrclient, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
 
-// // func TestPutAuthResetPasswordByOTP(t *testing.T) {
+	resetEmail := TestEmail{email}
+	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PostManageForgotPasswordToken(resetEmail)
+	if err != nil {
+		t.Errorf(
+			"Error calling PostManageForgotPasswordToken for PutAuthResetPasswordByResetToken: %v",
+			err,
+		)
+	}
+	data, _ := lrjson.DynamicUnmarshal(response.Body)
+	req := PasswordReset{data["ForgotToken"].(string), email + "1"}
+	response, err = lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutAuthResetPasswordByResetToken(req)
+	if err != nil {
+		t.Errorf("Error calling PutAuthResetPasswordByResetToken: %v", err)
+	}
+	data, err = lrjson.DynamicUnmarshal(response.Body)
+	if err != nil || !data["IsPosted"].(bool) {
+		t.Errorf("Error returned from PutAuthResetPasswordByResetToken: %+v", err)
+	}
+}
 
-// // }
+func TestPutAuthResetPasswordByOTP(t *testing.T) {
+	t.SkipNow()
+}
 
 // func TestPutAuthResetPasswordBySecurityAnswerAndEmail(t *testing.T) {
 // 	_, _, uid, email, _, teardownTestCase := setupLogin(t)
@@ -668,46 +688,58 @@ func TestPutResendEmailVerification(t *testing.T) {
 // // Pre-create the user used for this test and link an account of a social provider; configure the
 // // string of this social provider in the secret.env with lower case names
 // // e.g.PROVIDER=google, PROVIDER=facebook
-// func TestDeleteAuthUnlinkSocialIdentities(t *testing.T) {
-// 	t.SkipNow()
-// 	SetTestCredentials()
-// 	accessToken := os.Getenv("USERTOKEN")
-// 	response, err := lrauthentication.GetAuthReadProfilesByToken(accessToken)
-// 	if err != nil {
-// 		t.Errorf("Error making call to GetAuthReadProfilesByToken: %+v", err)
-// 	}
+func TestDeleteAuthUnlinkSocialIdentities(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+	fmt.Println("token", os.Getenv("USERTOKEN"))
 
-// 	data, err := lrjson.DynamicUnmarshal(response.Body)
-// 	if err != nil {
-// 		t.Errorf("Error parsing response from GetAuthReadProfilesByToken: %+v", err)
-// 	}
-// 	identities, ok := data["Identities"].([]interface{})
-// 	if !ok {
-// 		fmt.Println("Identities returned is null, not array")
-// 		return
-// 	}
+	accessToken := os.Getenv("USERTOKEN")
 
-// 	var id string
-// 	providerstr := os.Getenv("PROVIDER")
-// 	for _, v := range identities {
-// 		asserted := v.(map[string]interface{})
-// 		if asserted["Provider"] == providerstr {
-// 			id = asserted["ID"].(string)
-// 		}
-// 	}
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
 
-// 	provider := Provider{providerstr, id}
+	lrclient, _ := lr.NewLoginradius(&cfg, map[string]string{"token": accessToken})
 
-// 	response, err = lrauthentication.DeleteAuthUnlinkSocialIdentities(accessToken, provider)
-// 	if err != nil {
-// 		t.Errorf("Error making call to DeleteAuthUnlinkSocialIdentities: %+v", err)
-// 	}
+	fmt.Printf("%+v", lrclient.Context)
 
-// 	deleted, err := lrjson.DynamicUnmarshal(response.Body)
-// 	if err != nil || !deleted["IsDeleted"].(bool) {
-// 		t.Errorf("Error returned from DeleteAuthUnlinkSocialIdentities: %+v", err)
-// 	}
-// }
+	response, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthReadProfilesByToken()
+	if err != nil {
+		t.Errorf("Error making call to GetAuthReadProfilesByToken: %+v", err)
+	}
+
+	data, err := lrjson.DynamicUnmarshal(response.Body)
+	if err != nil {
+		t.Errorf("Error parsing response from GetAuthReadProfilesByToken: %+v", err)
+	}
+	identities, ok := data["Identities"].([]interface{})
+	if !ok {
+		fmt.Println("Identities returned is null, not array")
+		return
+	}
+
+	var id string
+	providerstr := os.Getenv("PROVIDER")
+	for _, v := range identities {
+		asserted := v.(map[string]interface{})
+		if asserted["Provider"] == providerstr {
+			id = asserted["ID"].(string)
+		}
+	}
+
+	provider := Provider{providerstr, id}
+
+	response, err = lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).DeleteAuthUnlinkSocialIdentities(provider)
+	if err != nil {
+		t.Errorf("Error making call to DeleteAuthUnlinkSocialIdentities: %+v", err)
+	}
+
+	deleted, err := lrjson.DynamicUnmarshal(response.Body)
+	if err != nil || !deleted["IsDeleted"].(bool) {
+		t.Errorf("Error returned from DeleteAuthUnlinkSocialIdentities: %+v", err)
+	}
+}
 
 func TestGetPasswordlessLoginByEmail(t *testing.T) {
 	_, _, _, email, _, lrclient, teardownTestCase := setupLogin(t)

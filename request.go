@@ -110,7 +110,7 @@ func (lr Loginradius) NewPostReq(path string, body interface{}, queries ...map[s
 	return request, nil
 }
 
-func (lr Loginradius) NewAuthPutReq(path string, body interface{}, queries ...map[string]string) (*httprutils.Request, error) {
+func (lr Loginradius) NewPutReq(path string, body interface{}, queries ...map[string]string) (*httprutils.Request, error) {
 
 	encodedBody, error := httprutils.EncodeBody(body)
 	if error != nil {
@@ -118,7 +118,7 @@ func (lr Loginradius) NewAuthPutReq(path string, body interface{}, queries ...ma
 	}
 
 	request := &httprutils.Request{
-		Method: httprutils.Post,
+		Method: httprutils.Put,
 		URL:    lr.Domain + path,
 		Headers: map[string]string{
 			"content-Type": "application/json",
@@ -153,6 +153,41 @@ func (lr Loginradius) NewPutReqWithToken(path string, body interface{}, queries 
 
 	request := &httprutils.Request{
 		Method: httprutils.Put,
+		URL:    lr.Domain + path,
+		Headers: map[string]string{
+			"content-Type":  "application/json",
+			"Authorization": "Bearer " + lr.Context.Token,
+		},
+		QueryParams: map[string]string{
+			"apiKey": lr.Context.ApiKey,
+		},
+		Body: encodedBody,
+	}
+
+	for _, q := range queries {
+		for k, v := range q {
+			request.QueryParams[k] = v
+		}
+	}
+
+	return request, nil
+}
+
+func (lr Loginradius) NewDeleteReqWithToken(path string, body interface{}, queries ...map[string]string) (*httprutils.Request, error) {
+
+	if lr.Context.Token == "" {
+		errMsg := "Must initialize Loginradius with access token for this API call."
+		err := lrerror.New("MissingTokenErr", errMsg, errors.New(errMsg))
+		return nil, err
+	}
+
+	encodedBody, error := httprutils.EncodeBody(body)
+	if error != nil {
+		return nil, error
+	}
+
+	request := &httprutils.Request{
+		Method: httprutils.Delete,
 		URL:    lr.Domain + path,
 		Headers: map[string]string{
 			"content-Type":  "application/json",
