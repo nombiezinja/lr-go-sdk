@@ -5,19 +5,17 @@ import (
 	"net/http/httptest"
 
 	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	lrauth "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
 )
 
-func initLr() lrauth.Loginradius {
+func initLr() lr.Loginradius {
 	cfg := lr.Config{
 		ApiKey:    "abcd1234",
 		ApiSecret: "abcd1234",
 	}
 
-	initLr, _ := lr.NewLoginradius(&cfg)
-	loginradius := lrauth.Loginradius{initLr}
-	return loginradius
+	lrclient, _ := lr.NewLoginradius(&cfg)
+	return *lrclient
 }
 
 func initTestServer(path string, resp httprutils.Response) *httptest.Server {

@@ -112,7 +112,7 @@ func setupLogin(t *testing.T) (string, string, string, string, string, *lr.Login
 	phoneID, username, testuid, testEmail, loginradius, teardownTestCase := setupAccount(t)
 	authlr := lrauthentication.Loginradius{loginradius}
 	testLogin := TestEmailLogin{testEmail, testEmail}
-	response, err := lrauthentication.Loginradius(authlr).PostAuthLoginByEmail(map[string]string{}, testLogin)
+	response, err := lrauthentication.Loginradius(authlr).PostAuthLoginByEmail(testLogin)
 	session, _ := lrjson.DynamicUnmarshal(response.Body)
 	accessToken := session["access_token"].(string)
 	if err != nil || accessToken == "" {
