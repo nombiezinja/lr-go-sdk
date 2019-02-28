@@ -258,32 +258,51 @@ func PutAuthSetOrChangeUsername(token string, body interface{}) (*httprutils.Res
 // Post parameters are fields in the profile that need to be updated
 // Pass data in struct lrbody.UpdateProfile as body to help ensure parameters satisfy API requirements
 // modify struct fields based on need
-func PutAuthUpdateProfileByToken(verificationURL, emailTemplate,
-	smsTemplate, token string, body interface{}) (*httprutils.Response, error) {
-	tokenHeader := "Bearer " + token
+// Required query parameter: apiKey; optional query parameters: smstemplate, emailtemplate, verificationurl
+func (lr Loginradius) PutAuthUpdateProfileByToken(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
+	// tokenHeader := "Bearer " + token
 
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
+	// requestBody, error := httprutils.EncodeBody(body)
+	// if error != nil {
+	// 	return nil, error
+	// }
+
+	// request := httprutils.Request{
+	// 	Method: httprutils.Put,
+	// 	URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/account",
+	// 	Headers: map[string]string{
+	// 		"content-Type":  "application/json",
+	// 		"Authorization": tokenHeader,
+	// 	},
+	// 	QueryParams: map[string]string{
+	// 		"apikey":          os.Getenv("APIKEY"),
+	// 		"verificationurl": verificationURL,
+	// 		"emailtemplate":   emailTemplate,
+	// 		"smstemplate":     smsTemplate,
+	// 	},
+	// 	Body: requestBody,
+	// }
+
+	request, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/account", body)
+	if err != nil {
+		return nil, err
 	}
 
-	request := httprutils.Request{
-		Method: httprutils.Put,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/account",
-		Headers: map[string]string{
-			"content-Type":  "application/json",
-			"Authorization": tokenHeader,
-		},
-		QueryParams: map[string]string{
-			"apikey":          os.Getenv("APIKEY"),
-			"verificationurl": verificationURL,
-			"emailtemplate":   emailTemplate,
-			"smstemplate":     smsTemplate,
-		},
-		Body: requestBody,
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{
+			"verificationurl": true, "emailtemplate": true, "smstemplate": true,
+		}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
+
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			request.QueryParams[k] = v
+		}
 	}
 
-	response, err := httprutils.TimeoutClient.Send(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 

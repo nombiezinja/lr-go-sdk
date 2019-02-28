@@ -625,26 +625,26 @@ func TestPutAuthResetPasswordByOTP(t *testing.T) {
 // 	}
 // }
 
-// func TestPutAuthUpdateProfileByToken(t *testing.T) {
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	request := TestUsername{"newname"}
-// 	_, err := lrauthentication.PutAuthUpdateProfileByToken("", "", "", accessToken, request)
-// 	if err != nil {
-// 		t.Errorf("Error making call to PutAuthUpdateProfileByToken: %+v", err)
-// 	}
-// 	response, err := lrauthentication.GetAuthReadProfilesByToken(accessToken)
-// 	if err != nil {
-// 		t.Errorf("Error making call to GetAuthReadProfilesByToken for PutAuthUpdateProfileByToken: %+v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(response.Body)
-// 	if err != nil {
-// 		t.Errorf("Error returned from GetAuthReadProfilesByToken for PutAuthUpdateProfileByToken: %+v", err)
-// 	}
-// 	if data["UserName"].(string) != "newname" {
-// 		t.Errorf("PutAuthSetOrChangeUsername failed, expected username NewUserName, but instead got: %v", data["UserName"].(string))
-// 	}
-// }
+func TestPutAuthUpdateProfileByToken(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	request := TestUsername{"newname"}
+	_, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutAuthUpdateProfileByToken(request)
+	if err != nil {
+		t.Errorf("Error making call to PutAuthUpdateProfileByToken: %+v", err)
+	}
+	response, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthReadProfilesByToken()
+	if err != nil {
+		t.Errorf("Error making call to GetAuthReadProfilesByToken for PutAuthUpdateProfileByToken: %+v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(response.Body)
+	if err != nil {
+		t.Errorf("Error returned from GetAuthReadProfilesByToken for PutAuthUpdateProfileByToken: %+v", err)
+	}
+	if data["UserName"].(string) != "newname" {
+		t.Errorf("PutAuthSetOrChangeUsername failed, expected username NewUserName, but instead got: %v", data["UserName"].(string))
+	}
+}
 
 // func TestPutAuthUpdateSecurityQuestionByAccessToken(t *testing.T) {
 // 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
@@ -691,7 +691,6 @@ func TestPutAuthResetPasswordByOTP(t *testing.T) {
 func TestDeleteAuthUnlinkSocialIdentities(t *testing.T) {
 	t.SkipNow()
 	SetTestEnv()
-	fmt.Println("token", os.Getenv("USERTOKEN"))
 
 	accessToken := os.Getenv("USERTOKEN")
 
@@ -701,8 +700,6 @@ func TestDeleteAuthUnlinkSocialIdentities(t *testing.T) {
 	}
 
 	lrclient, _ := lr.NewLoginradius(&cfg, map[string]string{"token": accessToken})
-
-	fmt.Printf("%+v", lrclient.Context)
 
 	response, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthReadProfilesByToken()
 	if err != nil {
