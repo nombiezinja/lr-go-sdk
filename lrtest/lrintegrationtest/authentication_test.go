@@ -670,19 +670,19 @@ func TestDeleteAuthDeleteAccountEmailConfirmation(t *testing.T) {
 	}
 }
 
-// func TestDeleteAuthRemoveEmail(t *testing.T) {
-// 	_, _, _, testEmail, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	removeEmail := TestEmail{testEmail}
-// 	resp, err := lrauthentication.DeleteAuthRemoveEmail(accessToken, removeEmail)
-// 	if err != nil {
-// 		t.Errorf("Error making call to DeleteAuthRemoveEmail: %+v", err)
-// 	}
-// 	data, err := lrjson.DynamicUnmarshal(resp.Body)
-// 	if err != nil || !data["IsDeleted"].(bool) {
-// 		t.Errorf("Error returned from call to DeleteAuthRemoveEmail: %+v", err)
-// 	}
-// }
+func TestDeleteAuthRemoveEmail(t *testing.T) {
+	_, _, _, testEmail, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	removeEmail := TestEmail{testEmail}
+	resp, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).DeleteAuthRemoveEmail(removeEmail)
+	if err != nil {
+		t.Errorf("Error making call to DeleteAuthRemoveEmail: %+v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(resp.Body)
+	if err != nil || !data["IsDeleted"].(bool) {
+		t.Errorf("Error returned from call to DeleteAuthRemoveEmail: %+v", err)
+	}
+}
 
 // // To run this test, comment out t.SkipNow(), and configure secret.env with valid user access token
 // // Pre-create the user used for this test and link an account of a social provider; configure the

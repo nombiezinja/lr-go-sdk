@@ -27,30 +27,33 @@ func DeleteAuthDeleteAccountEmailConfirmation(deleteURL, emailTemplate, token st
 }
 
 // DeleteAuthRemoveEmail is used to remove additional emails from a user's account.
-// Post parameter is the e-mail that is to be removed.
+// Post parameter - e-mail: string.
 // Pass data in struct lrbody.AuthUsername as body to help ensure parameters satisfy API requirements
-func DeleteAuthRemoveEmail(token string, body interface{}) (*httprutils.Response, error) {
-	requestBody, error := httprutils.EncodeBody(body)
-	if error != nil {
-		return nil, error
+func (lr Loginradius) DeleteAuthRemoveEmail(body interface{}) (*httprutils.Response, error) {
+	// requestBody, error := httprutils.EncodeBody(body)
+	// if error != nil {
+	// 	return nil, error
+	// }
+
+	// tokenHeader := "Bearer " + token
+
+	// request := httprutils.Request{
+	// 	Method: httprutils.Delete,
+	// 	URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/email",
+	// 	Headers: map[string]string{
+	// 		"content-Type":  "application/json",
+	// 		"Authorization": tokenHeader,
+	// 	},
+	// 	QueryParams: map[string]string{
+	// 		"apikey": os.Getenv("APIKEY"),
+	// 	},
+	// 	Body: requestBody,
+	// }
+	request, err := lr.Client.NewDeleteReqWithToken("/identity/v2/auth/email", body)
+	if err != nil {
+		return nil, err
 	}
-
-	tokenHeader := "Bearer " + token
-
-	request := httprutils.Request{
-		Method: httprutils.Delete,
-		URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/email",
-		Headers: map[string]string{
-			"content-Type":  "application/json",
-			"Authorization": tokenHeader,
-		},
-		QueryParams: map[string]string{
-			"apikey": os.Getenv("APIKEY"),
-		},
-		Body: requestBody,
-	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
 
@@ -61,28 +64,6 @@ func DeleteAuthRemoveEmail(token string, body interface{}) (*httprutils.Response
 // Required body parameters: provider, providerid
 // Required query parameter: apiKey
 func (lr Loginradius) DeleteAuthUnlinkSocialIdentities(body interface{}) (*httprutils.Response, error) {
-	// requestBody, error := httprutils.EncodeBody(body)
-	// if error != nil {
-	// 	return nil, error
-	// }
-
-	// tokenHeader := "Bearer " + token
-
-	// request := httprutils.Request{
-	// 	Method: httprutils.Delete,
-	// 	URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/socialidentity",
-	// 	Headers: map[string]string{
-	// 		"content-Type":  "application/json",
-	// 		"Authorization": tokenHeader,
-	// 	},
-	// 	QueryParams: map[string]string{
-	// 		"apikey": os.Getenv("APIKEY"),
-	// 	},
-	// 	Body: requestBody,
-	// }
-
-	// response, err := httprutils.TimeoutClient.Send(request)
-	// return response, err
 	req, err := lr.Client.NewDeleteReqWithToken("/identity/v2/auth/socialidentity", body)
 
 	if err != nil {
