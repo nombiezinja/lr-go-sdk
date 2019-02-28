@@ -30,25 +30,6 @@ func DeleteAuthDeleteAccountEmailConfirmation(deleteURL, emailTemplate, token st
 // Post parameter - e-mail: string.
 // Pass data in struct lrbody.AuthUsername as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) DeleteAuthRemoveEmail(body interface{}) (*httprutils.Response, error) {
-	// requestBody, error := httprutils.EncodeBody(body)
-	// if error != nil {
-	// 	return nil, error
-	// }
-
-	// tokenHeader := "Bearer " + token
-
-	// request := httprutils.Request{
-	// 	Method: httprutils.Delete,
-	// 	URL:    os.Getenv("DOMAIN") + "/identity/v2/auth/email",
-	// 	Headers: map[string]string{
-	// 		"content-Type":  "application/json",
-	// 		"Authorization": tokenHeader,
-	// 	},
-	// 	QueryParams: map[string]string{
-	// 		"apikey": os.Getenv("APIKEY"),
-	// 	},
-	// 	Body: requestBody,
-	// }
 	request, err := lr.Client.NewDeleteReqWithToken("/identity/v2/auth/email", body)
 	if err != nil {
 		return nil, err
