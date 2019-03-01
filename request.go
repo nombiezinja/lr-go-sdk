@@ -213,3 +213,8 @@ func (lr Loginradius) NewDeleteReqWithToken(path string, body interface{}, queri
 
 	return request, nil
 }
+
+func (lr Loginradius) AddApiCredentialsToReqHeader(req *httprutils.Request) {
+	req.Headers["X-LoginRadius-ApiKey"] = lr.Context.ApiKey
+	req.Headers["X-LoginRadius-ApiSecret"] = lr.Context.ApiSecret
+}

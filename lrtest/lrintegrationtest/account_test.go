@@ -40,7 +40,6 @@ func TestDeleteManageAccount(t *testing.T) {
 }
 
 func TestPostManageAccountCreate(t *testing.T) {
-	fmt.Println("Starting test TestPostManageAccountCreate")
 	SetTestEnv()
 
 	cfg := lr.Config{
@@ -68,7 +67,6 @@ func TestPostManageAccountCreate(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error cleaning up account: %v", err)
 	}
-	fmt.Println("Test complete")
 }
 
 func TestPostManageEmailVerificationToken(t *testing.T) {
@@ -106,7 +104,6 @@ func TestPutManageAccountUpdateSecurityQuestionConfig(t *testing.T) {
 	fmt.Println("Test complete")
 }
 func TestPostManageForgotPasswordToken(t *testing.T) {
-	fmt.Println("Starting test TestPostManageForgotPasswordToken")
 	_, _, _, testEmail, loginradius, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	email := TestEmail{testEmail}
@@ -119,5 +116,4 @@ func TestPostManageForgotPasswordToken(t *testing.T) {
 		t.Errorf("Error creating forgot password token")
 		fmt.Println(err)
 	}
-	fmt.Println("Test complete")
 }
