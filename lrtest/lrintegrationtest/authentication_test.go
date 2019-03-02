@@ -35,8 +35,8 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 		ApiSecret: os.Getenv("APISECRET"),
 	}
 
-	lrtmp, _ := lr.NewLoginradius(&cfg)
-	loginradius := lrauthentication.Loginradius{lrtmp}
+	lrclient, _ := lr.NewLoginradius(&cfg)
+	loginradius := lrauthentication.Loginradius{lrclient}
 
 	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
 	user := User{}
@@ -66,14 +66,14 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 		t.Errorf("PostAuthUserRegistrationByEmail Fail: Expected Error %v, instead received res: %+v, received error: %+v", "LoginradiusRespondedWithError", res, err)
 	}
 
-	res, err = lraccount.GetManageAccountProfilesByEmail(testEmail)
+	res, err = lraccount.Loginradius(lraccount.Loginradius{lrclient}).GetManageAccountProfilesByEmail(map[string]string{"email": testEmail})
 	if err != nil {
 		t.Errorf("Error retrieving uid of account to clean up: %v.", err)
 	}
 
 	profile, _ := lrjson.DynamicUnmarshal(res.Body)
 	uid := profile["Uid"].(string)
-	_, err = lraccount.DeleteManageAccount(uid)
+	_, err = lraccount.Loginradius(lraccount.Loginradius{lrclient}).DeleteManageAccount(uid)
 	if err != nil {
 		t.Errorf("Error cleaning up account: %v", err)
 	}
@@ -214,15 +214,15 @@ func TestPostAuthLoginByUsername(t *testing.T) {
 	}
 }
 
-// func TestPostAuthLoginByUsernameInvalid(t *testing.T) {
-// 	_, _, _, _, teardownTestCase := setupAccount(t)
-// 	defer teardownTestCase(t)
-// 	invalid := struct{ foo string }{"bar"}
-// 	response, err := lrauthentication.PostAuthLoginByUsername("", "", "", "", "", invalid)
-// 	if err == nil {
-// 		t.Errorf("Should fail but did not: %v", response.Body)
-// 	}
-// }
+func TestPostAuthLoginByUsernameInvalid(t *testing.T) {
+	_, _, _, _, lrclient, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	invalid := struct{ foo string }{"bar"}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthLoginByUsername(invalid)
+	if err == nil {
+		t.Errorf("PostAuthLoginByUsername should return error but did not: %v", res.Body)
+	}
+}
 
 func TestGetAuthCheckEmailAvailability(t *testing.T) {
 	_, _, _, testEmail, loginradius, teardownTestCase := setupAccount(t)
@@ -380,7 +380,7 @@ func TestGetAuthInvalidateAccessToken(t *testing.T) {
 // Delete token must be retrieved from email inbox after calling DeleteAuthDeleteAccountEmailConfirmation with
 // an account that was manually set up
 func TestGetAuthDeleteAccount(t *testing.T) {
-	// t.SkipNow()
+	t.SkipNow()
 	SetTestEnv()
 	cfg := lr.Config{
 		ApiKey:    os.Getenv("APIKEY"),
@@ -409,7 +409,7 @@ func TestGetAuthSecurityQuestionByAccessToken(t *testing.T) {
 	defer teardownTestCase(t)
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	_, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
 	if err != nil {
 		t.Errorf("Error setting up security question: %v", err)
 	}
@@ -429,7 +429,7 @@ func TestGetAuthSecurityQuestionByEmail(t *testing.T) {
 	defer teardownTestCase(t)
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	_, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
 	if err != nil {
 		t.Errorf("Error setting up security question: %v", err)
 	}
@@ -450,7 +450,7 @@ func TestGetAuthSecurityQuestionByUsername(t *testing.T) {
 	defer teardownTestCase(t)
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	_, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
 	if err != nil {
 		t.Errorf("Error setting up security question: %v", err)
 	}
@@ -470,7 +470,7 @@ func TestGetAuthSecurityQuestionByPhone(t *testing.T) {
 	defer teardownTestCase(t)
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	_, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
 	if err != nil {
 		t.Errorf("Error setting up security question: %v", err)
 	}
@@ -566,13 +566,13 @@ func TestPutAuthResetPasswordBySecurityAnswerAndEmail(t *testing.T) {
 
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
 	if err != nil {
 		t.Errorf("Error setting up security question: %v", err)
 	}
 
 	request := ResetWithEmailSecurity{securityQuestion, email, email + "1", ""}
-	response, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutAuthResetPasswordBySecurityAnswerAndEmail(request)
+	response, err = lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutAuthResetPasswordBySecurityAnswerAndEmail(request)
 	if err != nil {
 		t.Errorf("Error making call to PutAuthResetPasswordBySecurityAnswerAndEmail: %+v", err)
 	}
@@ -588,13 +588,13 @@ func TestPutAuthResetPasswordBySecurityAnswerAndUsername(t *testing.T) {
 
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	_, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
+	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountUpdateSecurityQuestionConfig(uid, securityTest)
 	if err != nil {
 		t.Errorf("Error setting up security question: %v", err)
 	}
 
 	request := ResetWithUsernameSecurity{securityQuestion, username, email + "1", ""}
-	response, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutAuthResetPasswordBySecurityAnswerAndUsername(request)
+	response, err = lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PutAuthResetPasswordBySecurityAnswerAndUsername(request)
 	if err != nil {
 		t.Errorf("Error making call to PutAuthResetPasswordBySecurityAnswerAndUsername: %+v", err)
 	}

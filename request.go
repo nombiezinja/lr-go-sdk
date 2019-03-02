@@ -38,13 +38,19 @@ func (lr Loginradius) NewGetReqWithToken(path string, queries ...map[string]stri
 	return request, nil
 }
 
-func (lr Loginradius) NewGetReq(path string, queries map[string]string) *httprutils.Request {
-	return &httprutils.Request{
+func (lr Loginradius) NewGetReq(path string, queries ...map[string]string) *httprutils.Request {
+	request := &httprutils.Request{
 		Method:      httprutils.Get,
 		URL:         lr.Domain + path,
 		Headers:     httprutils.URLEncodedHeader,
-		QueryParams: queries,
+		QueryParams: map[string]string{},
 	}
+	for _, q := range queries {
+		for k, v := range q {
+			request.QueryParams[k] = v
+		}
+	}
+	return request
 }
 
 func (lr Loginradius) NewPostReqWithToken(path string, body interface{}, queries ...map[string]string) (*httprutils.Request, error) {
@@ -173,6 +179,14 @@ func (lr Loginradius) NewPutReqWithToken(path string, body interface{}, queries 
 	return request, nil
 }
 
+func (lr Loginradius) NewDeleteReq(path string) *httprutils.Request {
+	return &httprutils.Request{
+		Method:  httprutils.Delete,
+		URL:     lr.Domain + path,
+		Headers: httprutils.URLEncodedHeader,
+	}
+}
+
 func (lr Loginradius) NewDeleteReqWithToken(path string, body interface{}, queries ...map[string]string) (*httprutils.Request, error) {
 
 	if lr.Context.Token == "" {
@@ -215,6 +229,7 @@ func (lr Loginradius) NewDeleteReqWithToken(path string, body interface{}, queri
 }
 
 func (lr Loginradius) AddApiCredentialsToReqHeader(req *httprutils.Request) {
+	delete(req.QueryParams, "apiKey")
 	req.Headers["X-LoginRadius-ApiKey"] = lr.Context.ApiKey
 	req.Headers["X-LoginRadius-ApiSecret"] = lr.Context.ApiSecret
 }

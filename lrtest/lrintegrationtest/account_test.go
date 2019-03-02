@@ -1,12 +1,12 @@
 package lrintegrationtest
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"testing"
 	"time"
 
+	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
 	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
 
 	lr "bitbucket.org/nombiezinja/lr-go-sdk"
@@ -15,28 +15,38 @@ import (
 )
 
 func TestGetManageAccountProfilesByEmail(t *testing.T) {
-	fmt.Println("Starting test TestGetManageAccountProfilesByEmail")
-	_, _, testuid, testEmail, _, teardownTestCase := setupAccount(t)
+	_, _, testuid, testEmail, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
-	response, err := lraccount.GetManageAccountProfilesByEmail(testEmail)
+	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).GetManageAccountProfilesByEmail(map[string]string{"email": testEmail})
 	session, _ := lrjson.DynamicUnmarshal(response.Body)
 	uid := session["Uid"].(string)
 	if err != nil || uid != testuid {
-		t.Errorf("Error retrieving profile associated with email")
-		fmt.Println(err)
+		t.Errorf("Error retrieving profile associated with email: %v", err)
 	}
-	fmt.Println("Test complete")
+}
+
+func TestGetManageAccountIdentitiesByEmail(t *testing.T) {
+	_, _, testuid, testEmail, lrclient, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).GetManageAccountIdentitiesByEmail(map[string]string{"email": testEmail})
+	if err != nil {
+		t.Errorf("Error making call to GetManageAccountIdentitiesByEmail: %v", err)
+	}
+	body, _ := lrjson.DynamicUnmarshal(response.Body)
+	profiles := body["Data"].([]interface{})
+	profile := profiles[0].(map[string]interface{})
+	uid := profile["Uid"].(string)
+	if err != nil || uid != testuid {
+		t.Errorf("Error returned from GetManageAccountIdentitiesByEmail: %v", err)
+	}
 }
 
 func TestDeleteManageAccount(t *testing.T) {
-	fmt.Println("Starting test TestDeleteManageAccount")
-	_, _, testuid, _, _, _ := setupAccount(t)
-	_, err := lraccount.DeleteManageAccount(testuid)
+	_, _, testuid, _, lrclient, _ := setupAccount(t)
+	_, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).DeleteManageAccount(testuid)
 	if err != nil {
-		t.Errorf("Error deleting account")
-		fmt.Println(err)
+		t.Errorf("Error deleting account: %v", err)
 	}
-	fmt.Println("Test complete")
 }
 
 func TestPostManageAccountCreate(t *testing.T) {
@@ -47,8 +57,8 @@ func TestPostManageAccountCreate(t *testing.T) {
 		ApiSecret: os.Getenv("APISECRET"),
 	}
 
-	lrtmp, _ := lr.NewLoginradius(&cfg)
-	loginradius := lrauthentication.Loginradius{lrtmp}
+	lrclient, _ := lr.NewLoginradius(&cfg)
+	loginradius := lrauthentication.Loginradius{lrclient}
 
 	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
 	testEmails := TestEmailArr{{"Primary", testEmail}}
@@ -63,15 +73,13 @@ func TestPostManageAccountCreate(t *testing.T) {
 	if err != nil || uid == "" {
 		t.Errorf("Error returned from PostManageAccountCreate: %v", err)
 	}
-	_, err = lraccount.DeleteManageAccount(uid)
+	_, err = lraccount.Loginradius(lraccount.Loginradius{lrclient}).DeleteManageAccount(uid)
 	if err != nil {
 		t.Errorf("Error cleaning up account: %v", err)
 	}
 }
 
 func TestPostManageEmailVerificationToken(t *testing.T) {
-
-	fmt.Println("Starting test TestPostManageEmailVerificationToken")
 	_, testEmail, _, loginradius, teardownTestCase := setupEmailVerificationAccount(t)
 	defer teardownTestCase(t)
 	emailObj := TestEmail{testEmail}
@@ -83,17 +91,14 @@ func TestPostManageEmailVerificationToken(t *testing.T) {
 	if err != nil || session["VerificationToken"].(string) == "" {
 		t.Errorf("Error returned from PostManageEmailVerificationToken: %v", err)
 	}
-	fmt.Println("Test complete")
 }
 
 func TestPutManageAccountUpdateSecurityQuestionConfig(t *testing.T) {
-	fmt.Println("Starting test TestPutManageAccountUpdateSecurityQuestionConfig")
-	_, _, testuid, _, _, teardownTestCase := setupAccount(t)
+	_, _, testuid, _, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	securityQuestion := SecurityQuestion{"Answer"}
 	securityTest := SecurityQuestionTest{securityQuestion}
-	fmt.Println(securityTest)
-	response, err := lraccount.PutManageAccountUpdateSecurityQuestionConfig(testuid, securityTest)
+	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountUpdateSecurityQuestionConfig(testuid, securityTest)
 	if err != nil {
 		t.Errorf("Error making PutManageAccountUpdateSecurityQuestionConfig call")
 	}
@@ -101,7 +106,6 @@ func TestPutManageAccountUpdateSecurityQuestionConfig(t *testing.T) {
 	if err != nil || profile["Uid"].(string) != testuid {
 		t.Errorf("Error returned from PutManageAccountUpdateSecurityQuestionConfig: %v", err)
 	}
-	fmt.Println("Test complete")
 }
 func TestPostManageForgotPasswordToken(t *testing.T) {
 	_, _, _, testEmail, loginradius, teardownTestCase := setupAccount(t)
@@ -113,7 +117,51 @@ func TestPostManageForgotPasswordToken(t *testing.T) {
 	}
 	session, err := lrjson.DynamicUnmarshal(response.Body)
 	if err != nil || session["ForgotToken"].(string) == "" {
-		t.Errorf("Error creating forgot password token")
-		fmt.Println(err)
+		t.Errorf("Error creating forgot password token: %v", err)
+	}
+
+	response, err = lraccount.Loginradius(lraccount.Loginradius{loginradius}).PostManageForgotPasswordToken(email, map[string]string{"sendemail": "true"})
+	if err != nil {
+		t.Errorf("Error making call to PostManageForgotPasswordToken: %+v", err)
+	}
+	session, err = lrjson.DynamicUnmarshal(response.Body)
+	if err != nil || session["ForgotToken"].(string) == "" {
+		t.Errorf("Error creating forgot password token: %v", err)
+	}
+}
+
+func TestPostManageForgotPasswordTokenInvalid(t *testing.T) {
+	_, _, _, testEmail, loginradius, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	email := TestEmail{testEmail}
+	response, err := lraccount.Loginradius(lraccount.Loginradius{loginradius}).PostManageForgotPasswordToken(email, map[string]string{"invalidparam": "value"})
+	if err == nil || err.(lrerror.Error).Code() != "ValidationError" {
+		t.Errorf("PostManageForgotPasswordToken with invalid param was supposed to return ValidationError, but instead got: %+v, %+v", response, err)
+	}
+}
+
+func TestGetManageAccessTokenUID(t *testing.T) {
+	_, _, uid, _, loginradius, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	response, err := lraccount.Loginradius(lraccount.Loginradius{loginradius}).GetManageAccessTokenUID(map[string]string{"uid": uid})
+	if err != nil {
+		t.Errorf("Error making call to GetManageAccessTokenUID: %+v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(response.Body)
+	if err != nil || data["access_token"].(string) == "" {
+		t.Errorf("Error returned from GetManageAccessTokenUID: %v", err)
+	}
+}
+
+func TestGetManageAccountPassword(t *testing.T) {
+	_, _, uid, _, loginradius, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	response, err := lraccount.Loginradius(lraccount.Loginradius{loginradius}).GetManageAccountPassword(uid)
+	if err != nil {
+		t.Errorf("Error making call to GetManageAccountPassword: %+v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(response.Body)
+	if err != nil || data["PasswordHash"].(string) == "" {
+		t.Errorf("Error returned from GetManageAccountPassword: %v", err)
 	}
 }

@@ -8,7 +8,7 @@ import (
 // PostManageAccountCreate is used to create an account in Cloud Storage.
 // This API bypasses the normal email verification process and manually creates the user.
 // In order to use this API, you need to format a JSON request body with all of the mandatory fields
-// Required post parameters: email - object;  assword - string. Rest are optional profile parameters.
+// Required post parameters: email - object; Password - string. Rest are optional profile parameters.
 // Required query parameters: apiKey, apiSecret
 // Pass data in struct lrbody.AccountCreate as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) PostManageAccountCreate(body interface{}) (*httprutils.Response, error) {
@@ -17,7 +17,6 @@ func (lr Loginradius) PostManageAccountCreate(body interface{}) (*httprutils.Res
 		return nil, err
 	}
 
-	delete(request.QueryParams, "apiKey")
 	lr.Client.AddApiCredentialsToReqHeader(request)
 
 	response, err := httprutils.TimeoutClient.Send(*request)
@@ -35,7 +34,6 @@ func (lr Loginradius) PostManageForgotPasswordToken(body interface{}, queries ..
 		return nil, err
 	}
 
-	delete(request.QueryParams, "apiKey")
 	lr.Client.AddApiCredentialsToReqHeader(request)
 
 	for _, arg := range queries {
@@ -57,21 +55,14 @@ func (lr Loginradius) PostManageForgotPasswordToken(body interface{}, queries ..
 }
 
 // PostManageEmailVerificationToken Returns an Email Verification token.
-// Post parameter is the email: string
+// Post parameter - email: string
 // Pass data in struct lrbody.EmailForVToken as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) PostManageEmailVerificationToken(body interface{}) (*httprutils.Response, error) {
-	encoded, err := httprutils.EncodeBody(body)
-	request := httprutils.Request{
-		Method: httprutils.Post,
-		URL:    lr.Client.Domain + "/identity/v2/manage/account/verify/token",
-		Headers: map[string]string{
-			"content-Type":            "application/json",
-			"X-LoginRadius-ApiKey":    lr.Client.Context.ApiKey,
-			"X-LoginRadius-ApiSecret": lr.Client.Context.ApiSecret,
-		},
-		Body: encoded,
+	request, err := lr.Client.NewPostReq("/identity/v2/manage/account/verify/token", body)
+	if err != nil {
+		return nil, err
 	}
-
-	response, err := httprutils.TimeoutClient.Send(request)
+	lr.Client.AddApiCredentialsToReqHeader(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }

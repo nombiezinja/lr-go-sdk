@@ -1,7 +1,6 @@
 package lrintegrationtest
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"testing"
@@ -26,7 +25,6 @@ func setupAccount(t *testing.T) (string, string, string, string, *lr.Loginradius
 	loginradius, _ := lr.NewLoginradius(&cfg)
 	authlr := lraccount.Loginradius{loginradius}
 
-	fmt.Println(&authlr)
 	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
 	testEmail := "lrtest" + timeStamp + "@mailinator.com"
 	testEmails := TestEmailArr{{"Primary", testEmail}, {"Secondary", "1" + testEmail}}
@@ -39,19 +37,16 @@ func setupAccount(t *testing.T) (string, string, string, string, *lr.Loginradius
 		t.Errorf("Error calling PostManageAccountCreate from setupAccount: %v", err)
 	}
 	user, err := lrjson.DynamicUnmarshal(response.Body)
-	fmt.Println("user created", user)
 	uid := user["Uid"].(string)
 	if err != nil || uid == "" {
-		t.Errorf("Error creating account")
-		fmt.Println(err)
+		t.Errorf("Error creating account: %+v", err)
 	}
 
 	return phoneID, username, uid, testEmail, loginradius, func(t *testing.T) {
 		t.Log("Tearing down test case")
-		_, err = lraccount.DeleteManageAccount(uid)
+		_, err := lraccount.Loginradius(lraccount.Loginradius{loginradius}).DeleteManageAccount(uid)
 		if err != nil {
-			t.Errorf("Error cleaning up account")
-			fmt.Println(err)
+			t.Errorf("Error cleaning up account: %+v", err)
 		}
 	}
 }
@@ -80,8 +75,7 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, *lr.Lo
 	user, _ := lrjson.DynamicUnmarshal(response.Body)
 	uid := user["Uid"].(string)
 	if err != nil || uid == "" {
-		t.Errorf("Error creating account")
-		fmt.Println(err)
+		t.Errorf("Error creating account: %+v", err)
 	}
 
 	tokenGen := TestEmail{testEmail}
@@ -89,27 +83,19 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, *lr.Lo
 	data, _ := lrjson.DynamicUnmarshal(response.Body)
 	token := data["VerificationToken"].(string)
 	if err != nil {
-		t.Errorf("Error generating token")
-		fmt.Println(err)
+		t.Errorf("Error generating token: %+v", err)
 	}
 
 	return phoneID, testEmail, token, loginradius, func(t *testing.T) {
 		t.Log("Tearing down test case")
-		_, err2 := lraccount.DeleteManageAccount(uid)
-		if err2 != nil {
-			t.Errorf("Error cleaning up account")
-			fmt.Println(err2)
+		_, err := lraccount.Loginradius(lraccount.Loginradius{loginradius}).DeleteManageAccount(uid)
+		if err != nil {
+			t.Errorf("Error cleaning up account: %+v", err)
 		}
 	}
 }
 
 func setupLogin(t *testing.T) (string, string, string, string, string, *lr.Loginradius, func(t *testing.T)) {
-	// SetTestEnv()
-	// cfg := lr.Config{
-	// 	ApiKey:    os.Getenv("APIKEY"),
-	// 	ApiSecret: os.Getenv("APISECRET"),
-	// }
-
 	phoneID, username, testuid, testEmail, loginradius, teardownTestCase := setupAccount(t)
 	authlr := lrauthentication.Loginradius{loginradius}
 	testLogin := TestEmailLogin{testEmail, testEmail}
@@ -117,8 +103,7 @@ func setupLogin(t *testing.T) (string, string, string, string, string, *lr.Login
 	session, _ := lrjson.DynamicUnmarshal(response.Body)
 	accessToken := session["access_token"].(string)
 	if err != nil || accessToken == "" {
-		t.Errorf("Error logging in")
-		fmt.Println(err)
+		t.Errorf("Error logging in: %+v", err)
 	}
 	loginradius.Context.Token = accessToken
 	return phoneID, username, testuid, testEmail, accessToken, loginradius, func(t *testing.T) {
