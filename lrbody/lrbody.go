@@ -34,6 +34,20 @@ type UsernameLogin struct {
 	Password string `json:"password"`
 }
 
+// Used by PutAuthUpdateProfileByToken, PutManageAccountUpdate
+// This serves as an example of struct that can be passed as the body for these endpoints
+// Please adjust accordingly based on the field that needs to be updated
+// For more information refer to https://www.loginradius.com/docs/api/v2/customer-identity-api/account/account-update
+type UpdateProfile struct {
+	Firstname string `json:"FirstName"`
+	Lastname  string `json:"LastName"`
+	Gender    string `json:"Gender"`
+	Birthdate string `json:"BirthDate"`
+	Country   string `json:"Country"`
+	City      string `json:"City"`
+	State     string `json:"State"`
+}
+
 // Used by PostAuthAddEmail
 type AddEmail struct {
 	Type  string `json:"type"`
@@ -97,4 +111,43 @@ type ResetPwSecurityQuestionUsername struct {
 
 type AuthUsername struct {
 	Username string `json:"username"`
+}
+
+// Used by PostManageAccountCreate
+type EmailArray []struct {
+	Type  string
+	Value string
+}
+
+// Used by PostManageAccountCreate
+type AccountCreate struct {
+	Email    EmailArray
+	Password string
+}
+
+// Used by PostManageEmailVerificationToken, PostManageForgotPasswordToken
+type Email struct {
+	Email string `json:"Email"`
+}
+
+// Used by PostManageForgotPasswordToken
+type Username struct {
+	Username string `json:"Username"`
+}
+
+// Used by PutManageAccountUpdateSecurityQuestionConfig
+type AccountSecurityQuestion struct {
+	Securityquestionanswer accountSecurityQA `json:"securityquestionanswer"`
+}
+
+// The security question is identified by a random string key in the LoginRadius database
+// You can retrieve this key with a call to GetConfiguration, and replace the
+// json tag value with your question string
+type accountSecurityQA struct {
+	QuestionID string `json:"2acec20722394dc3bd6362ef27df824e"`
+}
+
+// Used by PutManageAccountSetPassword
+type AccountPassword struct {
+	Password string `json:"Password"`
 }

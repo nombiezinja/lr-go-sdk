@@ -6,22 +6,53 @@ import (
 	"testing"
 	"time"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
-
 	lr "bitbucket.org/nombiezinja/lr-go-sdk"
 	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
 	lrauthentication "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
+	lrbody "bitbucket.org/nombiezinja/lr-go-sdk/lrbody"
+	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
+	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
 )
 
 func TestGetManageAccountProfilesByEmail(t *testing.T) {
 	_, _, testuid, testEmail, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).GetManageAccountProfilesByEmail(map[string]string{"email": testEmail})
+	if err != nil {
+		t.Errorf("Error making call to GetManageAccountProfilesByEmail: %+v", err)
+	}
 	session, _ := lrjson.DynamicUnmarshal(response.Body)
 	uid := session["Uid"].(string)
 	if err != nil || uid != testuid {
-		t.Errorf("Error retrieving profile associated with email: %v", err)
+		t.Errorf("Error returned from GetManageAccountProfilesByEmail: %v", err)
+	}
+}
+
+func TestGetManageAccountProfilesByUsername(t *testing.T) {
+	_, username, testuid, _, lrclient, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).GetManageAccountProfilesByUsername(map[string]string{"username": username})
+	if err != nil {
+		t.Errorf("Error making call to GetManageAccountProfilesByUsername: %+v", err)
+	}
+	session, _ := lrjson.DynamicUnmarshal(response.Body)
+	uid := session["Uid"].(string)
+	if err != nil || uid != testuid {
+		t.Errorf("Error returned from GetManageAccountProfilesByUsername: %v", err)
+	}
+}
+
+func TestGetManageAccountProfilesByPhoneID(t *testing.T) {
+	phoneid, _, testuid, _, lrclient, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).GetManageAccountProfilesByPhoneID(map[string]string{"phone": phoneid})
+	if err != nil {
+		t.Errorf("Error making call to GetManageAccountProfilesByPhoneID: %+v", err)
+	}
+	session, _ := lrjson.DynamicUnmarshal(response.Body)
+	uid := session["Uid"].(string)
+	if err != nil || uid != testuid {
+		t.Errorf("Error returned from GetManageAccountProfilesByPhoneID: %v", err)
 	}
 }
 
@@ -38,6 +69,20 @@ func TestGetManageAccountIdentitiesByEmail(t *testing.T) {
 	uid := profile["Uid"].(string)
 	if err != nil || uid != testuid {
 		t.Errorf("Error returned from GetManageAccountIdentitiesByEmail: %v", err)
+	}
+}
+
+func TestGetManageAccountIdentitiesByUid(t *testing.T) {
+	_, _, testuid, _, lrclient, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).GetManageAccountProfilesByUid(testuid)
+	if err != nil {
+		t.Errorf("Error making call to GetManageAccountProfilesByUid: %+v", err)
+	}
+	session, _ := lrjson.DynamicUnmarshal(response.Body)
+	uid := session["Uid"].(string)
+	if err != nil || uid != testuid {
+		t.Errorf("Error returned from GetManageAccountProfilesByUid: %v", err)
 	}
 }
 
@@ -163,5 +208,19 @@ func TestGetManageAccountPassword(t *testing.T) {
 	data, err := lrjson.DynamicUnmarshal(response.Body)
 	if err != nil || data["PasswordHash"].(string) == "" {
 		t.Errorf("Error returned from GetManageAccountPassword: %v", err)
+	}
+}
+
+func TestPutManageAccountSetPassword(t *testing.T) {
+	_, _, testuid, _, lrclient, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	body := lrbody.AccountPassword{"password"}
+	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountSetPassword(testuid, body)
+	if err != nil {
+		t.Errorf("Error making PutManageAccountbetPassword call: %+v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(response.Body)
+	if err != nil || data["PasswordHash"].(string) == "" {
+		t.Errorf("Error returned from PutManageAccountSetPassword: %v", err)
 	}
 }

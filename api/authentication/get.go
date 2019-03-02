@@ -17,7 +17,7 @@ func (lr Loginradius) GetAuthVerifyEmail(queries interface{}) (*httprutils.Respo
 	if err != nil {
 		return nil, err
 	}
-	validatedQueries["apiKey"] = lr.Client.Context.ApiKey
+	// validatedQueries["apiKey"] = lr.Client.Context.ApiKey
 
 	request := lr.Client.NewGetReq("/identity/v2/auth/email", validatedQueries)
 	response, err := httprutils.TimeoutClient.Send(*request)
@@ -241,6 +241,7 @@ func (lr Loginradius) GetPasswordlessLoginByEmail(queries interface{}) (*httprut
 		return nil, err
 	}
 	validatedQueries["apiKey"] = lr.Client.Context.ApiKey
+
 	request := lr.Client.NewGetReq("/identity/v2/auth/login/passwordlesslogin/email", validatedQueries)
 
 	response, err := httprutils.TimeoutClient.Send(*request)
@@ -279,5 +280,4 @@ func (lr Loginradius) GetPasswordlessLoginVerification(queries interface{}) (*ht
 
 	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
-
 }

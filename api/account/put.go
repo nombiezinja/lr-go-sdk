@@ -11,12 +11,56 @@ import (
 // Pass data in struct lrbody.AccountSecurityQuestion as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) PutManageAccountUpdateSecurityQuestionConfig(uid string, body interface{}) (*httprutils.Response, error) {
 
-	request, err := lr.Client.NewPutReq("/identity/v2/manage/account/", body)
+	request, err := lr.Client.NewPutReq("/identity/v2/manage/account/"+uid, body)
 	if err != nil {
 		return nil, err
 	}
 	lr.Client.AddApiCredentialsToReqHeader(request)
-	request.URL = request.URL + uid
+
+	response, err := httprutils.TimeoutClient.Send(*request)
+	return response, err
+}
+
+// PutManageAccountSetPassword is used to set the password of an account in Cloud Storage.
+// Required post parameter: password - string
+// Required template parameter: uid
+// Pass data in struct lrbody.AccountPassword as body to help ensure parameters satisfy API requirements
+func (lr Loginradius) PutManageAccountSetPassword(uid string, body interface{}) (*httprutils.Response, error) {
+
+	request, err := lr.Client.NewPutReq("/identity/v2/manage/account/"+uid+"/password", body)
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.AddApiCredentialsToReqHeader(request)
+
+	response, err := httprutils.TimeoutClient.Send(*request)
+	return response, err
+}
+
+// PutManageAccountUpdate is used to update the information of existing accounts in your Cloud Storage.
+// See our Advanced API Usage section for more capabilities.
+// Post parameters: profile data that needs to be updated.
+// Pass data in struct lrbody.UpdateProfile as body to help ensure parameters satisfy API requirements
+// modify struct fields based on need
+func (lr Loginradius) PutManageAccountUpdate(uid string, body interface{}) (*httprutils.Response, error) {
+	// data := new(AuthProfile)
+	// req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN")+"/identity/v2/manage/account/"+uid, body)
+	// if reqErr != nil {
+	// 	return *data, reqErr
+	// }
+
+	// req.Header.Add("content-Type", "application/json")
+	// req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
+	// req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
+
+	// err := RunRequest(req, data)
+	// return *data, err
+
+	request, err := lr.Client.NewPutReq("/identity/v2/manage/account/"+uid, body)
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.AddApiCredentialsToReqHeader(request)
 
 	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err

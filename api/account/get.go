@@ -21,6 +21,49 @@ func (lr Loginradius) GetManageAccountProfilesByEmail(queries interface{}) (*htt
 	return response, err
 }
 
+// GetManageAccountProfilesByUsername is used to retrieve all of the profile data,
+// associated with the specified account by username in Cloud Storage.
+// This end point returns a single profile
+// Required query param: username - string
+func (lr Loginradius) GetManageAccountProfilesByUsername(queries interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{"username": true}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+	request := lr.Client.NewGetReq("/identity/v2/manage/account", validatedQueries)
+	lr.Client.AddApiCredentialsToReqHeader(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
+	return response, err
+}
+
+// GetManageAccountProfilesByPhoneID is used to retrieve all of the profile data,
+// associated with the specified account by PhoneID in Cloud Storage.
+// This end point returns a single profile
+// Required query param: phone - string
+func (lr Loginradius) GetManageAccountProfilesByPhoneID(queries interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{"phone": true}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+	request := lr.Client.NewGetReq("/identity/v2/manage/account", validatedQueries)
+	lr.Client.AddApiCredentialsToReqHeader(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
+	return response, err
+}
+
+// GetManageAccountProfilesByUid is used to retrieve all of the profile data,
+// associated with the specified account by uid in Cloud Storage.
+// This end point returns a single profile
+// Required template param: uid - string
+func (lr Loginradius) GetManageAccountProfilesByUid(uid string) (*httprutils.Response, error) {
+	request := lr.Client.NewGetReq("/identity/v2/manage/account/" + uid)
+	lr.Client.AddApiCredentialsToReqHeader(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
+	return response, err
+}
+
 // GetManageAccountIdentitiesByEmail is used to retrieve all of the identities (UID and Profiles),
 // associated with a specified email in Cloud Storage.
 // Note: This is intended for specific workflows where an email may be associated to multiple UIDs.
@@ -58,20 +101,6 @@ func (lr Loginradius) GetManageAccessTokenUID(queries interface{}) (*httprutils.
 
 // GetManageAccountPassword is used to retrieve the hashed password of a specified account in Cloud Storage.
 // Required template parameter: uid
-// func GetManageAccountPassword(uid string) (AccountPassword, error) {
-// 	data := new(AccountPassword)
-// 	req, reqErr := CreateRequest("GET", os.Getenv("DOMAIN")+"/identity/v2/manage/account/"+uid+"/password", "")
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	req.Header.Add("content-Type", "application/x-www-form-urlencoded")
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
 func (lr Loginradius) GetManageAccountPassword(uid string) (*httprutils.Response, error) {
 	request := lr.Client.NewGetReq("/identity/v2/manage/account/" + uid + "/password")
 	lr.Client.AddApiCredentialsToReqHeader(request)
