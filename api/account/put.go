@@ -43,19 +43,6 @@ func (lr Loginradius) PutManageAccountSetPassword(uid string, body interface{}) 
 // Pass data in struct lrbody.UpdateProfile as body to help ensure parameters satisfy API requirements
 // modify struct fields based on need
 func (lr Loginradius) PutManageAccountUpdate(uid string, body interface{}) (*httprutils.Response, error) {
-	// data := new(AuthProfile)
-	// req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN")+"/identity/v2/manage/account/"+uid, body)
-	// if reqErr != nil {
-	// 	return *data, reqErr
-	// }
-
-	// req.Header.Add("content-Type", "application/json")
-	// req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-	// req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-
-	// err := RunRequest(req, data)
-	// return *data, err
-
 	request, err := lr.Client.NewPutReq("/identity/v2/manage/account/"+uid, body)
 	if err != nil {
 		return nil, err
