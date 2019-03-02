@@ -179,12 +179,13 @@ func (lr Loginradius) NewPutReqWithToken(path string, body interface{}, queries 
 	return request, nil
 }
 
-func (lr Loginradius) NewDeleteReq(path string) *httprutils.Request {
-	return &httprutils.Request{
+func (lr Loginradius) NewDeleteReq(path string, body ...interface{}) *httprutils.Request {
+	request := &httprutils.Request{
 		Method:  httprutils.Delete,
 		URL:     lr.Domain + path,
 		Headers: httprutils.URLEncodedHeader,
 	}
+	return request
 }
 
 func (lr Loginradius) NewDeleteReqWithToken(path string, body interface{}, queries ...map[string]string) (*httprutils.Request, error) {

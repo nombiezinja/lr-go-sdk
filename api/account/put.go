@@ -2,6 +2,7 @@ package lraccount
 
 import (
 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
 )
 
 // PutManageAccountUpdateSecurityQuestionConfig is used to update security questions configuration on an existing account.
@@ -52,3 +53,49 @@ func (lr Loginradius) PutManageAccountUpdate(uid string, body interface{}) (*htt
 	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
+
+// PutManageAccountInvalidateVerificationEmail is used to invalidate the Email Verification status on an account.
+// Optional query params: verificationurl - string ; emailtemplate - string
+func (lr Loginradius) PutManageAccountInvalidateVerificationEmail(uid string, queries ...interface{}) (*httprutils.Response, error) {
+	request, err := lr.Client.NewPutReq("/identity/v2/manage/account/"+uid+"/invalidateemail", "")
+	if err != nil {
+		return nil, err
+	}
+
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{
+			"verificationurl": true, "emailtemplate": true,
+		}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
+
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			request.QueryParams[k] = v
+		}
+	}
+
+	lr.Client.AddApiCredentialsToReqHeader(request)
+	response, err := httprutils.TimeoutClient.Send(*request)
+	return response, err
+}
+
+// func PutManageAccountInvalidateVerificationEmail(verificationURL, emailTemplate, uid string) (AccountBool, error) {
+// 	data := new(AccountBool)
+// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN")+"/identity/v2/manage/account/"+uid+"/invalidateemail", "")
+// 	if reqErr != nil {
+// 		return *data, reqErr
+// 	}
+
+// 	q := req.URL.Query()
+// 	q.Add("verificationurl", verificationURL)
+// 	q.Add("emailtemplate", emailTemplate)
+// 	req.URL.RawQuery = q.Encode()
+// 	req.Header.Add("content-Type", "application/json")
+// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
+// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
+
+// 	err := RunRequest(req, data)
+// 	return *data, err
+// }

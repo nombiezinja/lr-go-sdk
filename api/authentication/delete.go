@@ -32,8 +32,8 @@ func (lr Loginradius) DeleteAuthDeleteAccountEmailConfirmation(queries ...interf
 }
 
 // DeleteAuthRemoveEmail is used to remove additional emails from a user's account.
-// Post parameter - e-mail: string.
-// Pass data in struct lrbody.AuthUsername as body to help ensure parameters satisfy API requirements
+// Post parameter - email: string.
+// Pass data in struct lrbody.EmailStr as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) DeleteAuthRemoveEmail(body interface{}) (*httprutils.Response, error) {
 
 	request, err := lr.Client.NewDeleteReqWithToken("/identity/v2/auth/email", body)
