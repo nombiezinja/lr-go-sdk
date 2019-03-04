@@ -56,7 +56,7 @@ type AddEmail struct {
 
 // Used by PostAuthForgotPassword, PutResendEmailVerification, DeleteAuthRemoveEmail
 type EmailStr struct {
-	Email string `json:"email"`
+	Email string
 }
 
 // Used by PutAuthUpdateSecurityQuestionByEmail

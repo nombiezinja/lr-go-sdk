@@ -17,7 +17,7 @@ func (lr Loginradius) GetAuthVerifyEmail(queries interface{}) (*httprutils.Respo
 	if err != nil {
 		return nil, err
 	}
-	// validatedQueries["apiKey"] = lr.Client.Context.ApiKey
+	validatedQueries["apiKey"] = lr.Client.Context.ApiKey
 
 	request := lr.Client.NewGetReq("/identity/v2/auth/email", validatedQueries)
 	response, err := httprutils.TimeoutClient.Send(*request)

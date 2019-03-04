@@ -1,7 +1,6 @@
 package lrintegrationtest
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"testing"
@@ -261,21 +260,20 @@ func TestPutManageAccountInvalidateVerificationEmail(t *testing.T) {
 }
 
 func TestDeleteManageAccountEmailDelete(t *testing.T) {
-	_, _, testuid, testEmail, lrclient, teardownTestCase := setupAccount(t)
+	_, _, uid, email, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
-	testEmails := ProfileEmail{TestEmailArr{{"Primary", testEmail}, {"Secondary", "1" + testEmail}}}
-	_, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountUpdate(testuid, testEmails)
+	emails := ProfileEmail{TestEmailArr{{"Primary", email}, {"Secondary", "1" + email}}}
+	_, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountUpdate(uid, emails)
 	if err != nil {
-		t.Errorf("Error adding email")
-		fmt.Println(err)
+		t.Errorf("Error calling PutManageAccountUpdate for DeleteManageAccountEmailDelete: %+v", err)
 	}
-	testEmailObj := TestEmail{testEmail}
-	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountUpdate(testuid, testEmailObj)
+	toDelete := TestEmail{email}
+	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).DeleteManageAccountEmail(uid, toDelete)
 	if err != nil {
 		t.Errorf("Error calling DeleteManageAccountEmailDelete: %+v", err)
 	}
 	profile, err := lrjson.DynamicUnmarshal(response.Body)
-	if err != nil || profile["Uid"].(string) != testuid {
+	if err != nil || profile["Uid"].(string) != uid {
 		t.Errorf("Error returned from DeleteManageAccountEmailDelete: %v", err)
 	}
 }
