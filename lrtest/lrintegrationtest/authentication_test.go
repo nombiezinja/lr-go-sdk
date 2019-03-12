@@ -267,10 +267,9 @@ func TestGetAuthReadProfilesByToken(t *testing.T) {
 // // Test will fail if the feature Privacy Policy Versioning is not enabled through the dashboard
 // // To run test, comment out t.SkipNow()
 func TestGetAuthPrivatePolicyAccept(t *testing.T) {
-	// t.SkipNow()
+	t.SkipNow()
 	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	// res, err := lrauthentication.GetAuthPrivatePolicyAccept(accessToken)
 	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthPrivatePolicyAccept()
 	if err != nil {
 		t.Errorf("Error making GetAuthPrivatePolicyAccept call: %v", err)
