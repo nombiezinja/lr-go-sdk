@@ -41,7 +41,7 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
 	user := User{}
 
-	res, err := lrauthentication.Loginradius(loginradius).PostAuthUserRegistrationByEmail(map[string]string{}, user)
+	res, err := lrauthentication.Loginradius(loginradius).PostAuthUserRegistrationByEmail(user)
 	if err == nil || err.(lrerror.Error).Code() != "LoginradiusRespondedWithError" {
 		t.Errorf("PostAuthUserRegistrationByEmail Fail: Expected Error %v, instead received res: %+v, received error: %+v", "LoginradiusRespondedWithError", res, err)
 	}
@@ -56,12 +56,12 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 		Password: "password",
 	}
 
-	res, err = lrauthentication.Loginradius(loginradius).PostAuthUserRegistrationByEmail(map[string]string{}, user)
+	res, err = lrauthentication.Loginradius(loginradius).PostAuthUserRegistrationByEmail(user)
 	if res.StatusCode != 200 {
 		t.Errorf("PostAuthUserRegistrationByEmail Success: Expected StatusCode %v, received %v", 200, res)
 	}
 
-	res, err = lrauthentication.Loginradius(loginradius).PostAuthUserRegistrationByEmail(map[string]string{}, user)
+	res, err = lrauthentication.Loginradius(loginradius).PostAuthUserRegistrationByEmail(user)
 	if err == nil || err.(lrerror.Error).Code() != "LoginradiusRespondedWithError" {
 		t.Errorf("PostAuthUserRegistrationByEmail Fail: Expected Error %v, instead received res: %+v, received error: %+v", "LoginradiusRespondedWithError", res, err)
 	}

@@ -30,7 +30,7 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 	lr, stub := initTest("/identity/v2/auth/register?apiKey=&emailtemplate=&options=&verificationurl=")
 	defer stub.Close()
 	user := "user struct"
-	res, _ := lrauth.Loginradius(lrauth.Loginradius{&lr}).PostAuthUserRegistrationByEmail(map[string]string{}, user)
+	res, _ := lrauth.Loginradius(lrauth.Loginradius{&lr}).PostAuthUserRegistrationByEmail(user)
 	if res.StatusCode != 200 || res.Body != body {
 		t.Errorf("Unit TestPostAuthUserRegistrationByEmail: received %v", res)
 	}

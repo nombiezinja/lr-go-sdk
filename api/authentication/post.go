@@ -58,19 +58,24 @@ func (lr Loginradius) PostAuthForgotPassword(body interface{}, queries interface
 // PostAuthUserRegistrationByEmail creates a user in the database as well as sends a verification email to the user.
 // Post parameters are an array of email objects (Check docs for more info) and password: string
 // Pass data in struct lrbody.RegistrationUser as body to help ensure parameters satisfy API requirements
-func (lr Loginradius) PostAuthUserRegistrationByEmail(queries interface{}, body interface{}) (*httprutils.Response, error) {
+func (lr Loginradius) PostAuthUserRegistrationByEmail(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
 	sott := sott.Generate(lr.Client.Context.ApiKey, lr.Client.Context.ApiSecret)
-	allowedQueries := map[string]bool{
-		"verificationurl": true, "emailtemplate": true, "options": true,
-	}
-	validatedParams, err := lrvalidate.Validate(allowedQueries, queries)
+	queryParams := map[string]string{}
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{
+			"verificationurl": true, "emailtemplate": true, "options": true,
+		}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
 
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			queryParams[k] = v
+		}
 	}
-
-	validatedParams["apiKey"] = lr.Client.Context.ApiKey
-	request, err := lr.Client.NewPostReq("/identity/v2/auth/register", body, validatedParams)
+	queryParams["apiKey"] = lr.Client.Context.ApiKey
+	request, err := lr.Client.NewPostReq("/identity/v2/auth/register", body, queryParams)
 
 	request.Headers["X-LoginRadius-Sott"] = sott
 	response, err := httprutils.TimeoutClient.Send(*request)
