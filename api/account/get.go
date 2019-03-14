@@ -87,6 +87,7 @@ func (lr Loginradius) GetManageAccountIdentitiesByEmail(queries interface{}) (*h
 
 // GetManageAccessTokenUID is used to get LoginRadius access token based on UID.
 // Required query params: uid
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/account-impersonation-api
 func (lr Loginradius) GetManageAccessTokenUID(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"uid": true}
 	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
@@ -100,7 +101,7 @@ func (lr Loginradius) GetManageAccessTokenUID(queries interface{}) (*httprutils.
 }
 
 // GetManageAccountPassword is used to retrieve the hashed password of a specified account in Cloud Storage.
-// Required template parameter: uid
+// Required template parameter: string representing uid
 func (lr Loginradius) GetManageAccountPassword(uid string) (*httprutils.Response, error) {
 	request := lr.Client.NewGetReq("/identity/v2/manage/account/" + uid + "/password")
 	lr.Client.AddApiCredentialsToReqHeader(request)

@@ -9,8 +9,9 @@ import (
 // PostCustomObjectCreateByUID is used to write information in JSON format to the custom object for the specified account.
 // Post parameters: custom data to be created in the object.
 // Required query parameter: objectname - string
-// Required template parameter: uid - string
+// Required template parameter: string representing uid
 // Please ensure this feature is enabled for your LoginRadius account
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/custom-object/create-custom-object-by-uid
 func (lr Loginradius) PostCustomObjectCreateByUID(uid string, queries interface{}, body interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"objectname": true}
 	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
@@ -31,7 +32,6 @@ func (lr Loginradius) PostCustomObjectCreateByUID(uid string, queries interface{
 // PostCustomObjectCreateByToken is used to write information in JSON format to the custom object for the specified account.
 // Post parameters: custom data to be created in the object.
 // Required query parameter: objectname - string
-// Required template parameter: token - string
 // Please ensure this feature is enabled for your LoginRadius account
 func (lr Loginradius) PostCustomObjectCreateByToken(queries interface{}, body interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"objectname": true}
@@ -51,7 +51,7 @@ func (lr Loginradius) PostCustomObjectCreateByToken(queries interface{}, body in
 
 //GetCustomObjectByObjectRecordIDAndUID is used to retrieve the Custom Object data for the specified account.
 // Required query parameter: objectname - string
-// Required template parameter: uid - string, objectrecordid
+// Required template parameter: string representing uid, string representing objectrecordid
 // Please ensure this feature is enabled for your LoginRadius account
 func (lr Loginradius) GetCustomObjectByObjectRecordIDAndUID(uid, objectRecordID string, queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"objectname": true}
@@ -68,7 +68,7 @@ func (lr Loginradius) GetCustomObjectByObjectRecordIDAndUID(uid, objectRecordID 
 
 // GetCustomObjectByObjectRecordIDAndToken is used to retrieve the Custom Object data for the specified account.
 // Required query parameter: objectname - string; apikey - string
-// Required template parameter: objectrecordid
+// Required template parameter: string representing objectrecordid
 // Please ensure this feature is enabled for your LoginRadius account
 func (lr Loginradius) GetCustomObjectByObjectRecordIDAndToken(objectRecordID string, queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"objectname": true}
@@ -87,6 +87,7 @@ func (lr Loginradius) GetCustomObjectByObjectRecordIDAndToken(objectRecordID str
 
 // GetCustomObjectByToken is used to retrieve the specified Custom Object data for the specified account.
 // Required parameters: objectname - string; apikey - string
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/custom-object/custom-object-by-token
 func (lr Loginradius) GetCustomObjectByToken(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"objectname": true}
 	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
@@ -105,7 +106,7 @@ func (lr Loginradius) GetCustomObjectByToken(queries interface{}) (*httprutils.R
 
 // GetCustomObjectByUID is used to retrieve all the custom objects by UID from cloud storage.
 // Required parameters: objectname - string
-// Required template parameter: uid
+// Required template parameter: string representing uid
 func (lr Loginradius) GetCustomObjectByUID(uid string, queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"objectname": true}
 	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
@@ -119,77 +120,56 @@ func (lr Loginradius) GetCustomObjectByUID(uid string, queries interface{}) (*ht
 	return resp, err
 }
 
-// // GetCustomObjectByUID is used to retrieve all the custom objects by UID from cloud storage.
-// func GetCustomObjectByUID(objectName, uid string) (CustomObjectMulti, error) {
-// 	data := new(CustomObjectMulti)
-// 	req, reqErr := CreateRequest("GET", os.Getenv("DOMAIN") + "/identity/v2/manage/account/"+uid+"/customobject/", "")
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
+// PutCustomObjectUpdateByUID is used to update the specified custom object data of a specified account.
+// Post parameters:the fields that need to be changed.
+// Required query parameters: objectname - string; updatetype - string
+// If the value of updatetype is 'replace' then it will fully replace custom object with new custom object and
+// if the value of updatetype is partialreplace then it will perform an upsert type operation.
+// Required template parameters: string representing uid, string repesenting objectrecordid
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/custom-object/custom-object-update-by-objectrecordid-and-uid
+func (lr Loginradius) PutCustomObjectUpdateByUID(uid, objectrecordid string, queries, body interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{"objectname": true, "updatetype": true}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+	req, err := lr.Client.NewPutReq("/identity/v2/manage/account/"+uid+"/customobject/"+objectrecordid, body, validatedQueries)
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.AddApiCredentialsToReqHeader(req)
 
-// 	q := req.URL.Query()
-// 	q.Add("objectname", objectName)
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/x-www-form-urlencoded")
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
+	resp, err := httprutils.TimeoutClient.Send(*req)
+	return resp, err
+}
 
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
+// PutCustomObjectUpdateByToken is used to update the specified custom object data of a specified account.
+// Post parameters:the fields that need to be changed.
+// Required query parameters: objectname - string; updatetype - string
+// If the value of updatetype is 'replace' then it will fully replace custom object with new custom object and
+// if the value of updatetype is partialreplace then it will perform an upsert type operation.
+// Required template parameters: string repesenting objectrecordid
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/custom-object/custom-object-update-by-objectrecordid-and-token
+func (lr Loginradius) PutCustomObjectUpdateByToken(objectrecordid string, queries, body interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{"objectname": true, "updatetype": true}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+	req, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/customobject/"+objectrecordid, body, validatedQueries)
+	if err != nil {
+		return nil, err
+	}
 
-// // PutCustomObjectUpdateByUID is used to update the specified custom object data of a specified account.
-// // If the value of updatetype is 'replace' then it will fully replace custom object with new custom object and
-// // if the value of updatetype is partialreplace then it will perform an upsert type operation.
-// // Post parameters are the fields that need to be changed.
-// func PutCustomObjectUpdateByUID(objectName, updateType, uid, objectRecordID string, body interface{}) (CustomObject, error) {
-// 	data := new(CustomObject)
-// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN") + "/identity/v2/manage/account/"+uid+"/customobject/"+
-// 		objectRecordID, body)
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	q := req.URL.Query()
-// 	q.Add("objectname", objectName)
-// 	q.Add("updatetype", updateType)
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/json")
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
-
-// // PutCustomObjectUpdateByToken is used to update the specified custom object data of a specified account.
-// // If the value of updatetype is 'replace' then it will fully replace custom object with new custom object and
-// // if the value of updatetype is partialreplace then it will perform an upsert type operation.
-// // Post parameters are the fields that need to be changed.
-// func PutCustomObjectUpdateByToken(objectName, updateType, authorization,
-// 	objectRecordID string, body interface{}) (CustomObject, error) {
-// 	data := new(CustomObject)
-// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN") + "/identity/v2/auth/customobject/"+objectRecordID, body)
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	q := req.URL.Query()
-// 	q.Add("apikey", os.Getenv("APIKEY"))
-// 	q.Add("objectname", objectName)
-// 	q.Add("updatetype", updateType)
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/json")
-// 	req.Header.Add("Authorization", "Bearer "+authorization)
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
+	resp, err := httprutils.TimeoutClient.Send(*req)
+	return resp, err
+}
 
 // DeleteCustomObjectByObjectRecordIDAndUID is used to remove the
 // specified Custom Object data using ObjectRecordId of specified account.
-// Required template parameters: uid, objectrecordid
+// Required template parameters: string representing uid, string representing objectrecordid
 // Required query parameters: objectname
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/custom-object/custom-object-delete-by-objectrecordid-and-uid
 func (lr Loginradius) DeleteCustomObjectByObjectRecordIDAndUID(uid, objectRecordId string, queries interface{}) (*httprutils.Response, error) {
 
 	allowedQueries := map[string]bool{"objectname": true}
@@ -207,7 +187,7 @@ func (lr Loginradius) DeleteCustomObjectByObjectRecordIDAndUID(uid, objectRecord
 
 // DeleteCustomObjectByObjectRecordIDAndUID is used to remove the
 // specified Custom Object data using ObjectRecordId of specified account.
-// Required template parameters: objectrecordid
+// Required template parameters: string representing objectrecordid
 // Required query parameters: objectname
 func (lr Loginradius) DeleteCustomObjectByObjectRecordIDAndToken(objectRecordId string, queries interface{}) (*httprutils.Response, error) {
 
@@ -225,23 +205,3 @@ func (lr Loginradius) DeleteCustomObjectByObjectRecordIDAndToken(objectRecordId 
 	resp, err := httprutils.TimeoutClient.Send(*req)
 	return resp, err
 }
-
-// DeleteCustomObjectByObjectRecordIDAndToken is used to remove the
-// // specified Custom Object data using ObjectRecordId of specified account.
-// func DeleteCustomObjectByObjectRecordIDAndToken(objectName, authorization, objectRecordID string) (CustomObject, error) {
-// 	data := new(CustomObject)
-// 	req, reqErr := CreateRequest("DELETE", os.Getenv("DOMAIN")+"/identity/v2/auth/customobject/"+objectRecordID, "")
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	q := req.URL.Query()
-// 	q.Add("apikey", os.Getenv("APIKEY"))
-// 	q.Add("objectname", objectName)
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/json")
-// 	req.Header.Add("Authorization", "Bearer "+authorization)
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }

@@ -124,6 +124,52 @@ func TestGetCustomObjectByUID(t *testing.T) {
 	}
 }
 
+func TestPutCustomObjectUpdateByUID(t *testing.T) {
+	_, uid, objectId, objName, lrclient, teardownTestCase := setupCustomObject(t)
+	defer teardownTestCase(t)
+	customObj := map[string]string{
+		"custom1": "value1",
+		"custom2": "value2",
+	}
+	resp, err := customobject.Loginradius(customobject.Loginradius{lrclient}).PutCustomObjectUpdateByUID(uid, objectId, map[string]string{"objectname": objName, "updatetype": "replace"}, customObj)
+	if err != nil {
+		t.Errorf("Error calling PutCustomObjectUpdateByUID: %v", err)
+	}
+	unmarshalled, err := lrjson.DynamicUnmarshal(resp.Body)
+	if err != nil {
+		t.Errorf("Error returned from PutCustomObjectUpdateByUID: %v", err)
+	}
+	returnedObj := unmarshalled["CustomObject"].(map[string]interface{})
+	for k, v := range returnedObj {
+		if v != customObj[k] {
+			t.Errorf("PutCustomObjectUpdateByUID was supposed to update custom object to %v, got %v instead", customObj, returnedObj)
+		}
+	}
+}
+
+func TestPutCustomObjectUpdateByToken(t *testing.T) {
+	_, _, objectId, objName, lrclient, teardownTestCase := setupCustomObject(t)
+	defer teardownTestCase(t)
+	customObj := map[string]string{
+		"custom1": "value1",
+		"custom2": "value2",
+	}
+	resp, err := customobject.Loginradius(customobject.Loginradius{lrclient}).PutCustomObjectUpdateByToken(objectId, map[string]string{"objectname": objName, "updatetype": "replace"}, customObj)
+	if err != nil {
+		t.Errorf("Error calling PutCustomObjectUpdateByToken: %v", err)
+	}
+	unmarshalled, err := lrjson.DynamicUnmarshal(resp.Body)
+	if err != nil {
+		t.Errorf("Error returned from PutCustomObjectUpdateByToken: %v", err)
+	}
+	returnedObj := unmarshalled["CustomObject"].(map[string]interface{})
+	for k, v := range returnedObj {
+		if v != customObj[k] {
+			t.Errorf("PutCustomObjectUpdateByToken was supposed to update custom object to %v, got %v instead", customObj, returnedObj)
+		}
+	}
+}
+
 func TestDeleteCustomObjectByObjectRecordIDAndToken(t *testing.T) {
 	_, _, uid, _, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)

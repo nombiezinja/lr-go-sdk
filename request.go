@@ -2,7 +2,6 @@ package loginradius
 
 import (
 	"errors"
-	"fmt"
 
 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
 	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
@@ -141,8 +140,6 @@ func (lr Loginradius) NewPutReq(path string, body interface{}, queries ...map[st
 			request.QueryParams[k] = v
 		}
 	}
-	fmt.Println("put request", request)
-	fmt.Printf("body %+v", request.Body)
 	return request, nil
 }
 
