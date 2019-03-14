@@ -9,6 +9,7 @@ import (
 	lr "bitbucket.org/nombiezinja/lr-go-sdk"
 	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
 	lrauthentication "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
+	"bitbucket.org/nombiezinja/lr-go-sdk/api/customobject"
 	"bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
 )
 
@@ -108,5 +109,32 @@ func setupLogin(t *testing.T) (string, string, string, string, string, *lr.Login
 	loginradius.Context.Token = accessToken
 	return phoneID, username, testuid, testEmail, accessToken, loginradius, func(t *testing.T) {
 		defer teardownTestCase(t)
+	}
+}
+
+func setupCustomObject(t *testing.T) (string, string, string, string, *lr.Loginradius, func(t *testing.T)) {
+	t.Log("Setting up test case")
+	_, _, uid, _, accessToken, lrclient, teardownTestCase := setupLogin(t)
+
+	objName := os.Getenv("CUSTOMOBJECTNAME")
+	time := time.Now()
+	timestamp := time.Format("20060102150405")
+	customObj := map[string]string{
+		"custom1": timestamp + "0",
+		"custom2": timestamp + "1",
+	}
+	resp, err := customobject.Loginradius(customobject.Loginradius{lrclient}).PostCustomObjectCreateByUID(uid, map[string]string{"objectname": objName}, customObj)
+	if err != nil {
+		t.Errorf("Error creating custom object: %v", err)
+	}
+	obj, err := lrjson.DynamicUnmarshal(resp.Body)
+	objId := obj["Id"].(string)
+	return accessToken, uid, objId, objName, lrclient, func(t *testing.T) {
+		t.Log("Tearing down test case")
+		defer teardownTestCase(t)
+		_, err = customobject.Loginradius(customobject.Loginradius{lrclient}).DeleteCustomObjectByObjectRecordIDAndUID(uid, objId, map[string]string{"objectname": objName})
+		if err != nil {
+			t.Errorf("Error deleting custom object")
+		}
 	}
 }
