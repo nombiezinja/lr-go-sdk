@@ -249,3 +249,8 @@ func (lr Loginradius) AddApiCredentialsToReqHeader(req *httprutils.Request) {
 func (lr Loginradius) AddApiKeyToReqHeader(req *httprutils.Request) {
 	req.Headers["X-LoginRadius-ApiKey"] = lr.Context.ApiKey
 }
+
+func (lr Loginradius) NormalizeApiKey(req *httprutils.Request) {
+	delete(req.QueryParams, "apiKey")
+	req.QueryParams["apikey"] = lr.Context.ApiKey
+}
