@@ -99,17 +99,18 @@ func setupEmailVerificationAccount(t *testing.T) (string, string, string, *lr.Lo
 }
 
 func setupLogin(t *testing.T) (string, string, string, string, string, *lr.Loginradius, func(t *testing.T)) {
-	phoneID, username, testuid, testEmail, loginradius, teardownTestCase := setupAccount(t)
+	phoneID, username, uid, email, loginradius, teardownTestCase := setupAccount(t)
 	authlr := lrauthentication.Loginradius{loginradius}
-	testLogin := TestEmailLogin{testEmail, testEmail}
-	response, err := lrauthentication.Loginradius(authlr).PostAuthLoginByEmail(testLogin)
+	// testLogin := TestEmailLogin{email, email}
+	// response, err := lrauthentication.Loginradius(authlr).PostAuthLoginByEmail(testLogin)
+	response, err := lraccount.Loginradius(authlr).GetManageAccessTokenUID(map[string]string{"uid": uid})
 	session, _ := lrjson.DynamicUnmarshal(response.Body)
 	accessToken := session["access_token"].(string)
 	if err != nil || accessToken == "" {
 		t.Errorf("Error logging in: %+v", err)
 	}
 	loginradius.Context.Token = accessToken
-	return phoneID, username, testuid, testEmail, accessToken, loginradius, func(t *testing.T) {
+	return phoneID, username, uid, email, accessToken, loginradius, func(t *testing.T) {
 		defer teardownTestCase(t)
 	}
 }

@@ -171,9 +171,8 @@ func (lr Loginradius) GetPhoneNumberAvailability(queries interface{}) (*httpruti
 	if err != nil {
 		return nil, err
 	}
-	validatedQueries["apikey"] = lr.Client.Context.ApiKey
 	req := lr.Client.NewGetReq("/identity/v2/auth/phone", validatedQueries)
-	delete(req.QueryParams, "apiKey")
+	lr.Client.NormalizeApiKey(req)
 	resp, err := httprutils.TimeoutClient.Send(*req)
 	return resp, err
 }
@@ -200,8 +199,7 @@ func (lr Loginradius) PutPhoneLoginUsingOTP(body interface{}, queries ...interfa
 			request.QueryParams[k] = v
 		}
 	}
-	request.QueryParams["apikey"] = lr.Client.Context.ApiKey
-	delete(request.QueryParams, "apiKey")
+	lr.Client.NormalizeApiKey(request)
 	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
@@ -224,9 +222,8 @@ func (lr Loginradius) PutPhoneNumberUpdate(body interface{}, queries ...interfac
 			queryParams[k] = v
 		}
 	}
-	queryParams["apikey"] = lr.Client.Context.ApiKey
 	req, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/phone", body, queryParams)
-	delete(req.QueryParams, "apiKey")
+	lr.Client.NormalizeApiKey(req)
 	if err != nil {
 		return nil, err
 	}
@@ -261,12 +258,11 @@ func (lr Loginradius) PutPhoneVerificationByOTP(queries, body interface{}) (*htt
 	if err != nil {
 		return nil, err
 	}
-	validatedQueries["apikey"] = lr.Client.Context.ApiKey
 	req, err := lr.Client.NewPutReq("/identity/v2/auth/phone/otp", body, validatedQueries)
 	if err != nil {
 		return nil, err
 	}
-	delete(req.QueryParams, "apiKey")
+	lr.Client.NormalizeApiKey(req)
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
@@ -289,8 +285,7 @@ func (lr Loginradius) PutPhoneVerificationByOTPByToken(queries interface{}) (*ht
 	if err != nil {
 		return nil, err
 	}
-	req.QueryParams["apikey"] = lr.Client.Context.ApiKey
-	delete(req.QueryParams, "apiKey")
+	lr.Client.NormalizeApiKey(req)
 
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
