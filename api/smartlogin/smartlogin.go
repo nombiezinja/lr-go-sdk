@@ -18,9 +18,8 @@ func (lr Loginradius) GetSmartLoginByEmail(queries interface{}) (*httprutils.Res
 	if err != nil {
 		return nil, err
 	}
-	validatedQueries["apikey"] = lr.Client.Context.ApiKey
 	req := lr.Client.NewGetReq("/identity/v2/auth/login/smartlogin", validatedQueries)
-	delete(req.QueryParams, "apiKey")
+	lr.Client.NormalizeApiKey(req)
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
@@ -37,9 +36,8 @@ func (lr Loginradius) GetSmartLoginByUsername(queries interface{}) (*httprutils.
 	if err != nil {
 		return nil, err
 	}
-	validatedQueries["apikey"] = lr.Client.Context.ApiKey
 	req := lr.Client.NewGetReq("/identity/v2/auth/login/smartlogin", validatedQueries)
-	delete(req.QueryParams, "apiKey")
+	lr.Client.NormalizeApiKey(req)
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
@@ -53,9 +51,8 @@ func (lr Loginradius) GetSmartLoginPing(queries interface{}) (*httprutils.Respon
 	if err != nil {
 		return nil, err
 	}
-	validatedQueries["apikey"] = lr.Client.Context.ApiKey
 	req := lr.Client.NewGetReq("/identity/v2/auth/login/smartlogin/ping", validatedQueries)
-	delete(req.QueryParams, "apiKey")
+	lr.Client.NormalizeApiKey(req)
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
@@ -72,9 +69,8 @@ func (lr Loginradius) GetSmartLoginVerifyToken(queries interface{}) (*httprutils
 	if err != nil {
 		return nil, err
 	}
-	validatedQueries["apikey"] = lr.Client.Context.ApiKey
 	req := lr.Client.NewGetReq("/identity/v2/auth/email/smartlogin", validatedQueries)
-	delete(req.QueryParams, "apiKey")
+	lr.Client.NormalizeApiKey(req)
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }

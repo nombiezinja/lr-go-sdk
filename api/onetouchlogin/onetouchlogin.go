@@ -13,7 +13,7 @@ import (
 // Required post parameters: clientguid - string; email - string; g-recaptcha-response - string;
 // Optional post parameters: qq_captcha_ticket - string; qq_captcha_randstr - string;
 func (lr Loginradius) PostOneTouchLoginByEmail(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
-	validatedQueries := map[string]string{"apikey": lr.Client.Context.ApiKey}
+	validatedQueries := map[string]string{}
 	for _, arg := range queries {
 		allowedQueries := map[string]bool{
 			"redirecturl": true, "OneTouchLoginEmailTemplate": true, "welcomeemailtemplate": true,
@@ -31,7 +31,7 @@ func (lr Loginradius) PostOneTouchLoginByEmail(body interface{}, queries ...inte
 	if err != nil {
 		return nil, err
 	}
-	delete(req.QueryParams, "apiKey")
+	lr.Client.NormalizeApiKey(req)
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
@@ -43,7 +43,7 @@ func (lr Loginradius) PostOneTouchLoginByEmail(body interface{}, queries ...inte
 // Required post parameters: clientguid - string; phone - string; g-recaptcha-response - string;
 // Optional post parameters: qq_captcha_ticket - string; qq_captcha_randstr - string;
 func (lr Loginradius) PostOneTouchLoginByPhone(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
-	validatedQueries := map[string]string{"apikey": lr.Client.Context.ApiKey}
+	validatedQueries := map[string]string{}
 	for _, arg := range queries {
 		allowedQueries := map[string]bool{
 			"redirecturl": true, "OneTouchLoginEmailTemplate": true, "welcomeemailtemplate": true,
@@ -61,7 +61,7 @@ func (lr Loginradius) PostOneTouchLoginByPhone(body interface{}, queries ...inte
 	if err != nil {
 		return nil, err
 	}
-	delete(req.QueryParams, "apiKey")
+	lr.Client.NormalizeApiKey(req)
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
@@ -79,27 +79,11 @@ func (lr Loginradius) PutOneTouchOTPVerification(queries, body interface{}) (*ht
 	if err != nil {
 		return nil, err
 	}
-	validatedQueries["apikey"] = lr.Client.Context.ApiKey
 	req, err := lr.Client.NewPutReq("/identity/v2/auth/onetouchlogin/phone/verify", body, validatedQueries)
 	if err != nil {
 		return nil, err
 	}
-	delete(req.QueryParams, "apiKey")
+	lr.Client.NormalizeApiKey(req)
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
-	// 	data := new(OneTouchLogin)
-	// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN") + "/identity/v2/auth/onetouchlogin/phone/verify", body)
-	// 	if reqErr != nil {
-	// 		return *data, reqErr
-	// 	}
-
-	// 	q := req.URL.Query()
-	// 	q.Add("apikey", os.Getenv("APIKEY"))
-	// 	q.Add("otp", otp)
-	// 	q.Add("smstemplate", smsTemplate)
-	// 	req.URL.RawQuery = q.Encode()
-	// 	req.Header.Add("content-Type", "application/json")
-
-	// 	err := RunRequest(req, data)
-	// 	return *data, err
 }
