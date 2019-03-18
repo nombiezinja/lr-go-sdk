@@ -1,6 +1,8 @@
 package lrintegrationtest
 
 import (
+	"encoding/base64"
+	"math/rand"
 	"os"
 	"strconv"
 	"testing"
@@ -137,4 +139,11 @@ func setupCustomObject(t *testing.T) (string, string, string, string, *lr.Loginr
 			t.Errorf("Error deleting custom object")
 		}
 	}
+}
+
+func genGUID() string {
+	rand.Seed(time.Now().UnixNano())
+	buff := make([]byte, 64)
+	rand.Read(buff)
+	return base64.StdEncoding.EncodeToString(buff)
 }

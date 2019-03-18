@@ -6,38 +6,6 @@ import (
 	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
 )
 
-// import (
-// 	"os"
-// 	"time"
-// )
-
-// // PhoneLogin is a struct used to contain the login information retrieved when
-// // the login and verification APIs for phone authentications are called.
-// type PhoneLogin struct {
-// 	Profile     AuthProfile
-// 	AccessToken string    `json:"access_token"`
-// 	ExpiresIn   time.Time `json:"expires_in"`
-// 	Password    string
-// }
-
-// // PhoneOTP is the struct used to contain various OTP related responses when
-// // dealing with phone authentication responses
-// type PhoneOTP struct {
-// 	IsPosted bool `json:"IsPosted"`
-// 	Data     struct {
-// 		AccountSid string `json:"AccountSid"`
-// 		Sid        string `json:"Sid"`
-// 	} `json:"Data"`
-// }
-
-// // PhoneBool is a struct that contains data from responses that contain a
-// // single boolean JSON attribute from the phone authentication API
-// type PhoneBool struct {
-// 	IsPosted  bool `json:"IsPosted"`
-// 	IsDeleted bool `json:"IsDeleted"`
-// 	IsExist   bool `json:"IsExist"`
-// }
-
 // PostPhoneLogin retrieves a copy of the user data based on the Phone.
 // Required post parameters: phone - string; password - string;
 // Optional post parameters: securityanswer - object - required when account locked and unlock strategy is securityanswer
@@ -355,18 +323,4 @@ func (lr Loginradius) DeleteRemovePhoneIDByAccessToken() (*httprutils.Response, 
 	}
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
-	// data := new(PhoneBool)
-	// req, reqErr := CreateRequest("DELETE", os.Getenv("DOMAIN")+"/identity/v2/auth/phone", "")
-	// if reqErr != nil {
-	// 	return *data, reqErr
-	// }
-
-	// q := req.URL.Query()
-	// q.Add("apikey", os.Getenv("APIKEY"))
-	// req.URL.RawQuery = q.Encode()
-	// req.Header.Add("content-Type", "application/json")
-	// req.Header.Add("Authorization", "Bearer "+authorization)
-
-	// err := RunRequest(req, data)
-	// return *data, err
 }
