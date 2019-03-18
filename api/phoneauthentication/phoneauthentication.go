@@ -173,195 +173,200 @@ func (lr Loginradius) PostPhoneUserRegistrationBySMS(body interface{}, queries .
 	request.Headers["X-LoginRadius-Sott"] = sott
 	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
-	// 	data := new(PhoneBool)
-	// 	req, reqErr := CreateRequest("POST", os.Getenv("DOMAIN")+"/identity/v2/auth/register", body)
-	// 	if reqErr != nil {
-	// 		return *data, reqErr
-	// 	}
-
-	// 	sott := GenerateSOTT()
-	// 	q := req.URL.Query()
-	// 	q.Add("apikey", os.Getenv("APIKEY"))
-	// 	q.Add("verificationURL", verificationURL)
-	// 	q.Add("smstemplate", smstemplate)
-	// 	q.Add("options", options)
-	// 	req.URL.RawQuery = q.Encode()
-	// 	req.Header.Add("content-Type", "application/json")
-	// 	req.Header.Add("X-LoginRadius-Sott", sott)
-
-	// 	err := RunRequest(req, data)
-	// 	return *data, err
 }
 
-// // GetPhoneSendOTP is used to send your phone an OTP.
-// func GetPhoneSendOTP(phone, smsTemplate string) (PhoneOTP, error) {
-// 	data := new(PhoneOTP)
-// 	req, reqErr := CreateRequest("GET", os.Getenv("DOMAIN")+"/identity/v2/auth/login/passwordlesslogin/otp", "")
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
+// GetPhoneSendOTP is used to send your phone an OTP.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/passwordless-login/passwordless-login-by-phone
+// Required query parameters: apikey, phone
+// Optional query parameter: smstemplate
+func (lr Loginradius) GetPhoneSendOTP(queries interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{
+		"phone": true, "smstemplate": true,
+	}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+	validatedQueries["apikey"] = lr.Client.Context.ApiKey
+	request := lr.Client.NewGetReq("/identity/v2/auth/login/passwordlesslogin/otp", validatedQueries)
+	delete(request.QueryParams, "apiKey")
+	res, err := httprutils.TimeoutClient.Send(*request)
+	return res, err
+}
 
-// 	q := req.URL.Query()
-// 	q.Add("apikey", os.Getenv("APIKEY"))
-// 	q.Add("phone", phone)
-// 	q.Add("smstemplate", smsTemplate)
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/json")
+// GetPhoneNumberAvailability is used to check the whether the phone number exists or not on your site.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/phone-authentication/phone-number-availability
+// Required query parameter: apikey, phone
+func (lr Loginradius) GetPhoneNumberAvailability(queries interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{"phone": true}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+	validatedQueries["apikey"] = lr.Client.Context.ApiKey
+	req := lr.Client.NewGetReq("/identity/v2/auth/phone", validatedQueries)
+	delete(req.QueryParams, "apiKey")
+	resp, err := httprutils.TimeoutClient.Send(*req)
+	return resp, err
+}
 
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
+// PutPhoneLoginUsingOTP is used to login using OTP flow.
+// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/passwordless-login/passwordless-login-phone-verification
+// Required query parameter: apikey
+// Optional query parameter: smstemplate
+// Required post parameters: phone - string; otp - string
+// Optional post parameters: securityanswer - string; g-recaptcha-response - string; qq_captcha_ticket - string; qq_captcha_randstr - string
+// The post parameters are phone:string, otp: string, optional smstemplate: string,
+// optional securityanswer: string, optional g-recaptcha-response: string,
+// optional qq_captcha_ticket: string, optional qq_captcha_randstr: string
+func (lr Loginradius) PutPhoneLoginUsingOTP(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
+	request, err := lr.Client.NewPutReq("/identity/v2/auth/login/passwordlesslogin/otp/verify", body)
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{"smstemplate": true}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
 
-// // GetPhoneNumberAvailability is used to check the whether the phone number exists or not on your site.
-// func GetPhoneNumberAvailability(phone string) (PhoneBool, error) {
-// 	data := new(PhoneBool)
-// 	req, reqErr := CreateRequest("GET", os.Getenv("DOMAIN")+"/identity/v2/auth/phone", "")
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			request.QueryParams[k] = v
+		}
+	}
+	request.QueryParams["apikey"] = lr.Client.Context.ApiKey
+	delete(request.QueryParams, "apiKey")
+	response, err := httprutils.TimeoutClient.Send(*request)
+	return response, err
+}
 
-// 	q := req.URL.Query()
-// 	q.Add("apikey", os.Getenv("APIKEY"))
-// 	q.Add("phone", phone)
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/x-www-form-urlencoded")
+// PutPhoneNumberUpdate is used to update the phone number of a user.
+// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/phone-authentication/phone-number-update
+// Required query parameter: apikey
+// Optional query parameter: smstemplate
+// Required post parameter: phone - string (the new number to be updated for the account)
+func (lr Loginradius) PutPhoneNumberUpdate(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
+	queryParams := map[string]string{}
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{"smstemplate": true}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
 
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			queryParams[k] = v
+		}
+	}
+	queryParams["apikey"] = lr.Client.Context.ApiKey
+	req, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/phone", body, queryParams)
+	delete(req.QueryParams, "apiKey")
+	if err != nil {
+		return nil, err
+	}
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
 
-// // PutPhoneLoginUsingOTP is used to login using OTP flow.
-// // The post parameters are phone:string, otp: string, optional smstemplate: string,
-// // optional securityanswer: string, optional g-recaptcha-response: string,
-// // optional qq_captcha_ticket: string, optional qq_captcha_randstr: string
-// func PutPhoneLoginUsingOTP(smsTemplate string, body interface{}) (PhoneLogin, error) {
-// 	data := new(PhoneLogin)
-// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN")+"/identity/v2/auth/login/passwordlesslogin/otp/verify", body)
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
+// PutPhoneResetPasswordByOTP is used to reset the password.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/phone-authentication/phone-reset-password-by-otp
+// Required query parameter: apikey
+// Optional post parameters: smstemplate - string; resetpasswordmailtemplate - string
+// Required post parameters: phone - string; otp - string; password-string
+func (lr Loginradius) PutPhoneResetPasswordByOTP(body interface{}) (*httprutils.Response, error) {
+	req, err := lr.Client.NewPutReq("/identity/v2/auth/password/otp", body)
+	if err != nil {
+		return nil, err
+	}
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
 
-// 	q := req.URL.Query()
-// 	q.Add("apikey", os.Getenv("APIKEY"))
-// 	q.Add("smstemplate", smsTemplate)
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/json")
+// PutPhoneVerificationByOTP is used to validate the verification code sent to verify a user's phone number.
+// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/phone-authentication/phone-verify-otp
+// Required query parameters: apikey, otp
+// Optional query parameter: smstemplate
+// Required post parameter: phone - string
+func (lr Loginradius) PutPhoneVerificationByOTP(queries, body interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{
+		"otp": true, "smstemplate": true,
+	}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+	validatedQueries["apikey"] = lr.Client.Context.ApiKey
+	req, err := lr.Client.NewPutReq("/identity/v2/auth/phone/otp", body, validatedQueries)
+	if err != nil {
+		return nil, err
+	}
+	delete(req.QueryParams, "apiKey")
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
 
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
+// PutPhoneVerificationByOTPByToken is used to consume the verification code sent to verify a user's phone number.
+// Use this call for front-end purposes in cases where the user is already logged in by passing the user's access token.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/phone-authentication/phone-verify-otp-by-token
+// Required query parameters: apikey, otp
+// Optional query parameter: smstemplate
+// Requires Authorization Bearer token
+func (lr Loginradius) PutPhoneVerificationByOTPByToken(queries interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{
+		"otp": true, "smstemplate": true,
+	}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+	req, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/phone/otp", "", validatedQueries)
+	if err != nil {
+		return nil, err
+	}
+	req.QueryParams["apikey"] = lr.Client.Context.ApiKey
+	delete(req.QueryParams, "apiKey")
 
-// // PutPhoneNumberUpdate is used to update the phone number of a user.
-// // The post parameter is a phoneID, phone:string.
-// func PutPhoneNumberUpdate(smstemplate, authorization string, body interface{}) (PhoneOTP, error) {
-// 	data := new(PhoneOTP)
-// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN")+"/identity/v2/auth/phone", body)
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
 
-// 	q := req.URL.Query()
-// 	q.Add("apikey", os.Getenv("APIKEY"))
-// 	q.Add("smstemplate", smstemplate)
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/json")
-// 	req.Header.Add("Authorization", "Bearer "+authorization)
+// PutResetPhoneIDVerification allows you to reset the phone number verification of an end user’s account.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/phone-authentication/reset-phone-id-verification
+// Required template parameter: string representing uid of the user profile
+func (lr Loginradius) PutResetPhoneIDVerification(uid string) (*httprutils.Response, error) {
+	req, err := lr.Client.NewPutReq("/identity/v2/manage/account/"+uid+"/invalidatephone", "")
+	if err != nil {
+		return nil, err
+	}
+	req.QueryParams = map[string]string{
+		"apikey":    lr.Client.Context.ApiKey,
+		"apisecret": lr.Client.Context.ApiSecret,
+	}
+	req.Headers = httprutils.URLEncodedHeader
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
 
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
+// DeleteRemovePhoneIDByAccessToken is used to delete the Phone ID on a user's account via the access_token.
+// Required query parameter: apikey
+// Requires Authorization Bearer token
+func (lr Loginradius) DeleteRemovePhoneIDByAccessToken() (*httprutils.Response, error) {
+	req, err := lr.Client.NewDeleteReqWithToken("/identity/v2/auth/phone", "")
+	if err != nil {
+		return nil, err
+	}
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+	// data := new(PhoneBool)
+	// req, reqErr := CreateRequest("DELETE", os.Getenv("DOMAIN")+"/identity/v2/auth/phone", "")
+	// if reqErr != nil {
+	// 	return *data, reqErr
+	// }
 
-// // PutPhoneResetPasswordByOTP is used to reset the password.
-// // The post parameters are phone:string, otp: string, password: string and
-// // optional smstemplate: string and optional resetpasswordemailtemplate: string
-// func PutPhoneResetPasswordByOTP(body interface{}) (PhoneBool, error) {
-// 	data := new(PhoneBool)
-// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN")+"/identity/v2/auth/password/otp", body)
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
+	// q := req.URL.Query()
+	// q.Add("apikey", os.Getenv("APIKEY"))
+	// req.URL.RawQuery = q.Encode()
+	// req.Header.Add("content-Type", "application/json")
+	// req.Header.Add("Authorization", "Bearer "+authorization)
 
-// 	q := req.URL.Query()
-// 	q.Add("apikey", os.Getenv("APIKEY"))
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/json")
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
-
-// // PutPhoneVerificationByOTP is used to validate the verification code sent to verify a user's phone number.
-// // The post parameter is the phoneID, phone:string
-// func PutPhoneVerificationByOTP(otp, smstemplate string, body interface{}) (PhoneLogin, error) {
-// 	data := new(PhoneLogin)
-// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN")+"/identity/v2/auth/phone/otp", body)
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	q := req.URL.Query()
-// 	q.Add("apikey", os.Getenv("APIKEY"))
-// 	q.Add("otp", otp)
-// 	q.Add("smstemplate", smstemplate)
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/json")
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
-
-// // PutPhoneVerificationByOTPByToken is used to consume the verification code sent to verify a user's phone number.
-// // Use this call for front-end purposes in cases where the user is already logged in by passing the user's access token.
-// // The post parameter is the phoneID, phone:string
-// func PutPhoneVerificationByOTPByToken(otp, smstemplate, authorization string) (PhoneBool, error) {
-// 	data := new(PhoneBool)
-// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN")+"/identity/v2/auth/phone/otp", "")
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	q := req.URL.Query()
-// 	q.Add("apikey", os.Getenv("APIKEY"))
-// 	q.Add("otp", otp)
-// 	q.Add("smstemplate", smstemplate)
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/json")
-// 	req.Header.Add("Authorization", "Bearer "+authorization)
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
-
-// // PutResetPhoneIDVerification allows you to reset the phone number verification of an end user’s account.
-// func PutResetPhoneIDVerification(uid string) (PhoneBool, error) {
-// 	data := new(PhoneBool)
-// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN")+"/identity/v2/manage/account/"+uid+"/invalidatephone", "")
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	req.Header.Add("content-Type", "application/x-www-form-urlencoded")
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
-
-// // DeleteRemovePhoneIDByAccessToken is used to delete the Phone ID on a user's account via the access_token.
-// func DeleteRemovePhoneIDByAccessToken(authorization string) (PhoneBool, error) {
-// 	data := new(PhoneBool)
-// 	req, reqErr := CreateRequest("DELETE", os.Getenv("DOMAIN")+"/identity/v2/auth/phone", "")
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	q := req.URL.Query()
-// 	q.Add("apikey", os.Getenv("APIKEY"))
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/json")
-// 	req.Header.Add("Authorization", "Bearer "+authorization)
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
+	// err := RunRequest(req, data)
+	// return *data, err
+}

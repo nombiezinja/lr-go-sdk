@@ -2,17 +2,16 @@ package lrintegrationtest
 
 import (
 	"os"
+	"strconv"
 	"testing"
+	"time"
 
 	lr "bitbucket.org/nombiezinja/lr-go-sdk"
+	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
 	"bitbucket.org/nombiezinja/lr-go-sdk/api/phoneauthentication"
+	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
 	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
 )
-
-// func unverifyPhone(uid string) {
-// 	falsePhoneIDVerified := UndoPhoneVerify{false}
-// 	PutManageAccountUpdate(uid, falsePhoneIDVerified)
-// }
 
 func TestPostPhoneLogin(t *testing.T) {
 	phoneID, _, _, password, lrclient, teardownTestCase := setupAccount(t)
@@ -101,78 +100,252 @@ func TestPostPhoneResendVerificationOTPByToken(t *testing.T) {
 	}
 }
 
-// func TestPostPhoneUserRegistrationBySMS(t *testing.T) {
-// 	PresetLoginRadiusTestEnv()
-// 	fmt.Println("Starting test TestPostPhoneUserRegistrationBySMS")
-// 	time := time.Now()
-// 	timestamp := time.Format("20060102150405")
-// 	timestampEmail := "testemail" + timestamp + "@mailinator.com"
-// 	testEmails := TestEmailArr{{"Primary", timestampEmail}}
-// 	phoneAccount := PhoneRegister{testEmails, "+12016768872", "password"}
-// 	session, err := PostPhoneUserRegistrationBySMS("", "", "", phoneAccount)
-// 	if err != nil && session.IsPosted != true {
-// 		t.Errorf("Error registering phone number")
-// 		fmt.Println(err)
-// 	}
-// 	user, err2 := GetManageAccountProfilesByEmail(timestampEmail)
-// 	if err2 != nil {
-// 		t.Errorf("Error cleaning up account")
-// 		fmt.Println(err2)
-// 	}
-// 	uid := user.UID
-// 	_, err3 := DeleteManageAccount(uid)
-// 	if err3 != nil {
-// 		t.Errorf("Error cleaning up account")
-// 		fmt.Println(err3)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+func TestPostPhoneUserRegistrationBySMS(t *testing.T) {
 
-// func TestGetPhoneNumberAvailability(t *testing.T) {
-// 	fmt.Println("Starting test TestGetPhoneNumberAvailability")
-// 	phoneID, _, _, _, teardownTestCase := setupAccount(t)
-// 	defer teardownTestCase(t)
-// 	_, err := GetPhoneNumberAvailability(phoneID)
-// 	if err != nil {
-// 		t.Errorf("Error checking phone number availability")
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	SetTestEnv()
 
-// func TestPutPhoneNumberUpdate(t *testing.T) {
-// 	fmt.Println("Starting test TestPutPhoneNumberUpdate")
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	phone := TestPhone{"+12016768874"}
-// 	session, err := PutPhoneNumberUpdate("", accessToken, phone)
-// 	if err != nil && session.IsPosted != true {
-// 		t.Errorf("Error updating phone number")
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
 
-// func TestPutResetPhoneIDVerification(t *testing.T) {
-// 	fmt.Println("Starting test TestPutResetPhoneIDVerification")
-// 	_, _, testuid, _, teardownTestCase := setupAccount(t)
-// 	defer teardownTestCase(t)
-// 	_, err := PutResetPhoneIDVerification(testuid)
-// 	if err != nil {
-// 		t.Errorf("Error resetting verification")
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	lrclient, _ := lr.NewLoginradius(&cfg)
+	loginradius := phoneauthentication.Loginradius{lrclient}
 
-// func TestDeleteRemovePhoneIDByAccessToken(t *testing.T) {
-// 	fmt.Println("Starting test TestDeleteRemovePhoneIDByAccessToken")
-// 	_, _, _, _, accessToken, teardownTestCase := setupLogin(t)
-// 	defer teardownTestCase(t)
-// 	_, err := DeleteRemovePhoneIDByAccessToken(accessToken)
-// 	if err != nil {
-// 		t.Errorf("Error removing phone ID")
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
+	user := User{}
+
+	res, err := phoneauthentication.Loginradius(loginradius).PostPhoneUserRegistrationBySMS(user)
+	if err == nil || err.(lrerror.Error).Code() != "LoginradiusRespondedWithError" {
+		t.Errorf("PostPhoneUserRegistrationBySMS Fail: Expected Error %v, instead received res: %+v, received error: %+v", "LoginradiusRespondedWithError", res, err)
+	}
+
+	user = User{
+		Email: []Email{
+			Email{
+				Type:  "Primary",
+				Value: testEmail,
+			},
+		},
+		Password: "password",
+	}
+
+	res, err = phoneauthentication.Loginradius(loginradius).PostPhoneUserRegistrationBySMS(user)
+	if res.StatusCode != 200 {
+		t.Errorf("PostPhoneUserRegistrationBySMS Success: Expected StatusCode %v, received %v", 200, res)
+	}
+
+	res, err = phoneauthentication.Loginradius(loginradius).PostPhoneUserRegistrationBySMS(user)
+	if err == nil || err.(lrerror.Error).Code() != "LoginradiusRespondedWithError" {
+		t.Errorf("PostPhoneUserRegistrationBySMS Fail: Expected Error %v, instead received res: %+v, received error: %+v", "LoginradiusRespondedWithError", res, err)
+	}
+
+	res, err = lraccount.Loginradius(lraccount.Loginradius{lrclient}).GetManageAccountProfilesByEmail(map[string]string{"email": testEmail})
+	if err != nil {
+		t.Errorf("Error retrieving uid of account to clean up: %v.", err)
+	}
+
+	profile, _ := lrjson.DynamicUnmarshal(res.Body)
+	uid := profile["Uid"].(string)
+	_, err = lraccount.Loginradius(lraccount.Loginradius{lrclient}).DeleteManageAccount(uid)
+	if err != nil {
+		t.Errorf("Error cleaning up account: %v", err)
+	}
+}
+
+// To run this test, comment out t.SkipNow(), manually attempt a log in with a registered user account
+// and fill out the otp received as well as the phone number in this test
+func TestPutPhoneLoginUsingOTP(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+	res, err := phoneauthentication.Loginradius(phoneauthentication.Loginradius{lrclient}).PutPhoneLoginUsingOTP(
+		// Manually fill phone number of a registered user account and otp received here
+		map[string]string{"phone": "", "otp": "871962"},
+	)
+	if err != nil {
+		t.Errorf("Error making PutPhoneLoginUsingOTP call: %v", err)
+	}
+	session, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || session["access_token"].(string) == "" {
+		t.Errorf("Error returned from PutPhoneLoginUsingOTP call: %v", err)
+	}
+}
+
+// To run this test please comment out t.SkipNow() and manually set
+// phone number with a phone number already registered for a user profile
+func TestGetPhoneNumberAvailability(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+	// Fill phone number here
+	resp, err := phoneauthentication.Loginradius(phoneauthentication.Loginradius{lrclient}).GetPhoneNumberAvailability(
+		map[string]string{"phone": ""},
+	)
+	if err != nil {
+		t.Errorf("Error calling GetPhoneNumberAvailability: %v", err)
+	}
+	available, err := lrjson.DynamicUnmarshal(resp.Body)
+	if err != nil || !available["IsExist"].(bool) {
+		t.Errorf("Error returned from GetPhoneNumberAvailability: %v", err)
+	}
+}
+
+// To run this test please comment out t.SkipNow() and manually set
+// phone number with a phone number already registered for a user profile
+func TestGetPhoneSendOTP(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+	// Fill phone number here
+	resp, err := phoneauthentication.Loginradius(phoneauthentication.Loginradius{lrclient}).GetPhoneSendOTP(
+		map[string]string{"phone": ""},
+	)
+	if err != nil {
+		t.Errorf("Error calling GetPhoneSendOTP: %v", err)
+	}
+	posted, err := lrjson.DynamicUnmarshal(resp.Body)
+	data := posted["Data"].(map[string]interface{})
+	if err != nil || data["Sid"].(string) == "" {
+		t.Errorf("Error returned from GetPhoneSendOTP: %v", err)
+	}
+}
+
+// To run this test, comment out t.SkipNow() and manually fill with a valid phone number
+func TestPutPhoneNumberUpdate(t *testing.T) {
+	t.SkipNow()
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	res, err := phoneauthentication.Loginradius(phoneauthentication.Loginradius{lrclient}).PutPhoneNumberUpdate(
+		// Fill valid phone number here
+		map[string]string{"phone": ""},
+	)
+	if err != nil {
+		t.Errorf("Error calling PutPhoneNumberUpdate: %v", err)
+	}
+	updated, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil && !updated["IsPosted"].(bool) {
+		t.Errorf("Error returned from PutPhoneNumberUpdate: %v", err)
+	}
+}
+
+// To run this test please comment out t.SkipNow() and manually set
+// phone number, password, o,tp with a phone number already registered for a user profile
+// after making a request to receive a valid otp on this phone number
+func TestPutPhoneResetPasswordByOTP(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+	// Fill phone number, password, and otp here
+	resp, err := phoneauthentication.Loginradius(phoneauthentication.Loginradius{lrclient}).PutPhoneResetPasswordByOTP(
+		map[string]string{"phone": "", "password": "", "otp": ""},
+	)
+	if err != nil {
+		t.Errorf("Error calling PutPhoneResetPasswordByOTP: %v", err)
+	}
+	posted, err := lrjson.DynamicUnmarshal(resp.Body)
+	if err != nil || !posted["IsPosted"].(bool) {
+		t.Errorf("Error returned from PutPhoneResetPasswordByOTP: %v", err)
+	}
+}
+
+// To run this test please comment out t.SkipNow() and manually set
+// the phone number of a valid user profile in the test
+// This phone number must be unverified.
+// after making a request to receive a valid otp on this phone number
+func TestPutPhoneVerificationByOTP(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+	// Set phone number and otp here
+	res, err := phoneauthentication.Loginradius(phoneauthentication.Loginradius{lrclient}).PutPhoneVerificationByOTP(
+		map[string]string{"otp": ""}, map[string]string{"phone": ""},
+	)
+	if err != nil {
+		t.Errorf("Error calling PutPhoneVerificationByOTP: %v", err)
+	}
+	profile, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || profile["Uid"] == "" {
+		t.Errorf("Error returned from PutPhoneVerificationByOTP: %v", err)
+	}
+}
+
+// To run this test please comment out t.SkipNow() and manually set
+// the access token and phone number of a valid user profile in the test
+// This phone number must be unverified.
+// after making a request to receive a valid otp on this phone number
+func TestPutPhoneVerificationByOTPByToken(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	// Set user token here
+	lrclient, _ := lr.NewLoginradius(&cfg, map[string]string{"token": ""})
+	// Set phone number and otp here
+	res, err := phoneauthentication.Loginradius(phoneauthentication.Loginradius{lrclient}).PutPhoneVerificationByOTPByToken(
+		map[string]string{"otp": ""},
+	)
+	if err != nil {
+		t.Errorf("Error calling PutPhoneVerificationByOTPByToken: %v", err)
+	}
+	profile, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || profile["Uid"] == "" {
+		t.Errorf("Error returned from PutPhoneVerificationByOTPByToken: %v", err)
+	}
+}
+
+// To run this test please comment out t.SkipNow() and manually set
+// phone number with a phone number already registered for a user profile
+func TestPutResetPhoneIDVerification(t *testing.T) {
+	_, _, uid, _, lrclient, teardownTestCase := setupAccount(t)
+	defer teardownTestCase(t)
+	res, err := phoneauthentication.Loginradius(phoneauthentication.Loginradius{lrclient}).PutResetPhoneIDVerification(uid)
+	if err != nil {
+		t.Errorf("Error calling PutResetPhoneIDVerification: %v", err)
+	}
+	reset, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !reset["IsPosted"].(bool) {
+		t.Errorf("Error returned from PutResetPhoneIDVerification: %v", err)
+	}
+}
+
+func TestDeleteRemovePhoneIDByAccessToken(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	res, err := phoneauthentication.Loginradius(phoneauthentication.Loginradius{lrclient}).DeleteRemovePhoneIDByAccessToken()
+	if err != nil {
+		t.Errorf("Error calling DeleteRemovePhoneIDByAccessToken: %v", err)
+	}
+	deleted, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !deleted["IsDeleted"].(bool) {
+		t.Errorf("Error returned from DeleteRemovePhoneIDByAccessToken: %v", err)
+	}
+}
