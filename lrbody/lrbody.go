@@ -151,3 +151,17 @@ type accountSecurityQA struct {
 type AccountPassword struct {
 	Password string `json:"Password"`
 }
+
+// Used by PostRolesCreate
+type Roles struct {
+	Roles []Role `json:"roles"`
+}
+
+type Role struct {
+	Name        string          `json:"name"`
+	Permissions map[string]bool `json:"permissions"`
+}
+
+type RoleList struct {
+	Roles []string `json:"roles"`
+}

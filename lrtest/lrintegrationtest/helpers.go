@@ -12,7 +12,9 @@ import (
 	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
 	lrauthentication "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
 	"bitbucket.org/nombiezinja/lr-go-sdk/api/customobject"
+	"bitbucket.org/nombiezinja/lr-go-sdk/api/role"
 	"bitbucket.org/nombiezinja/lr-go-sdk/api/webhook"
+	"bitbucket.org/nombiezinja/lr-go-sdk/lrbody"
 	"bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
 )
 
@@ -197,6 +199,47 @@ func setupWebhook(t *testing.T) (string, string, *lr.Loginradius, func(t *testin
 		deleted, err := lrjson.DynamicUnmarshal(res.Body)
 		if err != nil || !deleted["IsDeleted"].(bool) {
 			t.Errorf("Error returned from DeleteWebhookUnsubscribe to tear down test case: %v", err)
+		}
+	}
+}
+
+func setupRole(t *testing.T) (string, *lr.Loginradius, func(t *testing.T)) {
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, err := lr.NewLoginradius(&cfg)
+
+	if err != nil {
+		t.Errorf("Error initiating lrclient")
+	}
+
+	rolename := "example_role_name"
+
+	testrole := lrbody.Role{
+		Name: rolename,
+		Permissions: map[string]bool{
+			"example_permission_1": true,
+			"example_permission_2": true,
+		},
+	}
+	roles := lrbody.Roles{[]lrbody.Role{testrole}}
+	_, err = role.Loginradius(role.Loginradius{lrclient}).PostRolesCreate(roles)
+	if err != nil {
+		t.Errorf("Error calling PostRolesCreate: %v", err)
+	}
+
+	return rolename, lrclient, func(t *testing.T) {
+		res, err := role.Loginradius(role.Loginradius{lrclient}).DeleteAccountRole(rolename)
+		if err != nil {
+			t.Errorf("Error calling DeleteAccountRole: %v", err)
+		}
+		deleted, err := lrjson.DynamicUnmarshal(res.Body)
+		if err != nil || !deleted["IsDeleted"].(bool) {
+			t.Errorf("Error returned from DeleteAccountRole: %v, %v", deleted, err)
 		}
 	}
 }
