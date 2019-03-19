@@ -180,7 +180,7 @@ func (lr Loginradius) NewPutReqWithToken(path string, body interface{}, queries 
 
 func (lr Loginradius) NewDeleteReq(path string, body ...interface{}) *httprutils.Request {
 	if len(body) != 0 {
-		encoded, err := httprutils.EncodeBody(body)
+		encoded, err := httprutils.EncodeBody(body[0])
 		if err != nil {
 			return nil
 		}

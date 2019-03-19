@@ -12,6 +12,7 @@ import (
 	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
 	lrauthentication "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
 	"bitbucket.org/nombiezinja/lr-go-sdk/api/customobject"
+	"bitbucket.org/nombiezinja/lr-go-sdk/api/webhook"
 	"bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
 )
 
@@ -147,4 +148,55 @@ func genGUID() string {
 	buff := make([]byte, 64)
 	rand.Read(buff)
 	return base64.StdEncoding.EncodeToString(buff)
+}
+
+func setupWebhook(t *testing.T) (string, string, *lr.Loginradius, func(t *testing.T)) {
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, err := lr.NewLoginradius(&cfg)
+
+	if err != nil {
+		t.Errorf("Error initiating lrclient")
+	}
+
+	targeturl := "http://requestbin.fullcontact.com/u1imzuu1"
+	event := "Register"
+
+	res, err := webhook.Loginradius(webhook.Loginradius{lrclient}).PostWebhookSubscribe(
+		map[string]string{
+			"TargetUrl": targeturl,
+			"Event":     event,
+		},
+	)
+
+	if err != nil {
+		t.Errorf("Error calling PostWebHookSubscribe: %v", err)
+	}
+	posted, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !posted["IsPosted"].(bool) {
+		t.Errorf("Error returned from PostWebHookSubscribe: %v", err)
+	}
+
+	return targeturl, event, lrclient, func(t *testing.T) {
+		res, err := webhook.Loginradius(webhook.Loginradius{lrclient}).DeleteWebhookUnsubscribe(
+			map[string]string{
+				"targeturl": targeturl,
+				"event":     "Register",
+			},
+		)
+
+		if err != nil {
+			t.Errorf("Error calling DeleteWebhookUnsubscribe to tear down test case: %v", err)
+		}
+
+		deleted, err := lrjson.DynamicUnmarshal(res.Body)
+		if err != nil || !deleted["IsDeleted"].(bool) {
+			t.Errorf("Error returned from DeleteWebhookUnsubscribe to tear down test case: %v", err)
+		}
+	}
 }
