@@ -33,60 +33,88 @@ func TestGetAccessTokenViaFacebook(t *testing.T) {
 
 	tokens, err := lrjson.DynamicUnmarshal(res.Body)
 	if err != nil || tokens["access_token"].(string) == "" {
-		t.Errorf("ERror returned from GetAccessTokenViaFacebook: %v, %v", err, tokens)
+		t.Errorf("Error returned from GetAccessTokenViaFacebook: %v, %v", err, tokens)
 	}
 }
 
-// func TestGetAccessTokenViaTwitter(t *testing.T) {
-// 	fmt.Println("Starting test TestGetAccessTokenViaTwitter")
-// 	PresetLoginRadiusTestEnv()
-// 	session, err := GetAccessTokenViaTwitter(os.Getenv("TWITTERTOKEN"), os.Getenv("TWITTERSECRET"))
-// 	if err != nil || session.AccessToken == "" {
-// 		t.Errorf("Error retrieving twitter token")
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+func TestGetAccessTokenViaTwitter(t *testing.T) {
+	SetTestEnv()
 
-// func TestGetAccessTokenViaVkontakte(t *testing.T) {
-// 	fmt.Println("Starting test TestGetAccessTokenViaVkontakte")
-// 	PresetLoginRadiusTestEnv()
-// 	session, err := GetAccessTokenViaVkontakte(os.Getenv("VKONTAKTETOKEN"))
-// 	if err != nil || session.AccessToken == "" {
-// 		t.Errorf("Error retrieving facebook token")
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
 
-// func TestGetRefreshUserProfile(t *testing.T) {
-// 	fmt.Println("Starting test TestGetRefreshUserProfile")
-// 	PresetLoginRadiusTestEnv()
-// 	session, err := GetAccessTokenViaFacebook(os.Getenv("FACEBOOKTOKEN"))
-// 	if err != nil || session.AccessToken == "" {
-// 		t.Errorf("Error retrieving facebook token")
-// 		fmt.Println(err)
-// 	}
-// 	_, err2 := GetRefreshUserProfile(session.AccessToken)
-// 	if err2 != nil {
-// 		t.Errorf("Error refreshing profile")
-// 		fmt.Println(err2)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	lrclient, err := lr.NewLoginradius(&cfg)
 
-// func TestGetRefreshToken(t *testing.T) {
-// 	fmt.Println("Starting test TestGetRefreshToken")
-// 	PresetLoginRadiusTestEnv()
-// 	session, err := GetAccessTokenViaTwitter(os.Getenv("TWITTERTOKEN"), os.Getenv("TWITTERSECRET"))
-// 	if err != nil || session.AccessToken == "" {
-// 		t.Errorf("Error retrieving twitter token")
-// 		fmt.Println(err)
-// 	}
-// 	_, err2 := GetRefreshToken(session.AccessToken)
-// 	if err2 != nil {
-// 		t.Errorf("Error refreshing token")
-// 		fmt.Println(err2)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	if err != nil {
+		t.Errorf("Error initiating lrclient")
+	}
+
+	res, err := tokenmanagement.Loginradius(tokenmanagement.Loginradius{lrclient}).GetAccessTokenViaTwitter(
+		map[string]string{"tw_access_token": "abcd1234abcd", "tw_token_secret": "abcd1234"},
+	)
+
+	if err != nil {
+		t.Errorf("Error calling GetAccessTokenViaTwitter: %v", err)
+	}
+
+	tokens, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || tokens["access_token"].(string) == "" {
+		t.Errorf("Error returned from GetAccessTokenViaTwitter: %v, %v", err, tokens)
+	}
+}
+
+func TestGetAccessTokenViaVkontakte(t *testing.T) {
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, err := lr.NewLoginradius(&cfg)
+
+	if err != nil {
+		t.Errorf("Error initiating lrclient")
+	}
+
+	res, err := tokenmanagement.Loginradius(tokenmanagement.Loginradius{lrclient}).GetAccessTokenViaVkontakte(
+		map[string]string{"vk_access_token": "abcd1234abcd"},
+	)
+
+	if err != nil {
+		t.Errorf("Error calling GetAccessTokenViaVkontakte: %v", err)
+	}
+
+	tokens, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || tokens["access_token"].(string) == "" {
+		t.Errorf("Error returned from GetAccessTokenViaVkontakte: %v, %v", err, tokens)
+	}
+}
+
+func TestGetRefreshUserProfile(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	res, err := tokenmanagement.Loginradius(tokenmanagement.Loginradius{lrclient}).GetRefreshUserProfile()
+	if err != nil {
+		t.Errorf("Error making call to GetRefreshUserProfile: %+v", err)
+	}
+	profile, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || profile["Uid"] == "" {
+		t.Errorf("Error returned from GetRefreshUserProfile: %+v", err)
+	}
+}
+
+func TestGetRefreshToken(t *testing.T) {
+	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
+	defer teardownTestCase(t)
+	res, err := tokenmanagement.Loginradius(tokenmanagement.Loginradius{lrclient}).GetRefreshToken()
+	if err != nil {
+		t.Errorf("Error making call to GetRefreshToken: %+v", err)
+	}
+	profile, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || profile["access_token"] == "" {
+		t.Errorf("Error returned from GetRefreshToken: %+v", err)
+	}
+}
