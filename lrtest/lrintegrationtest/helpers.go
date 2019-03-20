@@ -203,7 +203,7 @@ func setupWebhook(t *testing.T) (string, string, *lr.Loginradius, func(t *testin
 	}
 }
 
-func setupRole(t *testing.T) (string, *lr.Loginradius, func(t *testing.T)) {
+func setupRole(t *testing.T) (string, string, *lr.Loginradius, func(t *testing.T)) {
 	SetTestEnv()
 
 	cfg := lr.Config{
@@ -212,6 +212,7 @@ func setupRole(t *testing.T) (string, *lr.Loginradius, func(t *testing.T)) {
 	}
 
 	lrclient, err := lr.NewLoginradius(&cfg)
+	permissionName := "example_permission_1"
 
 	if err != nil {
 		t.Errorf("Error initiating lrclient")
@@ -222,7 +223,7 @@ func setupRole(t *testing.T) (string, *lr.Loginradius, func(t *testing.T)) {
 	testrole := lrbody.Role{
 		Name: rolename,
 		Permissions: map[string]bool{
-			"example_permission_1": true,
+			permissionName:         true,
 			"example_permission_2": true,
 		},
 	}
@@ -232,7 +233,7 @@ func setupRole(t *testing.T) (string, *lr.Loginradius, func(t *testing.T)) {
 		t.Errorf("Error calling PostRolesCreate: %v", err)
 	}
 
-	return rolename, lrclient, func(t *testing.T) {
+	return permissionName, rolename, lrclient, func(t *testing.T) {
 		res, err := role.Loginradius(role.Loginradius{lrclient}).DeleteAccountRole(rolename)
 		if err != nil {
 			t.Errorf("Error calling DeleteAccountRole: %v", err)

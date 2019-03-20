@@ -228,11 +228,14 @@ func TestPutManageAccountSetPassword(t *testing.T) {
 func TestPutManageAccountUpdate(t *testing.T) {
 	_, _, uid, _, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
-	request := TestUsername{"newname"}
-	_, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountUpdate(uid, request)
+	_, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).PutManageAccountUpdate(
+		uid,
+		[]byte(`{"Username":"newname"}`),
+	)
 	if err != nil {
 		t.Errorf("Error making call to PutManageAccountUpdate: %+v", err)
 	}
+
 	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).GetManageAccountProfilesByUid(uid)
 	if err != nil {
 		t.Errorf("Error making call to GetManageAccountProfilesByUid for PutManageAccountUpdate: %+v", err)
@@ -242,7 +245,7 @@ func TestPutManageAccountUpdate(t *testing.T) {
 		t.Errorf("Error returned from GetManageAccountProfilesByUid for PutManageAccountUpdate: %+v", err)
 	}
 	if data["UserName"].(string) != "newname" {
-		t.Errorf("PutAuthSetOrChangeUsername failed, expected username NewUserName, but instead got: %v", data["UserName"].(string))
+		t.Errorf("PutAuthSetOrChangeUsername failed, expected username newname, but instead got: %v", data["UserName"].(string))
 	}
 }
 

@@ -1,6 +1,8 @@
 package lraccount
 
 import (
+	"fmt"
+
 	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
 	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
 )
@@ -50,6 +52,7 @@ func (lr Loginradius) PutManageAccountUpdate(uid string, body interface{}) (*htt
 	}
 	lr.Client.AddApiCredentialsToReqHeader(request)
 
+	fmt.Printf("manage account update request %+v", request)
 	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }

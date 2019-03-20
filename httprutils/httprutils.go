@@ -146,14 +146,34 @@ var TimeoutClient = &Client{HTTPClient: NetClient}
 
 // EncodeBody takes an interface and returns a *bytes.Buffer suitable for making RESTful requests with
 func EncodeBody(body interface{}) (*bytes.Buffer, error) {
-	buffer := new(bytes.Buffer)
-	encodeErr := json.NewEncoder(buffer).Encode(body)
-	if encodeErr != nil {
-		err := lrerror.New("EncodingError", "Error encoding the request body", encodeErr)
-		return nil, err
-	}
+	// buffer := new(bytes.Buffer)
+	// encodeErr := json.NewEncoder(buffer).Encode(body)
+	// if encodeErr != nil {
+	// 	err := lrerror.New("EncodingError", "Error encoding the request body", encodeErr)
+	// 	return nil, err
+	// }
+	// return buffer, nil
 
+	buffer := new(bytes.Buffer)
+	asserted, ok := body.([]byte)
+	if ok {
+		var raw map[string]interface{}
+		json.Unmarshal(asserted, &raw)
+		encodeErr := json.NewEncoder(buffer).Encode(&raw)
+		if encodeErr != nil {
+			err := lrerror.New("EncodingError", "Error encoding the request body", encodeErr)
+			return nil, err
+		}
+	} else {
+
+		encodeErr := json.NewEncoder(buffer).Encode(body)
+		if encodeErr != nil {
+			err := lrerror.New("EncodingError", "Error encoding the request body", encodeErr)
+			return nil, err
+		}
+	}
 	return buffer, nil
+
 }
 
 // AddQueryParams takes a map of query params and appends each to the URL

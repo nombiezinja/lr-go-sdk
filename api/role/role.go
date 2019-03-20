@@ -54,41 +54,28 @@ func (lr Loginradius) GetRolesByUID(uid string) (*httprutils.Response, error) {
 	lr.Client.AddApiCredentialsToReqHeader(req)
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
-	// 	data := new(RoleArray)
-	// 	req, reqErr := CreateRequest("GET", os.Getenv("DOMAIN") + "/identity/v2/manage/account/"+uid+"/role", "")
-	// 	if reqErr != nil {
-	// 		return *data, reqErr
-	// 	}
-
-	// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-	// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-	// 	req.Header.Add("content-Type", "application/x-www-form-urlencoded")
-
-	// 	err := RunRequest(req, data)
-	// 	return *data, err
 }
 
-// // PutAccountAddPermissionsToRole is used to add permissions to the role.
-// // Post Parameters are permissions: string
-// func PutAccountAddPermissionsToRole(role string, body interface{}) (Role, error) {
-// 	data := new(Role)
-// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN") + "/identity/v2/manage/role/"+role+"/permission", body)
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-// 	req.Header.Add("content-Type", "application/json")
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
+// PutAccountAddPermissionsToRole is used to add permissions to the role.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/roles-management/add-permissions-to-role
+// Required template parameter: role - string representing role name
+// Post parameters: permissions - array of permission names to be added to the role
+// Pass data in struct lrbody.PermissionList as body to help ensure parameters satisfy API requirements
+func (lr Loginradius) PutAccountAddPermissionsToRole(role string, body interface{}) (*httprutils.Response, error) {
+	req, err := lr.Client.NewPutReq("/identity/v2/manage/role/"+role+"/permission", body)
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.AddApiCredentialsToReqHeader(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
 
 // PutRolesAssignToUser is used to assign created roles to the user.
 // Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/roles-management/assign-roles-by-uid
 // Required template parameter: uid - string representing uid of the user
 // Required post parameter: roles - array of string(s) representing role name(s)
+// Pass data in struct lrbody.RoleList as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) PutRolesAssignToUser(uid string, body interface{}) (*httprutils.Response, error) {
 	req, err := lr.Client.NewPutReq("/identity/v2/manage/account/"+uid+"/role", body)
 	if err != nil {
@@ -97,23 +84,15 @@ func (lr Loginradius) PutRolesAssignToUser(uid string, body interface{}) (*httpr
 	lr.Client.AddApiCredentialsToReqHeader(req)
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
-	// 	data := new(RoleArray)
-	// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN") + "/identity/v2/manage/account/"+uid+"/role", body)
-	// 	if reqErr != nil {
-	// 		return *data, reqErr
-	// 	}
-
-	// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-	// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-	// 	req.Header.Add("content-Type", "application/json")
-
-	// 	err := RunRequest(req, data)
-	// 	return *data, err
 }
 
-// // PutRolesUpsertContext creates a Context with a set of Roles.
-// // Post Parameters are rolecontext: string, context: string, roles: string, additionalpermissions: string and an
-// // optional expiration: time.Time
+// PutRolesUpsertContext creates a Context with a set of Roles.
+// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/roles-management/upsert-context
+// Required template parameter: uid - string representing user's UID
+// Required post parameters: rolecontext - array of object containing role contexts
+// Rolecontext object must contain: context - string; roles: array of strings representing role names; additionalpermissions: array of strings
+// representing additional permissions; expiration: date of expiration of role context, format mm/dd/yyyy h:m:s
+// Pass data in struct lrbody.RoleContext as body to help ensure parameters satisfy API requirements
 // func PutRolesUpsertContext(uid string, body interface{}) (ContextRole, error) {
 // 	data := new(ContextRole)
 // 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN") + "/identity/v2/manage/account/"+uid+"/rolecontext", body)
@@ -162,22 +141,18 @@ func (lr Loginradius) PutRolesAssignToUser(uid string, body interface{}) (*httpr
 // 	return *data, err
 // }
 
-// // DeleteRolesAccountRemovePermissions is used to remove permissions to the role.
-// // Post Parameter is the permissions from which you want to remove the role
-// func DeleteRolesAccountRemovePermissions(roleName string, body interface{}) (Role, error) {
-// 	data := new(Role)
-// 	req, reqErr := CreateRequest("DELETE", os.Getenv("DOMAIN") + "/identity/v2/manage/role/"+roleName+"/permission", body)
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-// 	req.Header.Add("content-Type", "application/json")
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
+// DeleteRolesAccountRemovePermissions is used to remove permissions to the role.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/roles-management/remove-permissions
+// Required template parameter: role name - string representing role name for which the permissions are to be removed
+// Required body parameter: permissions - array of permission names to be removed
+// // Pass data in struct lrbody.PermissionList as body to help ensure parameters satisfy API requirements
+func (lr Loginradius) DeleteRolesAccountRemovePermissions(roleName string, body interface{}) (*httprutils.Response, error) {
+	req := lr.Client.NewDeleteReq("/identity/v2/manage/role/"+roleName+"/permission", body)
+	req.Headers = httprutils.JSONHeader
+	lr.Client.AddApiCredentialsToReqHeader(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
 
 // // DeleteContextFromRole deletes the specified Role Context
 // func DeleteContextFromRole(uid, rolecontextname string) (Role, error) {

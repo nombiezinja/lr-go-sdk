@@ -162,6 +162,12 @@ type Role struct {
 	Permissions map[string]bool `json:"permissions"`
 }
 
+// Used by PutRolesAssignToUser
 type RoleList struct {
 	Roles []string `json:"roles"`
+}
+
+// Used by PutAccountAddPermissionsToRole, DeleteRolesAccountRemovePermissions
+type PermissionList struct {
+	Permissions []string `json:"permissions"`
 }

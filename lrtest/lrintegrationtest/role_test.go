@@ -10,12 +10,12 @@ import (
 )
 
 func TestPostRolesCreate(t *testing.T) {
-	_, _, tearDown := setupRole(t)
+	_, _, _, tearDown := setupRole(t)
 	defer tearDown(t)
 }
 
 func TestDeleteAccountRole(t *testing.T) {
-	_, _, tearDown := setupRole(t)
+	_, _, _, tearDown := setupRole(t)
 	defer tearDown(t)
 }
 
@@ -29,7 +29,7 @@ func TestGetContextRolesPermissions(t *testing.T) {
 }
 
 func TestGetRolesList(t *testing.T) {
-	rolename, lrclient, tearDown := setupRole(t)
+	_, rolename, lrclient, tearDown := setupRole(t)
 	defer tearDown(t)
 	res, err := role.Loginradius(role.Loginradius{lrclient}).GetRolesList()
 	if err != nil {
@@ -55,7 +55,7 @@ func TestGetRolesByUID(t *testing.T) {
 	_, _, uid, _, lrclient, tearDownAccount := setupAccount(t)
 	defer tearDownAccount(t)
 
-	rolename, lrclient, tearDownRole := setupRole(t)
+	_, rolename, lrclient, tearDownRole := setupRole(t)
 	defer tearDownRole(t)
 
 	_, err := role.Loginradius(role.Loginradius{lrclient}).PutRolesAssignToUser(
@@ -71,55 +71,53 @@ func TestGetRolesByUID(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error calling GetRolesByUID%v", err)
 	}
+
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !reflect.DeepEqual(data["Roles"].([]interface{})[0].(string), rolename) {
+		t.Errorf("Error returned from GetRolesByUID %v, %v", err, data)
+	}
 }
 
-// 	fmt.Println("Starting test TestGetRolesByUID")
-// 	_, _, testuid, _, teardownTestCase := setupAccount(t)
-// 	defer teardownTestCase(t)
-// 	_, err := GetRolesByUID(testuid)
-// 	if err != nil {
-// 		t.Errorf("Error getting roles for user")
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+func TestPutAccountAddPermissionsToRole(t *testing.T) {
+	_, _, _, _, lrclient, tearDownAccount := setupAccount(t)
+	defer tearDownAccount(t)
 
-// func TestPutAccountAddPermissionsToRole(t *testing.T) {
-// 	fmt.Println("Starting test TestPutAccountAddPermissionsToRole")
-// 	roleName, teardownTestCase := setupRole(t)
-// 	defer teardownTestCase(t)
-// 	permissions := PermissionList{[]string{"permission1", "permission2"}}
-// 	_, err := PutAccountAddPermissionsToRole(roleName, permissions)
-// 	if err != nil {
-// 		t.Errorf("Error getting roles for user")
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	_, rolename, lrclient, tearDownRole := setupRole(t)
+	defer tearDownRole(t)
 
-// func TestPutAccountAddPermissionsToRoleInvalid(t *testing.T) {
-// 	fmt.Println("Starting test TestPutAccountAddPermissionsToRoleInvalid")
-// 	roleName, teardownTestCase := setupRole(t)
-// 	defer teardownTestCase(t)
-// 	invalid := InvalidBody{"invalid"}
-// 	_, err := PutAccountAddPermissionsToRole(roleName, invalid)
-// 	if err == nil {
-// 		t.Errorf("Should be error")
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	permissionName := "example_permission_name"
+
+	res, err := role.Loginradius(role.Loginradius{lrclient}).PutAccountAddPermissionsToRole(
+		rolename,
+		lrbody.PermissionList{[]string{permissionName}},
+	)
+	if err != nil {
+		t.Errorf("Error calling PutAccountAddPermissionsToRole: %v", err)
+	}
+
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	included := false
+	for k, _ := range data["Permissions"].(map[string]interface{}) {
+		if k == permissionName {
+			included = true
+		}
+	}
+	if err != nil || !included {
+		t.Errorf("Error returned from PutAccountAddPermissionsToRole %v, %v", err, data)
+	}
+}
 
 func TestPutRolesAssignToUser(t *testing.T) {
 	_, _, uid, _, lrclient, tearDownAccount := setupAccount(t)
 	defer tearDownAccount(t)
 
-	rolename, lrclient, tearDownRole := setupRole(t)
+	_, rolename, lrclient, tearDownRole := setupRole(t)
 	defer tearDownRole(t)
 
 	res, err := role.Loginradius(role.Loginradius{lrclient}).PutRolesAssignToUser(
 		uid,
-		lrbody.RoleList{[]string{rolename}},
+		// lrbody.RoleList{[]string{rolename}},
+		[]byte(`{"roles": ["example_role_name"]}`),
 	)
 
 	if err != nil {
@@ -205,23 +203,33 @@ func TestPutRolesAssignToUser(t *testing.T) {
 // 	fmt.Println("Test complete")
 // }
 
-// func TestDeleteRolesAccountRemovePermissions(t *testing.T) {
-// 	fmt.Println("Starting test TestDeleteRolesAccountRemovePermissions")
-// 	roleName, teardownTestCase := setupRole(t)
-// 	defer teardownTestCase(t)
-// 	permissions := PermissionList{[]string{"permission1", "permission2"}}
-// 	_, err := PutAccountAddPermissionsToRole(roleName, permissions)
-// 	if err != nil {
-// 		t.Errorf("Error adding permissions to role")
-// 		fmt.Println(err)
-// 	}
-// 	_, err2 := DeleteRolesAccountRemovePermissions(roleName, permissions)
-// 	if err2 != nil {
-// 		t.Errorf("Error deleting permissions from role")
-// 		fmt.Println(err2)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+func TestDeleteRolesAccountRemovePermissions(t *testing.T) {
+	_, _, _, _, lrclient, tearDownAccount := setupAccount(t)
+	defer tearDownAccount(t)
+
+	permissionName, rolename, lrclient, tearDownRole := setupRole(t)
+	defer tearDownRole(t)
+
+	res, err := role.Loginradius(role.Loginradius{lrclient}).DeleteRolesAccountRemovePermissions(
+		rolename,
+		lrbody.PermissionList{[]string{permissionName}},
+	)
+
+	if err != nil {
+		t.Errorf("Error calling DeleteRolesAccountRemovePermissions: %v", err)
+	}
+
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	included := false
+	for k, _ := range data["Permissions"].(map[string]interface{}) {
+		if k == permissionName {
+			included = true
+		}
+	}
+	if err != nil || included {
+		t.Errorf("Error returned from DeleteRolesAccountRemovePermission %v, %v", err, data)
+	}
+}
 
 // func TestDeleteRolesAccountRemovePermissionsInvalid(t *testing.T) {
 // 	fmt.Println("Starting test TestDeleteRolesAccountRemovePermissions")
