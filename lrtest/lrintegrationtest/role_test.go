@@ -116,92 +116,77 @@ func TestPutRolesAssignToUser(t *testing.T) {
 
 	res, err := role.Loginradius(role.Loginradius{lrclient}).PutRolesAssignToUser(
 		uid,
-		// lrbody.RoleList{[]string{rolename}},
-		[]byte(`{"roles": ["example_role_name"]}`),
+		[]byte(`{"roles": ["`+rolename+`"]}`),
 	)
 
 	if err != nil {
 		t.Errorf("Error calling PutRolesAssignToUser %v", err)
 	}
-
 	data, err := lrjson.DynamicUnmarshal(res.Body)
 	if err != nil || !reflect.DeepEqual(data["Roles"].([]interface{})[0].(string), rolename) {
 		t.Errorf("Error returned from PutRolesAssignToUser %v, %v, %v", err, data["Roles"], []string{rolename})
 	}
 }
 
-// func TestPutRolesAssignToUserInvalid(t *testing.T) {
-// 	fmt.Println("Starting test TestPutRolesAssignToUserInvalid")
-// 	_, _, testuid, _, teardownAccount := setupAccount(t)
-// 	defer teardownAccount(t)
-// 	invalid := InvalidBody{"invalid"}
-// 	_, err := PutRolesAssignToUser(testuid, invalid)
-// 	if err == nil {
-// 		t.Errorf("Should be error")
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+func TestPutRolesUpsertContext(t *testing.T) {
+	_, _, uid, _, lrclient, tearDownAccount := setupAccount(t)
+	defer tearDownAccount(t)
 
-// func TestPutRolesUpsertContext(t *testing.T) {
-// 	fmt.Println("Starting test TestPutRolesUpsertContext")
-// 	_, _, testuid, _, teardownAccount := setupAccount(t)
-// 	defer teardownAccount(t)
-// 	roleName, teardownRole := setupRole(t)
-// 	defer teardownRole(t)
-// 	roleContext := RoleContext{"contextTest", []string{roleName}, []string{"permission1"}, ""}
-// 	roleContextContainer := RoleContextContainer{[]RoleContext{roleContext}}
-// 	_, err := PutRolesUpsertContext(testuid, roleContextContainer)
-// 	if err != nil {
-// 		t.Errorf("Error setting role context for user")
-// 		fmt.Println(err)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	_, rolename, lrclient, tearDownRole := setupRole(t)
+	defer tearDownRole(t)
+	body := []byte(`{"rolecontext":[{"context":"example_context", "roles":["` + rolename + `"], "additionalpermissions":["permissionx", "permissiony"]}]}`)
 
-// func TestPutRolesUpsertContextInvalid(t *testing.T) {
-// 	fmt.Println("Starting test TestPutRolesUpsertContextInvalid")
-// 	_, _, testuid, _, teardownAccount := setupAccount(t)
-// 	defer teardownAccount(t)
-// 	invalid := InvalidBody{"invalid"}
-// 	_, err := PutRolesUpsertContext(testuid, invalid)
-// 	if err == nil {
-// 		t.Errorf("Should be error")
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	res, err := role.Loginradius(role.Loginradius{lrclient}).PutRolesUpsertContext(
+		uid,
+		body,
+	)
 
-// func TestDeleteRolesAssignedToUser(t *testing.T) {
-// 	fmt.Println("Starting test TestDeleteRolesAssignedToUser")
-// 	_, _, testuid, _, teardownAccount := setupAccount(t)
-// 	defer teardownAccount(t)
-// 	roleName, teardownRole := setupRole(t)
-// 	defer teardownRole(t)
-// 	roles := RoleList{[]string{roleName}}
-// 	_, err := PutRolesAssignToUser(testuid, roles)
-// 	if err != nil {
-// 		t.Errorf("Error setting role for user")
-// 		fmt.Println(err)
-// 	}
-// 	_, err2 := DeleteRolesAssignedToUser(testuid, roles)
-// 	if err2 != nil {
-// 		t.Errorf("Error deleting role for user")
-// 		fmt.Println(err2)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	if err != nil {
+		t.Errorf("Error calling PutRolesUpsertContext %v", err)
+	}
 
-// func TestDeleteRolesAssignedToUserInvalid(t *testing.T) {
-// 	fmt.Println("Starting test TestDeleteRolesAssignedToUserInvalid")
-// 	_, _, testuid, _, teardownAccount := setupAccount(t)
-// 	defer teardownAccount(t)
-// 	invalid := InvalidBody{"invalid"}
-// 	_, err := PutRolesAssignToUser(testuid, invalid)
-// 	if err == nil {
-// 		t.Errorf("Error should be error")
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !reflect.DeepEqual(data["Data"].([]interface{})[0].(map[string]interface{})["Context"].(string), "example_context") {
+		t.Errorf("Error returned from PutRolesUpsertContext %v, %v, %v", err, data["Roles"], []string{rolename})
+	}
+}
+
+func TestDeleteRolesAssignedToUser(t *testing.T) {
+	_, _, uid, _, lrclient, tearDownAccount := setupAccount(t)
+	defer tearDownAccount(t)
+
+	_, rolename, lrclient, tearDownRole := setupRole(t)
+	defer tearDownRole(t)
+
+	res, err := role.Loginradius(role.Loginradius{lrclient}).PutRolesAssignToUser(
+		uid,
+		[]byte(`{"roles": ["example_role_name"]}`),
+	)
+
+	if err != nil {
+		t.Errorf("Error calling PutRolesAssignToUser for DeleteRolesAssignedToUser %v", err)
+	}
+
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !reflect.DeepEqual(data["Roles"].([]interface{})[0].(string), rolename) {
+		t.Errorf("Error returned from PutRolesAssignToUser for DeleteRolesAssignedToUser: %v, %v, %v", err, data["Roles"], []string{rolename})
+	}
+
+	res, err = role.Loginradius(role.Loginradius{lrclient}).DeleteRolesAssignedToUser(
+		uid,
+		[]byte(`{"roles": ["example_role_name"]}`),
+	)
+
+	if err != nil {
+		t.Errorf("Error calling DeleteRolesAssignedToUser %v", err)
+	}
+
+	data, err = lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !data["IsDeleted"].(bool) {
+		t.Errorf("Error returned from DeleteRolesAssignedToUser: %v, %v", err, data)
+	}
+
+}
 
 func TestDeleteRolesAccountRemovePermissions(t *testing.T) {
 	_, _, _, _, lrclient, tearDownAccount := setupAccount(t)
@@ -231,72 +216,80 @@ func TestDeleteRolesAccountRemovePermissions(t *testing.T) {
 	}
 }
 
-// func TestDeleteRolesAccountRemovePermissionsInvalid(t *testing.T) {
-// 	fmt.Println("Starting test TestDeleteRolesAccountRemovePermissions")
-// 	roleName, teardownTestCase := setupRole(t)
-// 	defer teardownTestCase(t)
-// 	invalid := InvalidBody{"invalid"}
-// 	_, err := PutAccountAddPermissionsToRole(roleName, invalid)
-// 	if err == nil {
-// 		t.Errorf("Should be error")
-// 	}
-// 	fmt.Println("Test complete")
-// }
+func TestDeleteContextFromRole(t *testing.T) {
+	_, _, uid, _, lrclient, tearDownAccount := setupAccount(t)
+	defer tearDownAccount(t)
 
-// func TestDeleteContextFromRole(t *testing.T) {
-// 	fmt.Println("Starting test TestDeleteContextFromRole")
-// 	_, _, testuid, _, teardownAccount := setupAccount(t)
-// 	defer teardownAccount(t)
-// 	roleName, teardownRole := setupRole(t)
-// 	defer teardownRole(t)
-// 	roleContext := RoleContext{"contextTest", []string{roleName}, []string{"permission1"}, ""}
-// 	roleContextContainer := RoleContextContainer{[]RoleContext{roleContext}}
-// 	_, err := PutRolesUpsertContext(testuid, roleContextContainer)
-// 	if err != nil {
-// 		t.Errorf("Error adding contexts and roles to user")
-// 		fmt.Println(err)
-// 	}
-// 	_, err2 := DeleteContextFromRole(testuid, "contextTest")
-// 	if err2 != nil {
-// 		t.Errorf("Error deleting role context")
-// 		fmt.Println(err2)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	_, rolename, lrclient, tearDownRole := setupRole(t)
+	defer tearDownRole(t)
+	body := []byte(`{"rolecontext":[{"context":"example_context", "roles":["` + rolename + `"], "additionalpermissions":["permissionx", "permissiony"]}]}`)
 
-// func TestDeleteContextFromRoleInvalid(t *testing.T) {
-// 	fmt.Println("Starting test TestDeleteContextFromRoleInvalid")
-// 	_, _, testuid, _, teardownAccount := setupAccount(t)
-// 	defer teardownAccount(t)
-// 	invalid := InvalidBody{"invalid"}
-// 	_, err := PutRolesUpsertContext(testuid, invalid)
-// 	if err == nil {
-// 		t.Errorf("Should be error")
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	res, err := role.Loginradius(role.Loginradius{lrclient}).PutRolesUpsertContext(
+		uid,
+		body,
+	)
 
-// func TestDeleteRoleFromContext(t *testing.T) {
-// 	fmt.Println("Starting test TestDeleteRoleFromContext")
-// 	_, _, testuid, _, teardownAccount := setupAccount(t)
-// 	defer teardownAccount(t)
-// 	roleName, teardownRole := setupRole(t)
-// 	defer teardownRole(t)
-// 	roleContext := RoleContext{"contextTest", []string{roleName}, []string{"permission1"}, ""}
-// 	roleContextContainer := RoleContextContainer{[]RoleContext{roleContext}}
-// 	roles := RoleList{[]string{roleName}}
-// 	_, err := PutRolesUpsertContext(testuid, roleContextContainer)
-// 	if err != nil {
-// 		t.Errorf("Error adding contexts and roles to user")
-// 		fmt.Println(err)
-// 	}
-// 	_, err2 := DeleteRoleFromContext(testuid, "contextTest", roles)
-// 	if err2 != nil {
-// 		t.Errorf("Error deleting role context")
-// 		fmt.Println(err2)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	if err != nil {
+		t.Errorf("Error calling PutRolesUpsertContext for DeleteContextFromRole %v", err)
+	}
+
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !reflect.DeepEqual(data["Data"].([]interface{})[0].(map[string]interface{})["Context"].(string), "example_context") {
+		t.Errorf("Error returned from PutRolesUpsertContext for DeleteContextFromRole: %v, %v, %v", err, data["Roles"], []string{rolename})
+	}
+
+	res, err = role.Loginradius(role.Loginradius{lrclient}).DeleteContextFromRole(
+		uid,
+		"example_context",
+	)
+
+	if err != nil {
+		t.Errorf("Error calling DeleteContextFromRole %v", err)
+	}
+
+	data, err = lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !data["IsDeleted"].(bool) {
+		t.Errorf("Error returned from DeleteContextFromRole: %v, %v, %v", err, data["Roles"], []string{rolename})
+	}
+}
+
+func TestDeleteRoleFromContext(t *testing.T) {
+	_, _, uid, _, lrclient, tearDownAccount := setupAccount(t)
+	defer tearDownAccount(t)
+
+	_, rolename, lrclient, tearDownRole := setupRole(t)
+	defer tearDownRole(t)
+	body := []byte(`{"rolecontext":[{"context":"example_context", "roles":["` + rolename + `"], "additionalpermissions":["permissionx", "permissiony"]}]}`)
+
+	res, err := role.Loginradius(role.Loginradius{lrclient}).PutRolesUpsertContext(
+		uid,
+		body,
+	)
+
+	if err != nil {
+		t.Errorf("Error calling PutRolesUpsertContext for DeleteRoleFromContext %v", err)
+	}
+
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !reflect.DeepEqual(data["Data"].([]interface{})[0].(map[string]interface{})["Context"].(string), "example_context") {
+		t.Errorf("Error returned from PutRolesUpsertContext for DeleteRoleFromContext: %v, %v, %v", err, data["Roles"], []string{rolename})
+	}
+
+	res, err = role.Loginradius(role.Loginradius{lrclient}).DeleteRoleFromContext(
+		uid,
+		"example_context",
+		[]byte(`{"roles":["`+rolename+`"]}`),
+	)
+
+	if err != nil {
+		t.Errorf("Error calling DeleteRoleFromContext %v", err)
+	}
+
+	data, err = lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !data["IsDeleted"].(bool) {
+		t.Errorf("Error returned from DeleteRoleFromContext: %v, %v, %v", err, data["Roles"], []string{rolename})
+	}
+}
 
 // func TestDeleteRoleFromContextInvalid(t *testing.T) {
 // 	fmt.Println("Starting test TestDeleteRoleFromContextInvalid")

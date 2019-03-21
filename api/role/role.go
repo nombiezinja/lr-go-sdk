@@ -1,6 +1,10 @@
 package role
 
-import "bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+import (
+	"fmt"
+
+	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+)
 
 // PostRolesCreate creates a role with permissions.
 // Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/roles-management/roles-create
@@ -92,60 +96,36 @@ func (lr Loginradius) PutRolesAssignToUser(uid string, body interface{}) (*httpr
 // Required post parameters: rolecontext - array of object containing role contexts
 // Rolecontext object must contain: context - string; roles: array of strings representing role names; additionalpermissions: array of strings
 // representing additional permissions; expiration: date of expiration of role context, format mm/dd/yyyy h:m:s
-// Pass data in struct lrbody.RoleContext as body to help ensure parameters satisfy API requirements
-// func PutRolesUpsertContext(uid string, body interface{}) (ContextRole, error) {
-// 	data := new(ContextRole)
-// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN") + "/identity/v2/manage/account/"+uid+"/rolecontext", body)
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
+func (lr Loginradius) PutRolesUpsertContext(uid string, body interface{}) (*httprutils.Response, error) {
+	req, err := lr.Client.NewPutReq("/identity/v2/manage/account/"+uid+"/rolecontext", body)
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.AddApiCredentialsToReqHeader(req)
+	fmt.Println(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
 
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-// 	req.Header.Add("content-Type", "application/json")
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
-
-// // DeleteAccountRole is used to delete the role.
-// func DeleteAccountRole(role string) (Role, error) {
-// 	data := new(Role)
-// 	req, reqErr := CreateRequest("DELETE", os.Getenv("DOMAIN") + "/identity/v2/manage/role/"+role, "")
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-// 	req.Header.Add("content-Type", "application/x-www-form-urlencoded")
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
-
-// // DeleteRolesAssignedToUser is used to unassign roles to the user.
-// // Post Parameter is an array of roles
-// func DeleteRolesAssignedToUser(uid string, body interface{}) (Role, error) {
-// 	data := new(Role)
-// 	req, reqErr := CreateRequest("DELETE", os.Getenv("DOMAIN") + "/identity/v2/manage/account/"+uid+"/role", body)
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-// 	req.Header.Add("content-Type", "application/json")
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
+// DeleteRolesAssignedToUser is used to unassign roles to the user.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/roles-management/unassign-roles-by-uid
+// Required template parameter: uid - string representing user's uid
+// Required body parameters: roles - array of role name(strings)
+// Sample body parameter: map[string][]string{"roles":[]string{"role1", "role2"}} or []byte{`{"roles":["role1", "role2"]}`}
+func (lr Loginradius) DeleteRolesAssignedToUser(uid string, body interface{}) (*httprutils.Response, error) {
+	req := lr.Client.NewDeleteReq("/identity/v2/manage/account/"+uid+"/role", body)
+	req.Headers = httprutils.JSONHeader
+	lr.Client.AddApiCredentialsToReqHeader(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
 
 // DeleteRolesAccountRemovePermissions is used to remove permissions to the role.
 // Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/roles-management/remove-permissions
 // Required template parameter: role name - string representing role name for which the permissions are to be removed
 // Required body parameter: permissions - array of permission names to be removed
-// // Pass data in struct lrbody.PermissionList as body to help ensure parameters satisfy API requirements
+// Pass data in struct lrbody.PermissionList as body to help ensure parameters satisfy API requirements
+// Or pass data as []byte({}) as body
 func (lr Loginradius) DeleteRolesAccountRemovePermissions(roleName string, body interface{}) (*httprutils.Response, error) {
 	req := lr.Client.NewDeleteReq("/identity/v2/manage/role/"+roleName+"/permission", body)
 	req.Headers = httprutils.JSONHeader
@@ -154,54 +134,40 @@ func (lr Loginradius) DeleteRolesAccountRemovePermissions(roleName string, body 
 	return res, err
 }
 
-// // DeleteContextFromRole deletes the specified Role Context
-// func DeleteContextFromRole(uid, rolecontextname string) (Role, error) {
-// 	data := new(Role)
-// 	req, reqErr := CreateRequest("DELETE", os.Getenv("DOMAIN") + "/identity/v2/manage/account/"+uid+"/rolecontext/"+rolecontextname, "")
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
+// DeleteContextFromRole deletes the specified Role Context
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/roles-management/delete-context
+// Required template parameter: uid - string preresenting user's uid; rolecontextname - string representing the name of the role context
+// to be deleted
+func (lr Loginradius) DeleteContextFromRole(uid, rolecontextname string) (*httprutils.Response, error) {
+	req := lr.Client.NewDeleteReq("/identity/v2/manage/account/" + uid + "/rolecontext/" + rolecontextname)
+	req.Headers = httprutils.JSONHeader
+	lr.Client.AddApiCredentialsToReqHeader(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
 
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-// 	req.Header.Add("content-Type", "application/json")
+// DeleteRoleFromContext deletes the specified Role Context
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/roles-management/delete-context
+// Required template parameter: uid - string preresenting user's uid; rolecontextname - string representing the name of the context
+// from which the role(s) is(are) to be deleted
+// Required body parameters: roles - array of strings representing the role name(s) to be deleted
+func (lr Loginradius) DeleteRoleFromContext(uid, rolecontextname string, body interface{}) (*httprutils.Response, error) {
+	req := lr.Client.NewDeleteReq("/identity/v2/manage/account/"+uid+"/rolecontext/"+rolecontextname+"/role", body)
+	req.Headers = httprutils.JSONHeader
+	lr.Client.AddApiCredentialsToReqHeader(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
 
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
-
-// // DeleteRoleFromContext deletes the specified Role from a Context.
-// // Post Parameters is an array of roles
-// func DeleteRoleFromContext(uid, rolecontextname string, body interface{}) (Role, error) {
-// 	data := new(Role)
-// 	req, reqErr := CreateRequest("DELETE", os.Getenv("DOMAIN") + "/identity/v2/manage/account/"+uid+
-// 		"/rolecontext/"+rolecontextname+"/role", body)
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-// 	req.Header.Add("content-Type", "application/json")
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
-
-// // DeleteAdditionalPermissionFromContext deletes Additional Permissions from Context.
-// // Post Parameter is the array of strings which represent additional permissions
-// func DeleteAdditionalPermissionFromContext(uid, rolecontextname string, body interface{}) (Role, error) {
-// 	data := new(Role)
-// 	req, reqErr := CreateRequest("DELETE", os.Getenv("DOMAIN") + "/identity/v2/manage/account/"+uid+
-// 		"/rolecontext/"+rolecontextname+"/additionalpermission", body)
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-// 	req.Header.Add("content-Type", "application/json")
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
+// DeleteAdditionalPermissionFromContext deletes Additional Permissions from Context.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/roles-management/delete-permissions-from-context
+// Required template parameters: uid - string representing user's uid; rolecontextname - name of the context from which the additional
+// permission(s) is(are) to be delted
+// Required post parameters: additionalpermissions - array of strings representing names of additional permissions
+func (lr Loginradius) DeleteAdditionalPermissionFromContext(uid, rolecontextname string, body interface{}) (*httprutils.Response, error) {
+	req := lr.Client.NewDeleteReq("/identity/v2/manage/account/"+uid+"/rolecontext/"+rolecontextname+"/additionalpermission", body)
+	req.Headers = httprutils.JSONHeader
+	lr.Client.AddApiCredentialsToReqHeader(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
