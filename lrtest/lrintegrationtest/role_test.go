@@ -291,39 +291,43 @@ func TestDeleteRoleFromContext(t *testing.T) {
 	}
 }
 
-// func TestDeleteRoleFromContextInvalid(t *testing.T) {
-// 	fmt.Println("Starting test TestDeleteRoleFromContextInvalid")
-// 	_, _, testuid, _, teardownAccount := setupAccount(t)
-// 	defer teardownAccount(t)
-// 	invalid := InvalidBody{"invalid"}
-// 	_, err := PutRolesUpsertContext(testuid, invalid)
-// 	if err == nil {
-// 		t.Errorf("Should be error")
-// 	}
-// 	fmt.Println("Test complete")
-// }
+func TestDeleteAdditionalPermissionFromContext(t *testing.T) {
+	_, _, uid, _, lrclient, tearDownAccount := setupAccount(t)
+	defer tearDownAccount(t)
 
-// func TestDeleteAdditionalPermissionFromContext(t *testing.T) {
-// 	fmt.Println("Starting test TestDeleteAdditionalPermissionFromContext")
-// 	_, _, testuid, _, teardownAccount := setupAccount(t)
-// 	defer teardownAccount(t)
-// 	roleName, teardownRole := setupRole(t)
-// 	defer teardownRole(t)
-// 	roleContext := RoleContext{"contextTest", []string{roleName}, []string{"permission1"}, ""}
-// 	roleContextContainer := RoleContextContainer{[]RoleContext{roleContext}}
-// 	permissions := DeletePermissionList{[]string{"permission1"}}
-// 	_, err := PutRolesUpsertContext(testuid, roleContextContainer)
-// 	if err != nil {
-// 		t.Errorf("Error adding contexts and roles to user")
-// 		fmt.Println(err)
-// 	}
-// 	_, err2 := DeleteAdditionalPermissionFromContext(testuid, "contextTest", permissions)
-// 	if err2 != nil {
-// 		t.Errorf("Error deleting role context")
-// 		fmt.Println(err2)
-// 	}
-// 	fmt.Println("Test complete")
-// }
+	_, rolename, lrclient, tearDownRole := setupRole(t)
+	defer tearDownRole(t)
+	body := []byte(`{"rolecontext":[{"context":"example_context", "roles":["` + rolename + `"], "additionalpermissions":["permissionx", "permissiony"]}]}`)
+
+	res, err := role.Loginradius(role.Loginradius{lrclient}).PutRolesUpsertContext(
+		uid,
+		body,
+	)
+
+	if err != nil {
+		t.Errorf("Error calling PutRolesUpsertContext for DeleteAdditionalPermissionFromContext %v", err)
+	}
+
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !reflect.DeepEqual(data["Data"].([]interface{})[0].(map[string]interface{})["Context"].(string), "example_context") {
+		t.Errorf("Error returned from PutRolesUpsertContext for DeleteAdditionalPermissionFromContext: %v, %v, %v", err, data["Roles"], []string{rolename})
+	}
+
+	res, err = role.Loginradius(role.Loginradius{lrclient}).DeleteAdditionalPermissionFromContext(
+		uid,
+		"example_context",
+		[]byte(`{"additionalpermissions":["permissionx"]}`),
+	)
+
+	if err != nil {
+		t.Errorf("Error calling DeleteAdditionalPermissionFromContext %v", err)
+	}
+
+	data, err = lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || !data["IsDeleted"].(bool) {
+		t.Errorf("Error returned from DeleteAdditionalPermissionFromContext: %v, %v, %v", err, data["Roles"], []string{rolename})
+	}
+}
 
 // func TestDeleteAdditionalPermissionFromContextInvalid(t *testing.T) {
 // 	fmt.Println("Starting test TestDeleteAdditionalPermissionFromContextInvalid")
