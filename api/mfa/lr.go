@@ -1,4 +1,4 @@
-package multifactor
+package mfa
 
 import (
 	lr "bitbucket.org/nombiezinja/lr-go-sdk"
