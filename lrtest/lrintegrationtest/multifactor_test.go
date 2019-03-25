@@ -1,8 +1,10 @@
 package lrintegrationtest
 
 import (
+	"os"
 	"testing"
 
+	lr "bitbucket.org/nombiezinja/lr-go-sdk"
 	"bitbucket.org/nombiezinja/lr-go-sdk/api/mfa"
 	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
 	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
@@ -189,8 +191,123 @@ func TestGetMFAValidateAccessToken(t *testing.T) {
 	}
 }
 
-// To run this test, uncomment t.SkipNow() and manually set a manually created user with mfa turned on
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// and a Google authenticator added, enter the google authenticator code in this test.
 func TestPutMFAValidateGoogleAuthCode(t *testing.T) {
-	// t.SkipNow()
+	t.SkipNow()
+	SetTestEnv()
 
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PostMFAEmailLogin(
+		// Set user credentials here
+		map[string]string{"email": "", "password": ""},
+	)
+	if err != nil {
+		t.Errorf("Error making PostMFAEmailLogin call for PutMFAValidateGoogleAuthCode: %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil {
+		t.Errorf("Error returned from PostMFAEmailLogin call for PutMFAValidateGoogleAuthCode: %v", err)
+	}
+
+	code, ok := data["SecondFactorAuthentication"].(map[string]interface{})["SecondFactorAuthenticationToken"].(string)
+	if !ok {
+		t.Errorf("Returned response from SecondFactorAuthentication does not contain SecondFactorAuthenticationToken")
+	}
+
+	res, err = mfa.Loginradius(mfa.Loginradius{lrclient}).PutMFAValidateGoogleAuthCode(
+		map[string]string{"secondfactorauthenticationtoken": code},
+		// Set otp from Google Authenticator here
+		map[string]string{"googleauthenticatorcode": "246803"},
+	)
+	if err != nil {
+		t.Errorf("Error making call to PutMFAValidateGoogleAuthCode: %v", err)
+	}
+	data, err = lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || data["access_token"].(string) == "" {
+		t.Errorf("Error returned from PutMFAValidateGoogleAuthCode: %v", err)
+	}
+}
+
+// this test tests for the ability to submit a valid request to the LoginRadius end point
+// and will pass if a ""The OTP code is invalid, please request for a new OTP" error is returned
+// from Loginradius, therefore there is no need to submit a valid phone number for the test.
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// then obtain a valid secondfactorauthenticationtoken through completing a mfa login attempt
+// set the secondfactorauthenticationtoken and a phone number here
+func TestPutMFAUpdatePhoneNumber(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PostMFAEmailLogin(
+		// Set user credentials here
+		map[string]string{"email": "blueberries@mailinator.com", "password": "password"},
+	)
+	if err != nil {
+		t.Errorf("Error making PostMFAEmailLogin call for PutMFAUpdatePhoneNumber: %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil {
+		t.Errorf("Error returned from PostMFAEmailLogin call for PutMFAUpdatePhoneNumber: %v", err)
+	}
+
+	code, ok := data["SecondFactorAuthentication"].(map[string]interface{})["SecondFactorAuthenticationToken"].(string)
+	if !ok {
+		t.Errorf("Returned response from SecondFactorAuthentication does not contain SecondFactorAuthenticationToken")
+	}
+
+	res, err = mfa.Loginradius(mfa.Loginradius{lrclient}).PutMFAUpdatePhoneNumber(
+		// Set user here
+		map[string]string{"secondfactorauthenticationtoken": code},
+		map[string]string{"phoneno2fa": ""},
+	)
+	if err != nil {
+		t.Errorf("Error making call to PutMFAUpdatePhoneNumber: %v", err)
+	}
+	data, err = lrjson.DynamicUnmarshal(res.Body)
+	if err != nil {
+		t.Errorf("Error returned from PutMFAUpdatePhoneNumber: %v", err)
+	}
+}
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// then obtain a valid access_token through completing a mfa login attempt
+// set the access_token and a phone number here
+func TestPutMFAUpdatePhoneNumberByToken(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// set valid access_token here
+	lrclient.Context.Token = "7f875c92-b7fe-4f55-8658-58b24387ed64"
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PutMFAUpdatePhoneNumberByToken(
+		// Set user here
+		map[string]string{"phoneno2fa": "16047711536"},
+	)
+	if err != nil {
+		t.Errorf("Error making call to PutMFAUpdatePhoneNumber: %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil || data["Sid"] == "" {
+		t.Errorf("Error returned from PutMFAUpdatePhoneNumber: %v", err)
+	}
 }

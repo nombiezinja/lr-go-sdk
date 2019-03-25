@@ -1,6 +1,9 @@
 package mfa
 
-import "bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+import (
+	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
+)
 
 // PutMFAValidateGoogleAuthCode is used to login via Multi-factor-authentication by passing the google authenticator code.
 // Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-validate-google-auth-code
@@ -8,27 +11,73 @@ import "bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
 // secondfactorauthenticationtoken can be obtained by successful logins through MFA login routes
 // Optional query parameters: smstemplate2fa
 // Required post parameter: googleauthenticatorcode: string
-func (lr Loginradius) PutMFAValidateGoogleAuthCode(queries interface{}, body interface{}) (*httprutils.Response, error) {
-	req, err := lr.Client.NewPutReq("/identity/v2/auth/login/2fa/verification/googleauthenticatorcode", body)
+func (lr Loginradius) PutMFAValidateGoogleAuthCode(queries, body interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{
+		"secondfactorauthenticationtoken": true, "smstemplate2fa": true,
+	}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := lr.Client.NewPutReq("/identity/v2/auth/login/2fa/verification/googleauthenticatorcode", body, validatedQueries)
 	if err != nil {
 		return nil, err
 	}
 	lr.Client.NormalizeApiKey(req)
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
-	// data := new(MFALogin)
-	// req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN")+"/identity/v2/auth/login/2fa/verification/googleauthenticatorcode", body)
-	// if reqErr != nil {
-	// 	return *data, reqErr
-	// }
+}
 
-	// q := req.URL.Query()
-	// q.Add("apikey", os.Getenv("APIKEY"))
-	// q.Add("secondfactorauthenticationtoken", secondFactorAuthenticationToken)
-	// q.Add("smstemplate2fa", smstemplate2fa)
-	// req.URL.RawQuery = q.Encode()
-	// req.Header.Add("content-Type", "application/json")
+// PutMFAUpdatePhoneNumber is used to update (if configured) the phone number used for Multi-factor authentication by sending the verification OTP to the provided phone number.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-update-phone-number
+// Required query parameters: apikey, secondfactorauthenticationtoken
+// Optional query parameter: smstemplate2fa
+// Required post parameter: phoneno2fa - string
+func (lr Loginradius) PutMFAUpdatePhoneNumber(queries, body interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{
+		"secondfactorauthenticationtoken": true, "smstemplate2fa": true,
+	}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
 
-	// err := RunRequest(req, data)
-	// return *data, err
+	req, err := lr.Client.NewPutReq("/identity/v2/auth/login/2fa", body, validatedQueries)
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.NormalizeApiKey(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
+
+// PutMFAUpdatePhoneNumberByToken is used to update (if configured) the phone number used for Multi-factor authentication by sending the verification OTP to the provided phone number.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-update-phone-number
+// Required query parameters: apikey
+// Optional query parameter: smstemplate2fa
+// Required post parameter: phoneno2fa - string
+func (lr Loginradius) PutMFAUpdatePhoneNumberByToken(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
+	req, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/account/2fa", body)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{
+			"smstemplate2fa": true,
+		}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
+
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			req.QueryParams[k] = v
+		}
+	}
+
+	lr.Client.NormalizeApiKey(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
