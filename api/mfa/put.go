@@ -29,6 +29,30 @@ func (lr Loginradius) PutMFAValidateGoogleAuthCode(queries, body interface{}) (*
 	return res, err
 }
 
+// PutMFAValidateOTP is used to login via Multi-factor authentication by passing the One Time Password received via SMS.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-validate-otp
+// Required query parameters: apikey, secondfactorauthenticationtoken
+// Optional query parameter: smstemplate2fa
+// Required post parameter: otp - string
+// Optional query parameters: securityanswer, g-recaptcha-response, qq_captcha_ticket, qq_captcha_randstr
+func (lr Loginradius) PutMFAValidateOTP(queries, body interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{
+		"secondfactorauthenticationtoken": true, "smstemplate2fa": true,
+	}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := lr.Client.NewPutReq("/identity/v2/auth/login/2fa/verification/otp", body, validatedQueries)
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.NormalizeApiKey(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
+
 // PutMFAUpdatePhoneNumber is used to update (if configured) the phone number used for Multi-factor authentication by sending the verification OTP to the provided phone number.
 // Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-update-phone-number
 // Required query parameters: apikey, secondfactorauthenticationtoken

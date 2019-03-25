@@ -235,9 +235,49 @@ func TestPutMFAValidateGoogleAuthCode(t *testing.T) {
 	}
 }
 
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
 // this test tests for the ability to submit a valid request to the LoginRadius end point
 // and will pass if a ""The OTP code is invalid, please request for a new OTP" error is returned
-// from Loginradius, therefore there is no need to submit a valid phone number for the test.
+// from Loginradius
+func TestPutMFAValidateOTP(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PostMFAEmailLogin(
+		// Set user credentials here
+		map[string]string{"email": "blueberries@mailinator.com", "password": "password"},
+	)
+	if err != nil {
+		t.Errorf("Error making PostMFAEmailLogin call for PutMFAValidateOTP: %v", err)
+	}
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil {
+		t.Errorf("Error returned from PostMFAEmailLogin call for PutMFAValidateOTP: %v", err)
+	}
+
+	code, ok := data["SecondFactorAuthentication"].(map[string]interface{})["SecondFactorAuthenticationToken"].(string)
+	if !ok {
+		t.Errorf("Returned response from PutMFAValidateOTP does not contain SecondFactorAuthenticationToken")
+	}
+
+	_, err = mfa.Loginradius(mfa.Loginradius{lrclient}).PutMFAValidateOTP(
+		map[string]string{"secondfactorauthenticationtoken": code},
+		map[string]string{"otp": "123456"},
+	)
+
+	errMsg, _ := lrjson.DynamicUnmarshal(err.(lrerror.Error).OrigErr().Error())
+
+	if errMsg["Description"].(string) != "The OTP code is invalid, please request for a new OTP." {
+		t.Errorf("PutMFAValidateOTP was supposed to return invalid OTP error, but did not: %v", errMsg)
+	}
+}
 
 // To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
 // then obtain a valid secondfactorauthenticationtoken through completing a mfa login attempt
@@ -309,5 +349,53 @@ func TestPutMFAUpdatePhoneNumberByToken(t *testing.T) {
 	data, err := lrjson.DynamicUnmarshal(res.Body)
 	if err != nil || data["Sid"] == "" {
 		t.Errorf("Error returned from PutMFAUpdatePhoneNumber: %v", err)
+	}
+}
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// then obtain a valid access_token through completing a mfa login attempt
+func TestGetMFABackUpCodeByAccessToken(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// set valid access_token here
+	lrclient.Context.Token = "77aa9464-815c-4dbe-8eec-c6c9e28e43b2"
+	_, err := mfa.Loginradius(mfa.Loginradius{lrclient}).GetMFABackUpCodeByAccessToken()
+	if err != nil {
+		t.Errorf("Error making call to GetMFABackUpCodeByAccessToken: %v", err)
+	}
+}
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// then obtain a valid access_token through completing a mfa login attempt
+func TestGetMFAResetBackUpCodeByAccessToken(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// set valid access_token here
+	lrclient.Context.Token = "77aa9464-815c-4dbe-8eec-c6c9e28e43b2"
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).GetMFAResetBackUpCodeByAccessToken()
+	if err != nil {
+		t.Errorf("Error making call to GetMFAResetBackUpCodeByAccessToken: %v", err)
+	}
+
+	codes, err := lrjson.DynamicUnmarshal(res.Body)
+	_, ok := codes["BackUpCodes"].([]interface{})
+	if err != nil || !ok {
+		t.Errorf("Error returned from :%v, %v", err, codes)
 	}
 }

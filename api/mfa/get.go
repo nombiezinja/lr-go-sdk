@@ -31,19 +31,30 @@ func (lr Loginradius) GetMFAValidateAccessToken(queries ...interface{}) (*httpru
 	lr.Client.NormalizeApiKey(req)
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
-	// data := new(MFAValidate)
-	// req, reqErr := CreateRequest("GET", os.Getenv("DOMAIN")+"/identity/v2/auth/account/2fa", "")
-	// if reqErr != nil {
-	// 	return *data, reqErr
-	// }
+}
 
-	// q := req.URL.Query()
-	// q.Add("apikey", os.Getenv("APIKEY"))
-	// q.Add("smstemplate2fa", smstemplate2fa)
-	// req.URL.RawQuery = q.Encode()
-	// req.Header.Add("content-Type", "application/x-www-form-urlencoded")
-	// req.Header.Add("Authorization", "Bearer "+authorization)
+// GetMFABackUpCodeByAccessToken is used to get a set of backup codes via access_token to allow the user login on a site that has Multi-factor Authentication enabled in the event that the user does not have a secondary factor available. We generate 10 codes, each code can only be consumed once. If any user attempts to go over the number of invalid login attempts configured in the Dashboard then the account gets blocked automatically
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-backup-code-by-access-token
+// Required query parameter: apikey
+func (lr Loginradius) GetMFABackUpCodeByAccessToken() (*httprutils.Response, error) {
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/account/2fa/backupcode")
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.NormalizeApiKey(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
 
-	// err := RunRequest(req, data)
-	// return *data, err
+//GetMFABackUpCodeByAccessToken is used to reset the backup codes on a given account via the access_token. This API call will generate 10 new codes, each code can only be consumed once.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-reset-backup-code-by-access-token
+// Required query parameter: apikey
+func (lr Loginradius) GetMFAResetBackUpCodeByAccessToken() (*httprutils.Response, error) {
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/account/2fa/backupcode/reset")
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.NormalizeApiKey(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
