@@ -1,3 +1,4 @@
+// lrauthentication contains APIs for Loginradius authentication end points
 package lrauthentication
 
 import (
@@ -6,8 +7,12 @@ import (
 )
 
 // GetAuthVerifyEmail is used to verify the email of user.
+
 // Note: This API will only return the full profile if you have'Enable auto login after email verification' set in your
 // LoginRadius Dashboard's Email Workflow settings under 'Verification Email'
+
+// Documentation:https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-verify-email
+
 // Required query parameters: apiKey, verificationtoken;  Optional queries: url
 func (lr Loginradius) GetAuthVerifyEmail(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{
@@ -19,12 +24,15 @@ func (lr Loginradius) GetAuthVerifyEmail(queries interface{}) (*httprutils.Respo
 	}
 	validatedQueries["apiKey"] = lr.Client.Context.ApiKey
 
-	request := lr.Client.NewGetReq("/identity/v2/auth/email", validatedQueries)
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	req := lr.Client.NewGetReq("/identity/v2/auth/email", validatedQueries)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthCheckEmailAvailability is used to check whether an email exists or not on your site.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-verify-email
+
 // Required query parameters: apiKey, email
 func (lr Loginradius) GetAuthCheckEmailAvailability(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"email": true}
@@ -34,12 +42,16 @@ func (lr Loginradius) GetAuthCheckEmailAvailability(queries interface{}) (*httpr
 	}
 	validatedQueries["apiKey"] = lr.Client.Context.ApiKey
 
-	request := lr.Client.NewGetReq("/identity/v2/auth/email", validatedQueries)
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	req := lr.Client.NewGetReq("/identity/v2/auth/email", validatedQueries)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthCheckUsernameAvailability is used to check the UserName exists or not on your site.
+
+// Documentation:
+// https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-username-availability
+
 // Required query parameters: apiKey, username
 func (lr Loginradius) GetAuthCheckUsernameAvailability(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"username": true}
@@ -49,36 +61,42 @@ func (lr Loginradius) GetAuthCheckUsernameAvailability(queries interface{}) (*ht
 	}
 	validatedQueries["apiKey"] = lr.Client.Context.ApiKey
 
-	request := lr.Client.NewGetReq("/identity/v2/auth/username", validatedQueries)
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	req := lr.Client.NewGetReq("/identity/v2/auth/username", validatedQueries)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthReadProfilesByToken retrieves a copy of the user data based on the access token.
+
 // Required query parameters: apiKey
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-read-profiles-by-token
 func (lr Loginradius) GetAuthReadProfilesByToken() (*httprutils.Response, error) {
-	request, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/account")
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/account")
 	if err != nil {
 		return nil, err
 	}
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthPrivatePolicyAccept is used update the privacy policy stored in the user's profile based on user's access token
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-privacy-policy-accept
 func (lr Loginradius) GetAuthPrivatePolicyAccept() (*httprutils.Response, error) {
-	request, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/privacypolicy/accept")
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/privacypolicy/accept")
 	if err != nil {
 		return nil, err
 	}
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthSendWelcomeEmail sends the welcome email.
-// Queries are optional and can be passed as variadic argument
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-send-welcome-email
 func (lr Loginradius) GetAuthSendWelcomeEmail(queries ...interface{}) (*httprutils.Response, error) {
-	request, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/account/sendwelcomeemail")
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/account/sendwelcomeemail")
 	if err != nil {
 		return nil, err
 	}
@@ -91,39 +109,48 @@ func (lr Loginradius) GetAuthSendWelcomeEmail(queries ...interface{}) (*httpruti
 			return nil, err
 		}
 		for k, v := range validatedQueries {
-			request.QueryParams[k] = v
+			req.QueryParams[k] = v
 		}
 	}
 
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthSocialIdentity is called just before account linking API and it prevents
 // the raas profile of the second account from getting created.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-social-identity
+
 // Required query parameters: apiKey
 func (lr Loginradius) GetAuthSocialIdentity() (*httprutils.Response, error) {
-	request, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/socialidentity")
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/socialidentity")
 	if err != nil {
 		return nil, err
 	}
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthValidateAccessToken returns an expiry date for the access token if it is valid
 // and an error if it is invalid
+
+//Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-validate-access-token
+
 // Required query parameters: apiKey
 func (lr Loginradius) GetAuthValidateAccessToken() (*httprutils.Response, error) {
-	request, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/access_token/validate")
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/access_token/validate")
 	if err != nil {
 		return nil, err
 	}
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthDeleteAccount is used to delete an account by passing it a delete token.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-delete-account
+
 // Required query parameters: apiKey, deletetoken
 func (lr Loginradius) GetAuthDeleteAccount(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"deletetoken": true}
@@ -132,20 +159,23 @@ func (lr Loginradius) GetAuthDeleteAccount(queries interface{}) (*httprutils.Res
 		return nil, err
 	}
 	validatedQueries["apiKey"] = lr.Client.Context.ApiKey
-	request := lr.Client.NewGetReq("/identity/v2/auth/account/delete", validatedQueries)
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	req := lr.Client.NewGetReq("/identity/v2/auth/account/delete", validatedQueries)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthInvalidateAccessToken invalidates the active access_token or expires an access token's validity.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-invalidate-access-token
+
 // Required query parameters: apiKey
 func (lr Loginradius) GetAuthInvalidateAccessToken() (*httprutils.Response, error) {
-	request, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/access_token/invalidate")
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/access_token/invalidate")
 	if err != nil {
 		return nil, err
 	}
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthSecurityQuestionByAccessToken is used to retrieve the
@@ -154,12 +184,12 @@ func (lr Loginradius) GetAuthInvalidateAccessToken() (*httprutils.Response, erro
 // Refer to this document: https://docs.loginradius.com/api/v2/dashboard/platform-security/password-policy
 // Required query parameters: apiKey
 func (lr Loginradius) GetAuthSecurityQuestionByAccessToken() (*httprutils.Response, error) {
-	request, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/securityquestion/accesstoken")
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/securityquestion/accesstoken")
 	if err != nil {
 		return nil, err
 	}
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthSecurityQuestionByEmail is used to retrieve the
@@ -174,12 +204,12 @@ func (lr Loginradius) GetAuthSecurityQuestionByEmail(queries interface{}) (*http
 		return nil, err
 	}
 
-	request, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/securityquestion/email", validatedQueries)
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/securityquestion/email", validatedQueries)
 	if err != nil {
 		return nil, err
 	}
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthSecurityQuestionByUsername is used to retrieve the
@@ -194,12 +224,12 @@ func (lr Loginradius) GetAuthSecurityQuestionByUsername(queries interface{}) (*h
 		return nil, err
 	}
 
-	request, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/securityquestion/username", validatedQueries)
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/securityquestion/username", validatedQueries)
 	if err != nil {
 		return nil, err
 	}
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetAuthSecurityQuestionByPhone is used to retrieve the
@@ -214,12 +244,12 @@ func (lr Loginradius) GetAuthSecurityQuestionByPhone(queries interface{}) (*http
 		return nil, err
 	}
 
-	request, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/securityquestion/phone", validatedQueries)
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/securityquestion/phone", validatedQueries)
 	if err != nil {
 		return nil, err
 	}
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetPasswordlessLoginByEmail is used to send a Passwordless Login verification link to the provided Email ID.
@@ -234,10 +264,10 @@ func (lr Loginradius) GetPasswordlessLoginByEmail(queries interface{}) (*httprut
 	}
 	validatedQueries["apiKey"] = lr.Client.Context.ApiKey
 
-	request := lr.Client.NewGetReq("/identity/v2/auth/login/passwordlesslogin/email", validatedQueries)
+	req := lr.Client.NewGetReq("/identity/v2/auth/login/passwordlesslogin/email", validatedQueries)
 
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetPasswordlessLoginByUsername is used to send a Passwordless Login verification link to the provided Username.
@@ -251,10 +281,10 @@ func (lr Loginradius) GetPasswordlessLoginByUsername(queries interface{}) (*http
 		return nil, err
 	}
 	validatedQueries["apiKey"] = lr.Client.Context.ApiKey
-	request := lr.Client.NewGetReq("/identity/v2/auth/login/passwordlesslogin/email", validatedQueries)
+	req := lr.Client.NewGetReq("/identity/v2/auth/login/passwordlesslogin/email", validatedQueries)
 
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
 
 // GetPasswordlessLoginVerification is used to verify the Passwordless Login verification link.
@@ -268,8 +298,8 @@ func (lr Loginradius) GetPasswordlessLoginVerification(queries interface{}) (*ht
 		return nil, err
 	}
 	validatedQueries["apiKey"] = lr.Client.Context.ApiKey
-	request := lr.Client.NewGetReq("/identity/v2/auth/login/passwordlesslogin/email/verify", validatedQueries)
+	req := lr.Client.NewGetReq("/identity/v2/auth/login/passwordlesslogin/email/verify", validatedQueries)
 
-	response, err := httprutils.TimeoutClient.Send(*request)
-	return response, err
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
 }
