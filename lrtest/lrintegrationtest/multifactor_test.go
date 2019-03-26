@@ -515,3 +515,106 @@ func TestGetMFAResetBackUpCodeByUID(t *testing.T) {
 		t.Errorf("Error returned from GetMFAResetBackUpCodeByUID:%v, %v", err, codes)
 	}
 }
+
+// To run this test, comment out t.SkipNow() and set a manually created user with mfa turned on
+// and google authenticator configured
+func TestDeleteMFAResetGoogleAuthenticatorByUid(t *testing.T) {
+	// t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// fmt.Println("")
+	// Set uid here
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).DeleteMFAResetGoogleAuthenticatorByUid("3ca313699dc8423b9f7c8af9dff9d7f2")
+	if err != nil {
+		t.Errorf("Error making call to DeleteMFAResetGoogleAuthenticatorByUid: %v", err)
+	}
+
+	body, err := lrjson.DynamicUnmarshal(res.Body)
+	_, ok := body["IsDeleted"].(bool)
+	if err != nil || !ok {
+		t.Errorf("Error returned from DeleteMFAResetGoogleAuthenticatorByUid :%v, %v", err, body)
+	}
+}
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// and sms authentication configured
+func TestDeleteMFAResetSMSAuthenticatorByUid(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// Set uid here
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).DeleteMFAResetSMSAuthenticatorByUid("3ca313699dc8423b9f7c8af9dff9d7f2")
+	if err != nil {
+		t.Errorf("Error making call to DeleteMFAResetSMSAuthenticatorByUid: %v", err)
+	}
+
+	body, err := lrjson.DynamicUnmarshal(res.Body)
+	_, ok := body["IsDeleted"].(bool)
+	if err != nil || !ok {
+		t.Errorf("Error returned from DeleteMFAResetSMSAuthenticatorByUid:%v, %v", err, body)
+	}
+}
+
+// To run this test, comment out t.SkipNow() and set a manually created user with mfa turned on
+// and google authenticator configured
+func TestDeleteMFAResetGoogleAuthenticatorByToken(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg, map[string]string{"token": "01a67f99-8ab5-4176-a12b-a5c3d00859b5"})
+
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).DeleteMFAResetGoogleAuthenticatorByToken()
+	if err != nil {
+		t.Errorf("Error making call to DeleteMFAResetGoogleAuthenticatorByToken: %v", err)
+	}
+
+	body, err := lrjson.DynamicUnmarshal(res.Body)
+	_, ok := body["IsDeleted"].(bool)
+	if err != nil || !ok {
+		t.Errorf("Error returned from DeleteMFAResetGoogleAuthenticatorByToken :%v, %v", err, body)
+	}
+}
+
+// To run this test, comment out t.SkipNow() and set a manually created user with mfa turned on
+// and sms authentication configured
+func TestDeleteMFAResetSMSAuthenticatorByToken(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg, map[string]string{"token": "01a67f99-8ab5-4176-a12b-a5c3d00859b5"})
+
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).DeleteMFAResetSMSAuthenticatorByToken()
+	if err != nil {
+		t.Errorf("Error making call to DeleteMFAResetSMSAuthenticatorByToken: %v", err)
+	}
+
+	body, err := lrjson.DynamicUnmarshal(res.Body)
+	_, ok := body["IsDeleted"].(bool)
+	if err != nil || !ok {
+		t.Errorf("Error returned from DeleteMFAResetSMSAuthenticatorByToken :%v, %v", err, body)
+	}
+}

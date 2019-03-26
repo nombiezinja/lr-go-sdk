@@ -18,7 +18,7 @@ func (lr Loginradius) DeleteMFAResetGoogleAuthenticatorByToken() (*httprutils.Re
 		return nil, err
 	}
 	lr.Client.NormalizeApiKey(req)
-	req.Headers = httprutils.JSONHeader
+	req.Headers["content-Type"] = "application/json"
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
@@ -36,7 +36,7 @@ func (lr Loginradius) DeleteMFAResetSMSAuthenticatorByToken() (*httprutils.Respo
 		return nil, err
 	}
 	lr.Client.NormalizeApiKey(req)
-	req.Headers = httprutils.JSONHeader
+	req.Headers["content-Type"] = "application/json"
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
@@ -58,16 +58,15 @@ func (lr Loginradius) DeleteMFAResetSMSAuthenticatorByUid(queries interface{}) (
 		}
 		queryParams = validatedQueries
 	}
+	queryParams["apikey"] = lr.Client.Context.ApiKey
+	queryParams["apisecret"] = lr.Client.Context.ApiSecret
 
-	req, err := lr.Client.NewDeleteReqWithToken(
-		"/identity/v2/auth/account/2fa/authenticator",
+	req := lr.Client.NewDeleteReq(
+		"/identity/v2/manage/account/2fa/authenticator",
 		map[string]bool{"otpauthenticator": true},
 		queryParams,
 	)
-	if err != nil {
-		return nil, err
-	}
-	lr.Client.AddApiCredentialsToReqHeader(req)
+	req.QueryParams = queryParams
 	req.Headers = httprutils.JSONHeader
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
@@ -76,7 +75,7 @@ func (lr Loginradius) DeleteMFAResetSMSAuthenticatorByUid(queries interface{}) (
 // DeleteMFAResetGoogleAuthenticatorByUid resets the SMS Authenticator configurations on a given account via the access_token.
 // Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-reset-google-authenticator-by-uid
 // Required query parameter: apikey, apisecret, uid
-// Required body parameter: otpauthenticator - pass true as value
+// Required body parameter: googleauthenticator - pass true as value
 func (lr Loginradius) DeleteMFAResetGoogleAuthenticatorByUid(queries interface{}) (*httprutils.Response, error) {
 	queryParams := map[string]string{}
 	uid, ok := queries.(string)
@@ -90,17 +89,15 @@ func (lr Loginradius) DeleteMFAResetGoogleAuthenticatorByUid(queries interface{}
 		}
 		queryParams = validatedQueries
 	}
+	queryParams["apikey"] = lr.Client.Context.ApiKey
+	queryParams["apisecret"] = lr.Client.Context.ApiSecret
 
-	req, err := lr.Client.NewDeleteReqWithToken(
-		"/identity/v2/auth/account/2fa/authenticator",
+	req := lr.Client.NewDeleteReq(
+		"/identity/v2/manage/account/2fa/authenticator",
 		map[string]bool{"googleauthenticator": true},
-		queryParams,
 	)
-	if err != nil {
-		return nil, err
-	}
-	lr.Client.AddApiCredentialsToReqHeader(req)
 	req.Headers = httprutils.JSONHeader
+	req.QueryParams = queryParams
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
