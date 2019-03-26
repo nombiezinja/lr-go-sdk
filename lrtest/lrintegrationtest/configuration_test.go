@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	lrconfiguration "bitbucket.org/nombiezinja/lr-go-sdk/api/configuration"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	lrconfiguration "github.com/nombiezinja/lr-go-sdk/api/configuration"
+	lrjson "github.com/nombiezinja/lr-go-sdk/lrjson"
 )
 
 func TestGetConfiguration(t *testing.T) {

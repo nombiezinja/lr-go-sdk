@@ -3,8 +3,8 @@ package lraccount
 import (
 	"fmt"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
-	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
+	lrvalidate "github.com/nombiezinja/lr-go-sdk/internal/validate"
 )
 
 // PutManageAccountUpdateSecurityQuestionConfig is used to update security questions configuration on an existing account.

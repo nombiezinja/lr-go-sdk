@@ -3,8 +3,8 @@ package lrintegrationtest
 import (
 	"testing"
 
-	webhook "bitbucket.org/nombiezinja/lr-go-sdk/api/webhook"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	webhook "github.com/nombiezinja/lr-go-sdk/api/webhook"
+	lrjson "github.com/nombiezinja/lr-go-sdk/lrjson"
 )
 
 func TestPostWebhookSubscribe(t *testing.T) {

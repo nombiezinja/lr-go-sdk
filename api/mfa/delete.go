@@ -1,8 +1,8 @@
 package mfa
 
 import (
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
-	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
+	lrvalidate "github.com/nombiezinja/lr-go-sdk/internal/validate"
 )
 
 // DeleteMFAResetGoogleAuthenticatorByToken resets the Google Authenticator configurations on a given account via the access_token.

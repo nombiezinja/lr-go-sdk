@@ -1,9 +1,9 @@
 package customobject
 
 import (
-	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
+	lrvalidate "github.com/nombiezinja/lr-go-sdk/internal/validate"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
 )
 
 // PostCustomObjectCreateByUID is used to write information in JSON format to the custom object for the specified account.

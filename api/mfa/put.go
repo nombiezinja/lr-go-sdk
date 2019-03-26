@@ -1,8 +1,8 @@
 package mfa
 
 import (
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
-	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
+	lrvalidate "github.com/nombiezinja/lr-go-sdk/internal/validate"
 )
 
 // PutMFAValidateGoogleAuthCode is used to login via Multi-factor-authentication by passing the google authenticator code.

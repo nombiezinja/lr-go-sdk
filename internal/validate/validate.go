@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
 )
 
 // Validate verifies an interface{} only contains keys belonging to the allowed map of keys

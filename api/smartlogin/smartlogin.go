@@ -1,9 +1,9 @@
 package smartlogin
 
 import (
-	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
+	lrvalidate "github.com/nombiezinja/lr-go-sdk/internal/validate"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
 )
 
 // GetSmartLoginByEmail sends a Smart Login link to the user's Email Id.

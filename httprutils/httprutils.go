@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"time"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
 )
 
 type Method string

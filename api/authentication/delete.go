@@ -1,8 +1,8 @@
 package lrauthentication
 
 import (
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
-	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
+	lrvalidate "github.com/nombiezinja/lr-go-sdk/internal/validate"
 )
 
 // DeleteAuthDeleteAccountEmailConfirmation sends a confirmation email for account deletion to the customer's email when passed the access token

@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	"bitbucket.org/nombiezinja/lr-go-sdk/api/onetouchlogin"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	"github.com/nombiezinja/lr-go-sdk/api/onetouchlogin"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
 )
 
 func TestPostOneTouchLoginByEmail(t *testing.T) {

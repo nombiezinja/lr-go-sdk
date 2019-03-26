@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
 )
 
 func initLr() lr.Loginradius {

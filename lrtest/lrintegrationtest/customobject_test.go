@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/api/customobject"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	"github.com/nombiezinja/lr-go-sdk/api/customobject"
+	lrjson "github.com/nombiezinja/lr-go-sdk/lrjson"
 )
 
 func TestPostCustomObjectCreateByUID(t *testing.T) {

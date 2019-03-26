@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
 	"golang.org/x/crypto/pbkdf2"
 )
 

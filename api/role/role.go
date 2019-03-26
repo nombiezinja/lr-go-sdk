@@ -3,7 +3,7 @@ package role
 import (
 	"fmt"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
 )
 
 // PostRolesCreate creates a role with permissions.

@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
 )
 
 const errMsg = "Must initialize Loginradius client with ApiKey and ApiSecret"

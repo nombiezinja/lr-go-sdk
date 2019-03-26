@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
-	lrauthentication "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrstruct"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	lraccount "github.com/nombiezinja/lr-go-sdk/api/account"
+	lrauthentication "github.com/nombiezinja/lr-go-sdk/api/authentication"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
+	"github.com/nombiezinja/lr-go-sdk/lrjson"
+	"github.com/nombiezinja/lr-go-sdk/lrstruct"
 )
 
 type Email struct {

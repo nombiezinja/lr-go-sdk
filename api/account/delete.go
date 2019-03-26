@@ -1,7 +1,7 @@
 package lraccount
 
 import (
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
 )
 
 // DeleteManageAccount is used to delete the Users account and allows them to re-register for a new account.

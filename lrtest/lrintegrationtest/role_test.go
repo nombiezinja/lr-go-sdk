@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/api/role"
-	lrbody "bitbucket.org/nombiezinja/lr-go-sdk/lrbody"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	"github.com/nombiezinja/lr-go-sdk/api/role"
+	lrbody "github.com/nombiezinja/lr-go-sdk/lrbody"
+	lrjson "github.com/nombiezinja/lr-go-sdk/lrjson"
 )
 
 func TestPostRolesCreate(t *testing.T) {

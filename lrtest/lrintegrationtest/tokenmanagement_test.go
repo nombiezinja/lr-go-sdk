@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	"bitbucket.org/nombiezinja/lr-go-sdk/api/tokenmanagement"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	"github.com/nombiezinja/lr-go-sdk/api/tokenmanagement"
+	lrjson "github.com/nombiezinja/lr-go-sdk/lrjson"
 )
 
 func TestGetAccessTokenViaFacebook(t *testing.T) {

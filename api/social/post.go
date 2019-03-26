@@ -3,9 +3,9 @@ package lrsocial
 import (
 	"errors"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
-	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
+	lrvalidate "github.com/nombiezinja/lr-go-sdk/internal/validate"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
 )
 
 // PostSocialMessageAPI is used to post messages to the user’s contacts.

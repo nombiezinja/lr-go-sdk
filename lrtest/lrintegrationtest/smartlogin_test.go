@@ -4,10 +4,10 @@ import (
 	"os"
 	"testing"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	"bitbucket.org/nombiezinja/lr-go-sdk/api/smartlogin"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	"github.com/nombiezinja/lr-go-sdk/api/smartlogin"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
+	lrjson "github.com/nombiezinja/lr-go-sdk/lrjson"
 )
 
 func TestGetSmartLoginByEmail(t *testing.T) {

@@ -4,7 +4,7 @@ package loginradius
 import (
 	"errors"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
 )
 
 // domain is the default domain for API calls to Loginradius

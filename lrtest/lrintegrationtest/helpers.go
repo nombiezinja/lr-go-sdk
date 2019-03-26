@@ -8,14 +8,14 @@ import (
 	"testing"
 	"time"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
-	lrauthentication "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
-	"bitbucket.org/nombiezinja/lr-go-sdk/api/customobject"
-	"bitbucket.org/nombiezinja/lr-go-sdk/api/role"
-	"bitbucket.org/nombiezinja/lr-go-sdk/api/webhook"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrbody"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	lraccount "github.com/nombiezinja/lr-go-sdk/api/account"
+	lrauthentication "github.com/nombiezinja/lr-go-sdk/api/authentication"
+	"github.com/nombiezinja/lr-go-sdk/api/customobject"
+	"github.com/nombiezinja/lr-go-sdk/api/role"
+	"github.com/nombiezinja/lr-go-sdk/api/webhook"
+	"github.com/nombiezinja/lr-go-sdk/lrbody"
+	"github.com/nombiezinja/lr-go-sdk/lrjson"
 )
 
 func setupAccount(t *testing.T) (string, string, string, string, *lr.Loginradius, func(t *testing.T)) {

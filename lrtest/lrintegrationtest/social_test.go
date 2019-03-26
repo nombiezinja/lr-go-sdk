@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	lrsocial "bitbucket.org/nombiezinja/lr-go-sdk/api/social"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	lrsocial "github.com/nombiezinja/lr-go-sdk/api/social"
+	lrjson "github.com/nombiezinja/lr-go-sdk/lrjson"
 )
 
 // Comment out t.SkipNow() and set LoginRadius access token in the test to run this test

@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
-	"bitbucket.org/nombiezinja/lr-go-sdk/api/phoneauthentication"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	lraccount "github.com/nombiezinja/lr-go-sdk/api/account"
+	"github.com/nombiezinja/lr-go-sdk/api/phoneauthentication"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
+	lrjson "github.com/nombiezinja/lr-go-sdk/lrjson"
 )
 
 func TestPostPhoneLogin(t *testing.T) {

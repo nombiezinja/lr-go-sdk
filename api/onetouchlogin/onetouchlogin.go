@@ -1,9 +1,9 @@
 package onetouchlogin
 
 import (
-	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
+	lrvalidate "github.com/nombiezinja/lr-go-sdk/internal/validate"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
 )
 
 // PostOneTouchLoginByEmail is used to send a link to a specified email for a frictionless login/registration

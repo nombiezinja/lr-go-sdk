@@ -1,7 +1,7 @@
 package smartlogin
 
 import (
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
+	lr "github.com/nombiezinja/lr-go-sdk"
 )
 
 // Embed Loginradius struct

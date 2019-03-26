@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	lrauth "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	lrauth "github.com/nombiezinja/lr-go-sdk/api/authentication"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
 )
 
 const body = "test body"

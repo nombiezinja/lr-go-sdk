@@ -3,8 +3,8 @@ package loginradius
 import (
 	"errors"
 
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
 )
 
 // NewGetRequest constructs the request for Auth api end points requiring

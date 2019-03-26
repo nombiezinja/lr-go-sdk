@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	lraccount "bitbucket.org/nombiezinja/lr-go-sdk/api/account"
-	lrauthentication "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
-	lrbody "bitbucket.org/nombiezinja/lr-go-sdk/lrbody"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	lraccount "github.com/nombiezinja/lr-go-sdk/api/account"
+	lrauthentication "github.com/nombiezinja/lr-go-sdk/api/authentication"
+	lrbody "github.com/nombiezinja/lr-go-sdk/lrbody"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
+	lrjson "github.com/nombiezinja/lr-go-sdk/lrjson"
 )
 
 func TestGetManageAccountProfilesByEmail(t *testing.T) {

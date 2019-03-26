@@ -1,9 +1,9 @@
 package phoneauthentication
 
 import (
-	"bitbucket.org/nombiezinja/lr-go-sdk/httprutils"
-	"bitbucket.org/nombiezinja/lr-go-sdk/internal/sott"
-	lrvalidate "bitbucket.org/nombiezinja/lr-go-sdk/internal/validate"
+	"github.com/nombiezinja/lr-go-sdk/httprutils"
+	"github.com/nombiezinja/lr-go-sdk/internal/sott"
+	lrvalidate "github.com/nombiezinja/lr-go-sdk/internal/validate"
 )
 
 // PostPhoneLogin retrieves a copy of the user data based on the Phone.

@@ -4,10 +4,10 @@ import (
 	"os"
 	"testing"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	"bitbucket.org/nombiezinja/lr-go-sdk/api/mfa"
-	"bitbucket.org/nombiezinja/lr-go-sdk/lrerror"
-	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	"github.com/nombiezinja/lr-go-sdk/api/mfa"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
+	lrjson "github.com/nombiezinja/lr-go-sdk/lrjson"
 )
 
 func TestPostMFAEmailLogin(t *testing.T) {
