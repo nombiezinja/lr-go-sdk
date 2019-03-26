@@ -58,3 +58,54 @@ func (lr Loginradius) GetMFAResetBackUpCodeByAccessToken() (*httprutils.Response
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
+
+// GetMFABackUpCodeByUID is used to get a set of backup codes to allow the user login on a site that has Multi-factor
+// authentication enabled in the event that the user does not have a secondary factor available.
+// We generate 10 codes, each code can only be consumed once.
+// If any user attempts to go over the number of invalid login attempts configured in the
+// Dashboard then the account gets blocked automatically
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-backup-code-by-uid
+// Required query parameter: apikey, apisecret, uid
+func (lr Loginradius) GetMFABackUpCodeByUID(queries interface{}) (*httprutils.Response, error) {
+	queryParams := map[string]string{}
+	uid, ok := queries.(string)
+	if ok {
+		queryParams["uid"] = uid
+	} else {
+		allowedQueries := map[string]bool{"uid": true}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+		if err != nil {
+			return nil, err
+		}
+		queryParams = validatedQueries
+	}
+
+	req := lr.Client.NewGetReq("/identity/v2/manage/account/2fa/backupcode", queryParams)
+	lr.Client.AddApiCredentialsToReqHeader(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
+
+//GetMFAResetBackUpCodeByUID is used to reset the backup codes on a given account via the UID.
+//This API call will generate 10 new codes, each code can only be consumed once.
+//Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-reset-backup-code-by-uid
+// Required query parameter: apikey, apisecret, uid
+func (lr Loginradius) GetMFAResetBackUpCodeByUID(queries interface{}) (*httprutils.Response, error) {
+	queryParams := map[string]string{}
+	uid, ok := queries.(string)
+	if ok {
+		queryParams["uid"] = uid
+	} else {
+		allowedQueries := map[string]bool{"uid": true}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+		if err != nil {
+			return nil, err
+		}
+		queryParams = validatedQueries
+	}
+
+	req := lr.Client.NewGetReq("/identity/v2/manage/account/2fa/backupcode/reset", queryParams)
+	lr.Client.AddApiCredentialsToReqHeader(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}

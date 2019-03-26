@@ -105,3 +105,25 @@ func (lr Loginradius) PutMFAUpdatePhoneNumberByToken(body interface{}, queries .
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
+
+// This API is used to validate the backup code provided by the user and if valid, we return an access_token allowing the user to login incases where Multi-factor authentication (MFA) is enabled and the secondary factor is unavailable. When a user intially downloads the Backup codes, We generate 10 codes, each code can only be consumed once. if any user attempts to go over the number of invalid login attempts configured in the Dashboard then the account gets blocked automatically
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-validate-backup-code
+// Required query parameters: apikey, secondfactorauthenticationtoken
+// Required body parameter: backupcode
+func (lr Loginradius) PutMFAValidateBackupCode(queries interface{}, body interface{}) (*httprutils.Response, error) {
+	allowedQueries := map[string]bool{
+		"secondfactorauthenticationtoken": true,
+	}
+	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := lr.Client.NewPutReq("/identity/v2/auth/login/2fa/verification/backupcode", body, validatedQueries)
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.NormalizeApiKey(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}

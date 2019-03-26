@@ -354,6 +354,8 @@ func TestPutMFAUpdatePhoneNumberByToken(t *testing.T) {
 
 // To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
 // then obtain a valid access_token through completing a mfa login attempt
+// This test must be run with a user that has not called this end point previously
+
 func TestGetMFABackUpCodeByAccessToken(t *testing.T) {
 	t.SkipNow()
 	SetTestEnv()
@@ -396,6 +398,120 @@ func TestGetMFAResetBackUpCodeByAccessToken(t *testing.T) {
 	codes, err := lrjson.DynamicUnmarshal(res.Body)
 	_, ok := codes["BackUpCodes"].([]interface{})
 	if err != nil || !ok {
-		t.Errorf("Error returned from :%v, %v", err, codes)
+		t.Errorf("Error returned from GetMFAResetBackUpCodeByAccessToken:%v, %v", err, codes)
+	}
+}
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// then obtain a valid access_token through completing a mfa login attempt
+func TestPutMFAValidateBackupCode(t *testing.T) {
+	// t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// set valid access_token here
+	lrclient.Context.Token = "c3b8130e-e92d-40cc-8153-83da3744aa4b"
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).GetMFAResetBackUpCodeByAccessToken()
+	if err != nil {
+		t.Errorf("Error making call to GetMFAResetBackUpCodeByAccessToken for PutMFAValidateBackupCode: %v", err)
+	}
+
+	data, err := lrjson.DynamicUnmarshal(res.Body)
+	codes, ok := data["BackUpCodes"].([]interface{})
+	if err != nil || !ok {
+		t.Errorf("Error returned from GetMFAResetBackUpCodeByAccessToken for PutMFAValidateBackupCode:%v, %v", err, codes)
+	}
+
+	// Get secondfactorauthenticationtoken
+	res, err = mfa.Loginradius(mfa.Loginradius{lrclient}).PostMFAEmailLogin(
+		// Set user credentials here
+		map[string]string{"email": "blueberries@mailinator.com", "password": "password"},
+	)
+	if err != nil {
+		t.Errorf("Error making PostMFAEmailLogin call for PutMFAValidateBackupCode: %v", err)
+	}
+	data, err = lrjson.DynamicUnmarshal(res.Body)
+	if err != nil {
+		t.Errorf("Error returned from PostMFAEmailLogin call for PutMFAValidateBackupCode: %v", err)
+	}
+
+	token, ok := data["SecondFactorAuthentication"].(map[string]interface{})["SecondFactorAuthenticationToken"].(string)
+	if !ok {
+		t.Errorf("Returned response from PostMFAEmailLogin does not contain SecondFactorAuthenticationToken")
+	}
+
+	res, err = mfa.Loginradius(mfa.Loginradius{lrclient}).PutMFAValidateBackupCode(
+		map[string]string{"secondfactorauthenticationtoken": token},
+		map[string]string{"backupcode": codes[0].(string)},
+	)
+	if err != nil {
+		t.Errorf("Error making call to PutMFAValidateBackupCode: %v", err)
+	}
+	profile, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil {
+		t.Errorf("Error returned from PutMFAValidateBackupCode: %v, %v", profile, err)
+	}
+
+	_, ok = profile["access_token"].(string)
+	if !ok {
+		t.Errorf("Error returned from PutMFAValidateBackupCode: %v, %v", profile, err)
+	}
+}
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// then obtain a valid access_token through completing a mfa login attempt
+// This test must be run with a user that has not called this end point previously
+func TestGetMFABackUpCodeByUID(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// set uid here
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).GetMFABackUpCodeByUID("3ca313699dc8423b9f7c8af9dff9d7f2")
+	if err != nil {
+		t.Errorf("Error making call to GetMFABackUpCodeByUID: %v", err)
+	}
+
+	codes, err := lrjson.DynamicUnmarshal(res.Body)
+	_, ok := codes["BackUpCodes"].([]interface{})
+	if err != nil || !ok {
+		t.Errorf("Error returned from GetMFABackUpCodeByUID:%v, %v", err, codes)
+	}
+}
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+func TestGetMFAResetBackUpCodeByUID(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// Set uid here
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).GetMFAResetBackUpCodeByUID("3ca313699dc8423b9f7c8af9dff9d7f2")
+	if err != nil {
+		t.Errorf("Error making call to GetMFAResetBackUpCodeByUID: %v", err)
+	}
+
+	codes, err := lrjson.DynamicUnmarshal(res.Body)
+	_, ok := codes["BackUpCodes"].([]interface{})
+	if err != nil || !ok {
+		t.Errorf("Error returned from GetMFAResetBackUpCodeByUID:%v, %v", err, codes)
 	}
 }
