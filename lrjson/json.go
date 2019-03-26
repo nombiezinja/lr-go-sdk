@@ -53,15 +53,3 @@ func UnmarshalGetManageAccountProfilesByEmail(data string) (loginradius.AuthProf
 	}
 	return authProfile, nil
 }
-
-// GetAuthQuestion end points return an array rather than a JSON object, and therefore
-// must use custom pre-written struct for unmarshalling rather than the DynamicUnmarshal function
-func UnmarshalGetAuthQuestion(data string) (loginradius.AuthSecurityQuestion, error) {
-	authSecurityQuestion := loginradius.AuthSecurityQuestion{}
-
-	error := json.Unmarshal([]byte(data), &authSecurityQuestion)
-	if error != nil {
-		return authSecurityQuestion, error
-	}
-	return authSecurityQuestion, nil
-}

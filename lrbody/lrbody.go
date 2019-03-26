@@ -4,7 +4,7 @@
 // data in the appropriate struct and passing in place of the body when calling the SDK functions
 // will ensure the parameters submitted are correctly formatted and named for the LoginRadius APIs
 // The usage of the structs in this package is optional and provided for convenience only
-// For examples please see INSERTDOC
+// Majority of methods take map[string]string as body parameter as well
 
 // Note: these structs provide reference only, and do not include optional parameters
 

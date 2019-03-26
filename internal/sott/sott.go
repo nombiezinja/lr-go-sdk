@@ -1,3 +1,4 @@
+// The SOTT package is used to generate a LoginRadius Secured One Time Token
 package sott
 
 import (

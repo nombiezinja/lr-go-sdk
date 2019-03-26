@@ -10,21 +10,6 @@ import (
 	lrjson "bitbucket.org/nombiezinja/lr-go-sdk/lrjson"
 )
 
-// func setupMFALogin(t *testing.T) (string, string, string, string, func(t *testing.T)) {
-// 	_, _, testuid, testEmail, teardownTestCase := setupAccount(t)
-// 	testLogin := TestEmailLogin{testEmail, testEmail}
-// 	session, err := PostMFAEmailLogin("", "", "", "", testLogin)
-// 	accessToken := session.AccessToken
-// 	multiToken := session.SecondFactorAuthentication.SecondFactorAuthenticationToken
-// 	if err != nil || accessToken == "" {
-// 		t.Errorf("Error logging in")
-// 		fmt.Println(err)
-// 	}
-// 	return multiToken, testuid, testEmail, accessToken, func(t *testing.T) {
-// 		defer teardownTestCase(t)
-// 	}
-// }
-
 func TestPostMFAEmailLogin(t *testing.T) {
 	_, _, _, testEmail, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)

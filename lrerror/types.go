@@ -182,9 +182,8 @@ func (e errorList) Error() string {
 	if size := len(e); size > 0 {
 		for i := 0; i < size; i++ {
 			msg += fmt.Sprintf("%s", e[i].Error())
-			// We check the next index to see if it is within the slice.
-			// If it is, then we append a newline. We do this, because unit tests
-			// could be broken with the additional '\n'
+			// Check the next index to see if it is within the slice.
+			// If it is, then append a newline
 			if i+1 < size {
 				msg += "\n"
 			}

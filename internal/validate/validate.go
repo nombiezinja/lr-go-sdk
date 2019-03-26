@@ -1,3 +1,4 @@
+// The lrvalidate package is used to validate query parameters to be submitted with request
 package lrvalidate
 
 import (
