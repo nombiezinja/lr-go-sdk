@@ -44,19 +44,3 @@ func Profile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 	w.Write([]byte(res.Body))
 }
-
-// func profileHandler(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type", "application/json")
-
-// 	accessToken := r.URL.Query().Get("auth")
-// 	profile, err := loginradius.GetAuthReadProfilesByToken(accessToken)
-// 	if err != nil {
-// 		w.WriteHeader(err.(*loginradius.HTTPError).StatusCode)
-// 		w.Write([]byte(err.Error()))
-// 		return
-// 	}
-
-// 	w.WriteHeader(http.StatusOK)
-// 	data, _ := json.Marshal(profile)
-// 	w.Write(data)
-// }

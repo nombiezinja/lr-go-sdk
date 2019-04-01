@@ -287,7 +287,7 @@ $( "#btn-user-assignrole" ).click(function() {
 
 let profileUpdate = function() {
     if(localStorage.getItem("LRTokenKey") === null) {
-        window.location.replace("index");
+        window.location.replace("/");
         return;
     }
 
@@ -297,7 +297,7 @@ let profileUpdate = function() {
         error: function(){
             localStorage.removeItem("LRTokenKey");
             localStorage.removeItem("lr-user-uid");
-            window.location.replace("index");
+            window.location.replace("/");
         }
     }).done(function(ret) {
         $("#profile-name").html("<b>" + ret.FullName + "</b>");

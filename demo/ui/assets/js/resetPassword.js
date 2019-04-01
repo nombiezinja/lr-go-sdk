@@ -34,8 +34,8 @@ if (params) {
   paramsObj = JSON.parse('{"' + decodeURI(params.replace(/&/g, "\",\"").replace(/=/g,"\":\"")) + '"}');
 
   if (paramsObj.vtype != "reset") {
-    window.location.replace("index.html");
+    window.location.replace("/");
   }
 } else {
-  window.location.replace("index.html");
+  window.location.replace("/");
 }

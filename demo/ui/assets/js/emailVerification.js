@@ -34,8 +34,8 @@ if (params) {
             window.location.replace("profile");
         });
     } else {
-        window.location.replace("index.html");
+        window.location.replace("\/");
     }
 } else {
-    window.location.replace("index.html");
+    window.location.replace("\/");
 }
