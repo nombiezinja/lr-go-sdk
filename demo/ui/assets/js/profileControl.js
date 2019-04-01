@@ -287,17 +287,17 @@ $( "#btn-user-assignrole" ).click(function() {
 
 let profileUpdate = function() {
     if(localStorage.getItem("LRTokenKey") === null) {
-        window.location.replace("index.html");
+        window.location.replace("index");
         return;
     }
 
     $.ajax({
-        method: "GET",
+        method: "POST",
         url: serverUrl + "/profile?auth=" + localStorage.getItem("LRTokenKey"),
         error: function(){
             localStorage.removeItem("LRTokenKey");
             localStorage.removeItem("lr-user-uid");
-            window.location.replace("index.html");
+            window.location.replace("index");
         }
     }).done(function(ret) {
         $("#profile-name").html("<b>" + ret.FullName + "</b>");

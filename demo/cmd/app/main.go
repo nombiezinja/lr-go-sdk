@@ -28,12 +28,13 @@ func main() {
 
 	router.ServeFiles("/assets/*filepath", http.Dir(filepath.Join(cwd, "../../ui/assets")))
 	router.GET("/", handlegets.Index)
-	router.GET("/emailverification", handlegets.RenderVerify)
-	router.GET("/register/verify/email", handlegets.Verify)
+	router.GET("/emailverification", handlegets.Verify)
+	router.GET("/register/verify/email", handleposts.Verify)
 	router.GET("/screen", handlegets.Screen)
 	router.POST("/register", handleposts.Signup)
 	router.POST("/login/email", handleposts.Login)
-	router.GET("/profile", handleposts.Profile)
+	router.GET("/profile", handlegets.Profile)
+	router.POST("/profile", handleposts.Profile)
 
 	http.ListenAndServe(":3000", router)
 }

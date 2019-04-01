@@ -11,7 +11,8 @@ import (
 	"github.com/nombiezinja/lr-go-sdk/lrerror"
 )
 
-func Profile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func Verify(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	token := r.URL.Query().Get("verification_token")
 	var errors string
 	respCode := 200
 
@@ -20,16 +21,16 @@ func Profile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		ApiSecret: os.Getenv("APISECRET"),
 	}
 
-	lrclient, err := lr.NewLoginradius(
-		&cfg,
-		map[string]string{"token": r.URL.Query().Get("auth")},
-	)
+	lrclient, err := lr.NewLoginradius(&cfg)
 	if err != nil {
 		errors = errors + err.(lrerror.Error).OrigErr().Error()
 		respCode = 500
 	}
 
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthReadProfilesByToken()
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthVerifyEmail(
+		map[string]string{"verificationtoken": token},
+	)
+
 	if err != nil {
 		errors = errors + err.(lrerror.Error).OrigErr().Error()
 		respCode = 500
@@ -44,19 +45,3 @@ func Profile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 	w.Write([]byte(res.Body))
 }
-
-// func profileHandler(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type", "application/json")
-
-// 	accessToken := r.URL.Query().Get("auth")
-// 	profile, err := loginradius.GetAuthReadProfilesByToken(accessToken)
-// 	if err != nil {
-// 		w.WriteHeader(err.(*loginradius.HTTPError).StatusCode)
-// 		w.Write([]byte(err.Error()))
-// 		return
-// 	}
-
-// 	w.WriteHeader(http.StatusOK)
-// 	data, _ := json.Marshal(profile)
-// 	w.Write(data)
-// }
