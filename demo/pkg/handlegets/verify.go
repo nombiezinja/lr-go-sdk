@@ -1,55 +1,56 @@
 package handlegets
 
 import (
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/julienschmidt/httprouter"
+	lr "github.com/nombiezinja/lr-go-sdk"
+	lrauthentication "github.com/nombiezinja/lr-go-sdk/api/authentication"
+	"github.com/nombiezinja/lr-go-sdk/demo/pkg/template"
+	"github.com/nombiezinja/lr-go-sdk/lrerror"
 )
 
 func Verify(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	token := r.URL.Query().Get("verification_token")
+	var errors string
+	respCode := 200
 
-	// token := r.URL.Query().Get("vtoken")
-	// response, err := loginradius.GetAuthVerifyEmail(token, "", "")
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
 
-	// successMsg := "Email verification successful"
-	// errMessage := ""
-	// if err != nil {
-	// 	if lrerr, ok := err.(lrerror.Error); ok {
-	// 		log.Println(lrerr.Error())
+	lrclient, err := lr.NewLoginradius(&cfg)
+	if err != nil {
+		errors = errors + err.(lrerror.Error).OrigErr().Error()
+		respCode = 500
+	}
 
-	// 		errorResponse := lrerror.ErrorResponse{}
-	// 		error := json.Unmarshal([]byte(lrerr.OrigErr().Error()), &errorResponse)
-	// 		if error != nil {
-	// 			w.WriteHeader(500)
-	// 			errMessage = "Something went wrong on our end"
-	// 		} else {
-	// 			w.WriteHeader(errorResponse.ErrorCode)
-	// 			errMessage = errorResponse.Description
-	// 		}
-	// 	} else {
-	// 		log.Println(err)
-	// 		w.WriteHeader(500)
-	// 		w.Write([]byte("Unknown error"))
-	// 	}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthVerifyEmail(
+		map[string]string{"verificationtoken": token},
+	)
 
-	// 	err = template.Render(w, r, "index.page", map[string]interface{}{"Error": errMessage})
-	// 	if err != nil {
-	// 		log.Println(err.Error())
-	// 		http.Error(w, "Internal Server Error", 500)
-	// 	}
-	// 	return
-	// }
-	// w.WriteHeader(http.StatusOK)
-	// data, _ := lrjson.DynamicUnmarshal(response.Body)
+	if err != nil {
+		errors = errors + err.(lrerror.Error).OrigErr().Error()
+		respCode = 500
+	}
 
-	// if !data["IsPosted"].(bool) {
-	// 	successMsg = "Not posted!"
-	// }
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(respCode)
+	if errors != "" {
+		log.Printf(errors)
+		w.Write([]byte(errors))
+		return
+	}
+	w.Write([]byte(res.Body))
+}
 
-	// err = template.Render(w, r, "index.page", map[string]interface{}{"Success": successMsg})
-	// if err != nil {
-	// 	log.Println(err.Error())
-	// 	http.Error(w, "Internal Server Error", 500)
-	// }
-
+func RenderVerify(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	err := template.Render(w, r, "emailverification.page", nil)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Internal Server Error", 500)
+	}
 }

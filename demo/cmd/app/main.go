@@ -28,7 +28,8 @@ func main() {
 
 	router.ServeFiles("/assets/*filepath", http.Dir(filepath.Join(cwd, "../../ui/assets")))
 	router.GET("/", handlegets.Index)
-	router.GET("/verify", handlegets.Verify)
+	router.GET("/emailverification", handlegets.RenderVerify)
+	router.GET("/register/verify/email", handlegets.Verify)
 	router.GET("/screen", handlegets.Screen)
 	router.POST("/register", handleposts.Signup)
 	router.POST("/login", handleposts.Login)

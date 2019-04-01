@@ -42,8 +42,11 @@ func Signup(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var user User
 	b, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(b, &user)
-
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthUserRegistrationByEmail(user)
+	verificationURL := r.URL.Query().Get("verification_url")
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthUserRegistrationByEmail(
+		user,
+		map[string]string{"verificationurl": verificationURL},
+	)
 	if err != nil {
 		errors = errors + err.(lrerror.Error).OrigErr().Error()
 		respCode = 500
@@ -54,8 +57,7 @@ func Signup(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if errors != "" {
 		log.Printf(errors)
 		w.Write([]byte(errors))
-	} else {
-		w.Write([]byte(res.Body))
+		return
 	}
-
+	w.Write([]byte(res.Body))
 }
