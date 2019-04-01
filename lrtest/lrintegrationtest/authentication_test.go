@@ -135,7 +135,7 @@ func TestPostAuthForgotPassword(t *testing.T) {
 	}
 }
 
-func TestPostAuthForgotPasswordInvalidQUery(t *testing.T) {
+func TestPostAuthForgotPasswordInvalidQuery(t *testing.T) {
 	_, _, _, testEmail, _, lrclient, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
 	email := TestEmail{testEmail}

@@ -138,7 +138,10 @@ func TestPostManageEmailVerificationToken(t *testing.T) {
 	}
 }
 
+// To run this test, comment out t.SkipNow() and set up SecurityQuestion struct
+// in structs.go with querstion id
 func TestPutManageAccountUpdateSecurityQuestionConfig(t *testing.T) {
+	t.SkipNow()
 	_, _, testuid, _, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	securityQuestion := SecurityQuestion{"Answer"}
