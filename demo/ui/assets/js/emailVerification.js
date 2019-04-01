@@ -1,6 +1,6 @@
 const url = location.href;
 const params = url.split("?")[1];
-const serverUrl = "http://localhost:4000";
+const serverUrl = "http://localhost:3000";
 let paramsObj = {};
 
 if (params) {

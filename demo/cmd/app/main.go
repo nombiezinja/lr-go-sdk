@@ -30,7 +30,7 @@ func main() {
 	router.GET("/", handlegets.Index)
 	router.GET("/verify", handlegets.Verify)
 	router.GET("/screen", handlegets.Screen)
-	router.POST("/signup", handleposts.Signup)
+	router.POST("/register", handleposts.Signup)
 	router.POST("/login", handleposts.Login)
 	router.GET("/profile", handleposts.Profile)
 

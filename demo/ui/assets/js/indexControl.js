@@ -1,4 +1,4 @@
-const serverUrl = "http://localhost:4000";
+const serverUrl = "http://localhost:3000";
 let multiFactorAuthToken;
 
 let custom_interface_option = {};
@@ -135,10 +135,12 @@ $("#btn-minimal-signup").click(function() {
         data: JSON.stringify(data),
         contentType: "application/json",
         error: function(xhr) {
+          console.log("json is", xhr.responseJSON)
             $("#minimal-signup-message").text(xhr.responseJSON.Description);
             $("#minimal-signup-message").attr("class", "error-message");
         }
     }).done(function() {
+        console.log("done is running")
         $("#minimal-signup-message").text("Check your email to verify your account.");
         $("#minimal-signup-message").attr("class", "success-message");
     });
