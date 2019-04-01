@@ -603,3 +603,149 @@ func TestDeleteMFAResetSMSAuthenticatorByToken(t *testing.T) {
 		t.Errorf("Error returned from DeleteMFAResetSMSAuthenticatorByToken :%v, %v", err, body)
 	}
 }
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// then obtain a valid access_token and a google authenticator code
+func TestPutMFAReauthenticateByGoogleAuthenticator(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// set valid access_token here
+	lrclient.Context.Token = "aebbf205-c9b6-458d-9e70-c3dfdabdb2ef"
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PutMFAReauthenticateByGoogleAuthenticator(
+		// set google authenticator code here
+		map[string]string{"googleauthenticatorcode": ""},
+	)
+	if err != nil {
+		t.Errorf("Error making call to PutMFAReauthenticateByGoogleAuthenticator: %v", err)
+	}
+
+	result, err := lrjson.DynamicUnmarshal(res.Body)
+	_, ok := result["SecondFactorValidationToken"].(string)
+	if err != nil || !ok {
+		t.Errorf("Error returned from PutMFAReauthenticateByGoogleAuthenticator:%v, %v", err, result)
+	}
+}
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// then obtain a valid access_token and a valid back up code
+func TestPutMFAReauthenticateByBackupCode(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// set valid access_token here
+	lrclient.Context.Token = "aebbf205-c9b6-458d-9e70-c3dfdabdb2ef"
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PutMFAReauthenticateByBackupCode(
+		// set backup code here
+		map[string]string{"backupcode": "53141-b07fb"},
+	)
+	if err != nil {
+		t.Errorf("Error making call to PutMFAReauthenticateByBackupCode: %v", err)
+	}
+
+	result, err := lrjson.DynamicUnmarshal(res.Body)
+	_, ok := result["SecondFactorValidationToken"].(string)
+	if err != nil || !ok {
+		t.Errorf("Error returned from PutMFAReauthenticateByBackupCode:%v, %v", err, result)
+	}
+}
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// then obtain a valid access_token and a valid sms otp
+func TestPutMFAReauthenticateByOTP(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// set valid access_token here
+	lrclient.Context.Token = "d3d95123-b14c-43d6-99ef-51528051b3bd"
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PutMFAReauthenticateByOTP(
+		// set otp here
+		map[string]string{"otp": "53141-b07fb"},
+	)
+	if err != nil {
+		t.Errorf("Error making call to PutMFAReauthenticateByOTP: %v", err)
+	}
+
+	result, err := lrjson.DynamicUnmarshal(res.Body)
+	_, ok := result["SecondFactorValidationToken"].(string)
+	if err != nil || !ok {
+		t.Errorf("Error returned from PutMFAReauthenticateByOTP:%v, %v", err, result)
+	}
+}
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// then obtain a valid access_token and a valid password
+func TestPutMFAReauthenticateByPassword(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// set valid access_token here
+	lrclient.Context.Token = "d3d95123-b14c-43d6-99ef-51528051b3bd"
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PutMFAReauthenticateByPassword(
+		// set Password here
+		map[string]string{"password": "password"},
+	)
+	if err != nil {
+		t.Errorf("Error making call to PutMFAReauthenticateByPassword: %v", err)
+	}
+
+	result, err := lrjson.DynamicUnmarshal(res.Body)
+	_, ok := result["SecondFactorValidationToken"].(string)
+	if err != nil || !ok {
+		t.Errorf("Error returned from PutMFAReauthenticateByPassword:%v, %v", err, result)
+	}
+}
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// then obtain a valid access_token
+func TestGetMFAReAuthenticate(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// set valid access_token here
+	lrclient.Context.Token = "96688431-0945-4ed5-9115-733521a13a53"
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).GetMFAReAuthenticate()
+	if err != nil {
+		t.Errorf("Error making call to GetMFAReAuthenticate: %v", err)
+	}
+
+	result, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil {
+		t.Errorf("Error returned from GetMFAReAuthenticate:%v, %v", err, result)
+	}
+}

@@ -109,3 +109,25 @@ func (lr Loginradius) GetMFAResetBackUpCodeByUID(queries interface{}) (*httpruti
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
+
+// This API is used to trigger the Multi-Factor Autentication workflow for the provided access_token
+// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/re-authentication/mfa-re-authenticate
+// Required query parameters: apikey
+// Optional query parameter: smstemplate2fa
+func (lr Loginradius) GetMFAReAuthenticate(queries ...interface{}) (*httprutils.Response, error) {
+	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/account/reauth/2fa")
+	for _, arg := range queries {
+		allowedQueries := map[string]bool{"smstemplate2fa": true}
+		validatedQueries, err := lrvalidate.Validate(allowedQueries, arg)
+
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range validatedQueries {
+			req.QueryParams[k] = v
+		}
+	}
+	lr.Client.NormalizeApiKey(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}

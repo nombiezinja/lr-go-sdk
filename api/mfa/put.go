@@ -127,3 +127,61 @@ func (lr Loginradius) PutMFAValidateBackupCode(queries interface{}, body interfa
 	res, err := httprutils.TimeoutClient.Send(*req)
 	return res, err
 }
+
+// PutMFAReauthenticateByGoogleAuthenticator is used to re-authenticate via Multi-factor-authentication by passing the google authenticator code.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/re-authentication/validate-mfa-by-google-authenticator-code
+// Required query parameter: apikey
+// Required body parameters: googleauthenticatorcode
+func (lr Loginradius) PutMFAReauthenticateByGoogleAuthenticator(body interface{}) (*httprutils.Response, error) {
+	req, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/account/reauth/2fa/GoogleAuthenticatorCode", body)
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.NormalizeApiKey(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
+
+// PutMFAReauthenticateByBackupCode is used to re-authenticate via Multi-factor-authentication by passing the backup code.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/re-authentication/validate-mfa-by-backup-code
+// Required query parameter: apikey
+// Required body parameters: backupcode
+func (lr Loginradius) PutMFAReauthenticateByBackupCode(body interface{}) (*httprutils.Response, error) {
+	req, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/account/reauth/2fa/BackupCode", body)
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.NormalizeApiKey(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
+
+// PutMFAReauthenticateByOTP is used to re-authenticate via Multi-factor-authentication by passing the sms otp.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/re-authentication/validate-mfa-by-otp
+// Required query parameter: apikey
+// Required body parameters: otp
+// Optional post parameters: securityanswer, qq_captcha_ticket, qq_captcha_Randstr, g-recaptcha-response
+func (lr Loginradius) PutMFAReauthenticateByOTP(body interface{}) (*httprutils.Response, error) {
+	req, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/account/reauth/2fa/otp", body)
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.NormalizeApiKey(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
+
+// PutMFAReauthenticateByPassword is used to re-authenticate via Multi-factor-authentication by passing the guser's password.
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/re-authentication/validate-mfa-by-password
+// Required query parameter: apikey
+// Required body parameters: password
+// Optional post parameters: securityanswer, qq_captcha_ticket, qq_captcha_Randstr, g-recaptcha-response
+func (lr Loginradius) PutMFAReauthenticateByPassword(body interface{}) (*httprutils.Response, error) {
+	req, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/account/reauth/password", body)
+	if err != nil {
+		return nil, err
+	}
+	lr.Client.NormalizeApiKey(req)
+	res, err := httprutils.TimeoutClient.Send(*req)
+	return res, err
+}
