@@ -171,7 +171,7 @@ func TestPutCustomObjectUpdateByToken(t *testing.T) {
 }
 
 func TestDeleteCustomObjectByObjectRecordIDAndToken(t *testing.T) {
-	_, _, uid, _, lrclient, teardownTestCase := setupAccount(t)
+	_, _, uid, _, _, lrclient, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
 	objName := os.Getenv("CUSTOMOBJECTNAME")
 	timestamp := time.Now().Format("20060102150405")
@@ -179,7 +179,11 @@ func TestDeleteCustomObjectByObjectRecordIDAndToken(t *testing.T) {
 		"custom1": timestamp + "0",
 		"custom2": timestamp + "1",
 	}
-	resp, err := customobject.Loginradius(customobject.Loginradius{lrclient}).PostCustomObjectCreateByUID(uid, map[string]string{"objectname": objName}, customObj)
+	resp, err := customobject.Loginradius(customobject.Loginradius{lrclient}).PostCustomObjectCreateByUID(
+		uid,
+		map[string]string{"objectname": objName},
+		customObj,
+	)
 	if err != nil {
 		t.Errorf("Error calling PostCustomObjectCreateByUID for DeleteCustomObjectByObjectRecordIDAndToken: %v", err)
 	}
@@ -189,7 +193,10 @@ func TestDeleteCustomObjectByObjectRecordIDAndToken(t *testing.T) {
 		t.Errorf("Error returned from PostCustomObjectCreateByUID for DeleteCustomObjectByObjectRecordIDAndToken: %v", err)
 	}
 
-	resp, err = customobject.Loginradius(customobject.Loginradius{lrclient}).DeleteCustomObjectByObjectRecordIDAndToken(id, map[string]string{"objectname": objName})
+	resp, err = customobject.Loginradius(customobject.Loginradius{lrclient}).DeleteCustomObjectByObjectRecordIDAndToken(
+		id,
+		map[string]string{"objectname": objName},
+	)
 
 	if err != nil {
 		t.Errorf("Error calling DeleteCustomObjectByObjectRecordIDAndToken: %v", err)

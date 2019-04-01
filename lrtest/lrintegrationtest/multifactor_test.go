@@ -10,7 +10,12 @@ import (
 	lrjson "github.com/nombiezinja/lr-go-sdk/lrjson"
 )
 
+// Tests in this file are skipped by default; they will only run with LoginRadius sites with MFA turned on
+// If you enable MFA for your site, tests in authentication_test.go, social_test.go and phoneauthentication_test.go will
+// no longer run
 func TestPostMFAEmailLogin(t *testing.T) {
+	t.SkipNow()
+
 	_, _, _, testEmail, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	testLogin := TestEmailLogin{testEmail, testEmail}
@@ -35,6 +40,8 @@ func TestPostMFAEmailLogin(t *testing.T) {
 }
 
 func TestPostMFAEmailLoginInvalidBody(t *testing.T) {
+	t.SkipNow()
+
 	_, _, _, _, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	invalid := struct{ foo string }{"bar"}
@@ -45,6 +52,8 @@ func TestPostMFAEmailLoginInvalidBody(t *testing.T) {
 }
 
 func TestPostMFAEmailLoginInvalidQuery(t *testing.T) {
+	t.SkipNow()
+
 	_, _, _, email, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	user := TestEmailLogin{email, email}
@@ -55,6 +64,8 @@ func TestPostMFAEmailLoginInvalidQuery(t *testing.T) {
 }
 
 func TestPostMFAUsernameLogin(t *testing.T) {
+	t.SkipNow()
+
 	_, username, _, password, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PostMFAUsernameLogin(
@@ -83,6 +94,8 @@ func TestPostMFAUsernameLogin(t *testing.T) {
 }
 
 func TestPostMFAUsernameLoginInvalidBody(t *testing.T) {
+	t.SkipNow()
+
 	_, _, _, _, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	invalid := struct{ foo string }{"bar"}
@@ -93,6 +106,8 @@ func TestPostMFAUsernameLoginInvalidBody(t *testing.T) {
 }
 
 func TestPostMFAUsernameLoginInvalidQuery(t *testing.T) {
+	t.SkipNow()
+
 	_, username, _, password, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PostMFAUsernameLogin(
@@ -105,6 +120,8 @@ func TestPostMFAUsernameLoginInvalidQuery(t *testing.T) {
 }
 
 func TestPostMFAPhoneLogin(t *testing.T) {
+	t.SkipNow()
+
 	phone, _, _, password, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PostMFAPhoneLogin(
@@ -133,6 +150,8 @@ func TestPostMFAPhoneLogin(t *testing.T) {
 }
 
 func TestPostMFAPhoneLoginInvalidBody(t *testing.T) {
+	t.SkipNow()
+
 	_, _, _, _, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	invalid := struct{ foo string }{"bar"}
@@ -143,6 +162,7 @@ func TestPostMFAPhoneLoginInvalidBody(t *testing.T) {
 }
 
 func TestPostMFAPhoneLoginInvalidQuery(t *testing.T) {
+	t.SkipNow()
 	phone, _, _, password, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PostMFAPhoneLogin(
@@ -155,6 +175,7 @@ func TestPostMFAPhoneLoginInvalidQuery(t *testing.T) {
 }
 
 func TestGetMFAValidateAccessToken(t *testing.T) {
+	t.SkipNow()
 	_, _, _, _, _, lrclient, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
 	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).GetMFAValidateAccessToken()
@@ -390,7 +411,7 @@ func TestGetMFAResetBackUpCodeByAccessToken(t *testing.T) {
 // To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
 // then obtain a valid access_token through completing a mfa login attempt
 func TestPutMFAValidateBackupCode(t *testing.T) {
-	// t.SkipNow()
+	t.SkipNow()
 	SetTestEnv()
 
 	cfg := lr.Config{
@@ -504,7 +525,7 @@ func TestGetMFAResetBackUpCodeByUID(t *testing.T) {
 // To run this test, comment out t.SkipNow() and set a manually created user with mfa turned on
 // and google authenticator configured
 func TestDeleteMFAResetGoogleAuthenticatorByUid(t *testing.T) {
-	// t.SkipNow()
+	t.SkipNow()
 	SetTestEnv()
 
 	cfg := lr.Config{
@@ -514,7 +535,6 @@ func TestDeleteMFAResetGoogleAuthenticatorByUid(t *testing.T) {
 
 	lrclient, _ := lr.NewLoginradius(&cfg)
 
-	// fmt.Println("")
 	// Set uid here
 	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).DeleteMFAResetGoogleAuthenticatorByUid("3ca313699dc8423b9f7c8af9dff9d7f2")
 	if err != nil {

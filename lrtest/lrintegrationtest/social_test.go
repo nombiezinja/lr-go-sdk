@@ -451,7 +451,7 @@ func TestGetSocialUserProfile(t *testing.T) {
 
 // To run this test, comment out t.SkipNow(), manually create user, link social account and set token
 func TestGetSocialPage(t *testing.T) {
-	// t.SkipNow()
+	t.SkipNow()
 	SetTestEnv()
 	cfg := lr.Config{
 		ApiKey:    os.Getenv("APIKEY"),

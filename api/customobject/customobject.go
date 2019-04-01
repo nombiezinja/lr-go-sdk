@@ -1,6 +1,8 @@
 package customobject
 
 import (
+	"fmt"
+
 	lrvalidate "github.com/nombiezinja/lr-go-sdk/internal/validate"
 
 	"github.com/nombiezinja/lr-go-sdk/httprutils"
@@ -200,8 +202,10 @@ func (lr Loginradius) DeleteCustomObjectByObjectRecordIDAndToken(objectRecordId 
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(req)
 	req.QueryParams = validatedQueries
 	req.Headers["content-Type"] = "application/json"
+	lr.Client.NormalizeApiKey(req)
 	resp, err := httprutils.TimeoutClient.Send(*req)
 	return resp, err
 }

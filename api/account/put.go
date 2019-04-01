@@ -1,8 +1,6 @@
 package lraccount
 
 import (
-	"fmt"
-
 	"github.com/nombiezinja/lr-go-sdk/httprutils"
 	lrvalidate "github.com/nombiezinja/lr-go-sdk/internal/validate"
 )
@@ -52,7 +50,6 @@ func (lr Loginradius) PutManageAccountUpdate(uid string, body interface{}) (*htt
 	}
 	lr.Client.AddApiCredentialsToReqHeader(request)
 
-	fmt.Printf("manage account update request %+v", request)
 	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
@@ -83,22 +80,3 @@ func (lr Loginradius) PutManageAccountInvalidateVerificationEmail(uid string, qu
 	response, err := httprutils.TimeoutClient.Send(*request)
 	return response, err
 }
-
-// func PutManageAccountInvalidateVerificationEmail(verificationURL, emailTemplate, uid string) (AccountBool, error) {
-// 	data := new(AccountBool)
-// 	req, reqErr := CreateRequest("PUT", os.Getenv("DOMAIN")+"/identity/v2/manage/account/"+uid+"/invalidateemail", "")
-// 	if reqErr != nil {
-// 		return *data, reqErr
-// 	}
-
-// 	q := req.URL.Query()
-// 	q.Add("verificationurl", verificationURL)
-// 	q.Add("emailtemplate", emailTemplate)
-// 	req.URL.RawQuery = q.Encode()
-// 	req.Header.Add("content-Type", "application/json")
-// 	req.Header.Add("X-LoginRadius-ApiKey", os.Getenv("APIKEY"))
-// 	req.Header.Add("X-LoginRadius-ApiSecret", os.Getenv("APISECRET"))
-
-// 	err := RunRequest(req, data)
-// 	return *data, err
-// }
