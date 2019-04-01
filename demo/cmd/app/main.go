@@ -32,7 +32,7 @@ func main() {
 	router.GET("/register/verify/email", handlegets.Verify)
 	router.GET("/screen", handlegets.Screen)
 	router.POST("/register", handleposts.Signup)
-	router.POST("/login", handleposts.Login)
+	router.POST("/login/email", handleposts.Login)
 	router.GET("/profile", handleposts.Profile)
 
 	http.ListenAndServe(":3000", router)

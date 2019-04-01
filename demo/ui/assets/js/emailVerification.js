@@ -31,7 +31,7 @@ if (params) {
         }).done(function(ret) {
             localStorage.setItem("LRTokenKey", ret.access_token);
             localStorage.setItem("lr-user-uid", ret.Profile.Uid);
-            window.location.replace("profile.html");
+            window.location.replace("profile");
         });
     } else {
         window.location.replace("index.html");

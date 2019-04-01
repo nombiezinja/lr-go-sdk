@@ -12,7 +12,7 @@ sl_options.onSuccess = function(response) {
     console.log(response);
     localStorage.setItem("LRTokenKey", response.access_token);
     localStorage.setItem("lr-user-uid", response.Profile.Uid);
-    window.location.replace("profile.html");
+    window.location.replace("profile");
 };
 sl_options.onError = function(errors) {
     console.log(errors);
@@ -40,7 +40,7 @@ $("#btn-minimal-login").click(function() {
     }).done(function(ret) {
         localStorage.setItem("LRTokenKey", ret.access_token);
         localStorage.setItem("lr-user-uid", ret.Profile.Uid);
-        window.location.replace("profile.html");
+        window.location.replace("profile");
     });
 });
 
@@ -73,7 +73,7 @@ $("#btn-minimal-mfalogin-next").click(function() {
         } else {
             localStorage.setItem("LRTokenKey", ret.access_token);
             localStorage.setItem("lr-user-uid", ret.Profile.Uid);
-            window.location.replace("profile.html");
+            window.location.replace("profile");
         }
     });
 });
@@ -95,7 +95,7 @@ $("#minimal-mfalogin-next").on('click', "#btn-minimal-mfalogin-login", function(
     }).done(function(ret) {
         localStorage.setItem("LRTokenKey", ret.access_token);
         localStorage.setItem("lr-user-uid", ret.Profile.Uid);
-        window.location.replace("profile.html");
+        window.location.replace("profile");
     });
 });
 
