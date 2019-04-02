@@ -10,6 +10,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/nombiezinja/lr-go-sdk/demo/pkg/handlegets"
 	"github.com/nombiezinja/lr-go-sdk/demo/pkg/handleposts"
+	"github.com/nombiezinja/lr-go-sdk/demo/pkg/handleputs"
 )
 
 func main() {
@@ -29,8 +30,6 @@ func main() {
 	// router.HandleFunc("/mfa/google/auth", mfaLoginAuthHandler).Methods("PUT")
 	// router.HandleFunc("/login/passwordless", pwlessHandler).Methods("GET")
 	// router.HandleFunc("/login/passwordless/auth", verifyLoginHandler).Methods("GET")
-	// router.HandleFunc("/forgotpassword", forgotPasswordHandler).Methods("POST")
-	// router.HandleFunc("/login/resetpassword", resetPasswordByEmailHandler).Methods("PUT")
 	// router.HandleFunc("/resetpassword", resetPasswordHandler).Methods("PUT")
 	// router.HandleFunc("/profile/changepassword", changePasswordHandler).Methods("PUT")
 	// router.HandleFunc("/profile/setpassword", setPasswordHandler).Methods("PUT")
@@ -45,8 +44,7 @@ func main() {
 	// router.HandleFunc("/roles", createRoleHandler).Methods("POST")
 	// router.HandleFunc("/roles", deleteRoleHandler).Methods("DELETE")
 	// router.HandleFunc("/roles", assignRoleHandler).Methods("PUT")
-	// router.GET("/", s.index())
-	// router.GET("/api/", s.api())
+
 	router.POST("/index", handleposts.Index)
 	router.GET("/api/register/verify/email", handleposts.Verify)
 	router.POST("/api/register", handleposts.Signup)
@@ -54,16 +52,13 @@ func main() {
 	router.POST("/api/profile", handleposts.Profile)
 	router.GET("/api/roles/get", handlegets.Roles)
 	router.GET("/api/roles", handlegets.Roles)
+	router.POST("/api/forgotpassword", handleposts.ForgotPassword)
+	router.PUT("/api/login/resetpassword", handleputs.ResetPassword)
 
 	// if not found look for a static file
 	static := httprouter.New()
 	static.ServeFiles("/*filepath", http.Dir(filepath.Join(cwd, "../../ui/assets")))
 	router.NotFound = static
-
-	// router.GET("/", handlegets.Index)
-	// router.GET("/emailverification", handlegets.Verify)
-	// router.GET("/screen", handlegets.Screen)
-	// router.GET("/profile", handlegets.Profile)
 
 	http.ListenAndServe(":3000", router)
 }

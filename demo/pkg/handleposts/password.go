@@ -10,11 +10,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 	lr "github.com/nombiezinja/lr-go-sdk"
 	lrauthentication "github.com/nombiezinja/lr-go-sdk/api/authentication"
-	"github.com/nombiezinja/lr-go-sdk/lrbody"
 	"github.com/nombiezinja/lr-go-sdk/lrerror"
 )
 
-func Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func ForgotPassword(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var errors string
 	respCode := 200
 
@@ -29,13 +28,14 @@ func Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		respCode = 500
 	}
 
-	var credentials lrbody.EmailLogin
+	email := &struct{ Email string }{}
 	b, _ := ioutil.ReadAll(r.Body)
-	json.Unmarshal(b, &credentials)
-
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthLoginByEmail(
-		credentials,
+	json.Unmarshal(b, &email)
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthForgotPassword(
+		email,
+		map[string]string{"resetpasswordurl": r.URL.Query().Get("reset_password_url")},
 	)
+
 	if err != nil {
 		errors = errors + err.(lrerror.Error).OrigErr().Error()
 		respCode = 500
@@ -49,4 +49,5 @@ func Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	w.Write([]byte(res.Body))
+
 }

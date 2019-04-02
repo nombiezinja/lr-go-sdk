@@ -1,4 +1,4 @@
-package handleposts
+package handleputs
 
 import (
 	"encoding/json"
@@ -10,11 +10,24 @@ import (
 	"github.com/julienschmidt/httprouter"
 	lr "github.com/nombiezinja/lr-go-sdk"
 	lrauthentication "github.com/nombiezinja/lr-go-sdk/api/authentication"
-	"github.com/nombiezinja/lr-go-sdk/lrbody"
 	"github.com/nombiezinja/lr-go-sdk/lrerror"
 )
 
-func Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+// var resetPassInfo ResetPasswordRequest
+// b, _ := ioutil.ReadAll(r.Body)
+// json.Unmarshal(b, &resetPassInfo)
+// resetPass := ResetPasswordEmail{resetPassInfo.ResetToken, resetPassInfo.Password, "", ""}
+// profile, err := loginradius.PutAuthResetPasswordByResetToken(resetPass)
+// if err != nil {
+// 	w.WriteHeader(err.(*loginradius.HTTPError).StatusCode)
+// 	w.Write([]byte(err.Error()))
+// 	return
+// }
+
+// w.WriteHeader(http.StatusOK)
+// data, _ := json.Marshal(profile)
+// w.Write(data)
+func ResetPassword(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	var errors string
 	respCode := 200
 
@@ -29,13 +42,18 @@ func Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		respCode = 500
 	}
 
-	var credentials lrbody.EmailLogin
-	b, _ := ioutil.ReadAll(r.Body)
-	json.Unmarshal(b, &credentials)
+	data := struct {
+		ResetToken string
+		Password   string
+		// 	Email      string
+	}{}
 
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthLoginByEmail(
-		credentials,
-	)
+	b, _ := ioutil.ReadAll(r.Body)
+	json.Unmarshal(b, &data)
+
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).
+		PutAuthResetPasswordByResetToken(data)
+
 	if err != nil {
 		errors = errors + err.(lrerror.Error).OrigErr().Error()
 		respCode = 500
@@ -49,4 +67,5 @@ func Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	w.Write([]byte(res.Body))
+
 }
