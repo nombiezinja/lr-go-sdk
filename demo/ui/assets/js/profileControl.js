@@ -182,9 +182,12 @@ $("#btn-user-mfa-resetgoogle").click(function () {
 
   $.ajax({
     method: "DELETE",
-    url: serverUrl + "/mfa/google?auth=" + localStorage.getItem("LRTokenKey"),
+    url: serverUrl + "/mfa/google",
     data: JSON.stringify(data),
-    contentType: "application/json",
+    headers: {
+      "contentType": "application/json",
+      'Authorization': `Bearer ${localStorage.getItem("LRTokenKey")}`,
+    },
     error: function (xhr) {
       $("#user-mfa-message").text(xhr.responseJSON.Description);
       $("#user-mfa-message").attr("class", "error-message");
@@ -198,8 +201,11 @@ $("#btn-user-mfa-resetgoogle").click(function () {
 $("#btn-user-mfaenable").click(function () {
   $.ajax({
     method: "GET",
-    url: serverUrl + "/mfa/validate?auth=" + localStorage.getItem("LRTokenKey"),
-    contentType: "application/json",
+    url: serverUrl + "/mfa/validate?auth=" ,
+    headers: {
+      "contentType": "application/json",
+      'Authorization': `Bearer ${localStorage.getItem("LRTokenKey")}`,
+    },
     error: function (xhr) {
       $("#user-mfaenable-message").text(xhr.responseJSON.Description);
       $("#user-mfaenable-message").attr("class", "error-message");
@@ -222,9 +228,12 @@ $("#user-mfaenable").on("click", "#btn-user-mfaenable-googleauth", function () {
 
   $.ajax({
     method: "PUT",
-    url: serverUrl + "/mfa/google/enable?auth=" + localStorage.getItem("LRTokenKey"),
+    url: serverUrl + "/mfa/google/enable", 
     data: JSON.stringify(data),
-    contentType: "application/json",
+    headers: {
+      "contentType": "application/json",
+      'Authorization': `Bearer ${localStorage.getItem("LRTokenKey")}`,
+    },
     error: function (xhr) {
       $("#user-mfaenable-message").text(xhr.responseJSON.Description);
       $("#user-mfaenable-message").attr("class", "error-message");

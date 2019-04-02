@@ -29,11 +29,7 @@ func main() {
 	router := httprouter.New()
 	// router.HandleFunc("/login/passwordless", pwlessHandler).Methods("GET")
 	// router.HandleFunc("/login/passwordless/auth", verifyLoginHandler).Methods("GET")
-	// router.HandleFunc("/customobj", updateCustomObjHandler).Methods("PUT")
-	// router.HandleFunc("/customobj", deleteCustomObjHandler).Methods("DELETE")
 	// router.HandleFunc("/mfa/google", mfaResetGoogleHandler).Methods("DELETE")
-	// router.HandleFunc("/mfa/validate", mfaAccessTokenHandler).Methods("GET")
-	// router.HandleFunc("/mfa/google/enable", mfaAccessTokenAuthHandler).Methods("PUT")
 	// router.HandleFunc("/roles", createRoleHandler).Methods("POST")
 	// router.HandleFunc("/roles", deleteRoleHandler).Methods("DELETE")
 	// router.HandleFunc("/roles", assignRoleHandler).Methods("PUT")
@@ -56,6 +52,9 @@ func main() {
 	router.GET("/api/customobj", handlegets.CustomObject)
 	router.PUT("/api/customobj", handleputs.CustomObject)
 	router.DELETE("/api/customobj", handledeletes.CustomObject)
+	router.GET("/api/mfa/validate", handlegets.Mfa)
+	router.PUT("/api/mfa/google/enable", handleputs.MfaGoogleEnable)
+	router.DELETE("/api/mfa/google", handledeletes.MfaGoogleReset)
 
 	// if not found look for a static file
 	static := httprouter.New()
