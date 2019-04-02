@@ -3,8 +3,8 @@ let update = {};
 $("#btn-user-changepassword").click(function () {
   let data = {
     "oldpassword": $("#user-changepassword-oldpassword").val(),
-    "newpassword": $("#user-changepassword-newpassword").val(), 
-    "token": localStorage.getItem("LRTokenKey"), 
+    "newpassword": $("#user-changepassword-newpassword").val(),
+    "token": localStorage.getItem("LRTokenKey"),
   }
   $.ajax({
     method: "PUT",
@@ -83,9 +83,12 @@ $("#btn-user-createcustomobj").click(function () {
 
   $.ajax({
     method: "POST",
-    url: serverUrl + "/customobj?object_name=" + $("#user-createcustomobj-objectname").val() + "&auth=" + localStorage.getItem("LRTokenKey"),
+    url: serverUrl + "/customobj?object_name=" + $("#user-createcustomobj-objectname").val(),
     data: JSON.stringify(data),
-    contentType: "application/json",
+    headers: {
+      "contentType": "application/json",
+      'Authorization': `Bearer ${localStorage.getItem("LRTokenKey")}`,
+    },
     error: function (xhr) {
       $("#user-createcustomobj-message").text(xhr.responseJSON.Description);
       $("#user-createcustomobj-message").attr("class", "error-message");
@@ -108,10 +111,13 @@ $("#btn-user-updatecustomobj").click(function () {
 
   $.ajax({
     method: "PUT",
-    url: serverUrl + "/customobj?object_name=" + $("#user-updatecustomobj-objectname").val() + "&auth=" + localStorage.getItem("LRTokenKey") +
+    url: serverUrl + "/customobj?object_name=" + $("#user-updatecustomobj-objectname").val() +
       "&object_id=" + $("#user-updatecustomobj-objectrecordid").val(),
     data: JSON.stringify(data),
-    contentType: "application/json",
+    headers: {
+      "contentType": "application/json",
+      'Authorization': `Bearer ${localStorage.getItem("LRTokenKey")}`,
+    },
     error: function (xhr) {
       $("#user-updatecustomobj-message").text(xhr.responseJSON.Description);
       $("#user-updatecustomobj-message").attr("class", "error-message");
@@ -125,9 +131,12 @@ $("#btn-user-updatecustomobj").click(function () {
 $("#btn-user-deletecustomobj").click(function () {
   $.ajax({
     method: "DELETE",
-    url: serverUrl + "/customobj?object_name=" + $("#user-deletecustomobj-objectname").val() + "&auth=" + localStorage.getItem("LRTokenKey") +
+    url: serverUrl + "/customobj?object_name=" + $("#user-deletecustomobj-objectname").val() +
       "&object_id=" + $("#user-deletecustomobj-objectrecordid").val(),
-    contentType: "application/json",
+    headers: {
+      "contentType": "application/json",
+      'Authorization': `Bearer ${localStorage.getItem("LRTokenKey")}`,
+    },
     error: function (xhr) {
       $("#user-deletecustomobj-message").text(xhr.responseJSON.Description);
       $("#user-deletecustomobj-message").attr("class", "error-message");
@@ -141,8 +150,11 @@ $("#btn-user-deletecustomobj").click(function () {
 $("#btn-user-getcustomobj").click(function () {
   $.ajax({
     method: "GET",
-    url: serverUrl + "/customobj?object_name=" + $("#user-getcustomobj-objectname").val() + "&auth=" + localStorage.getItem("LRTokenKey"),
-    contentType: "application/json",
+    url: serverUrl + "/customobj?object_name=" + $("#user-getcustomobj-objectname").val(),
+    headers: {
+      "contentType": "application/json",
+      'Authorization': `Bearer ${localStorage.getItem("LRTokenKey")}`,
+    },
     error: function (xhr) {
       $('#table-customobj tr').remove();
       $("#user-getcustomobj-message").text(xhr.responseJSON.Description);

@@ -8,6 +8,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/julienschmidt/httprouter"
+	"github.com/nombiezinja/lr-go-sdk/demo/pkg/handledeletes"
 	"github.com/nombiezinja/lr-go-sdk/demo/pkg/handlegets"
 	"github.com/nombiezinja/lr-go-sdk/demo/pkg/handleposts"
 	"github.com/nombiezinja/lr-go-sdk/demo/pkg/handleputs"
@@ -28,11 +29,8 @@ func main() {
 	router := httprouter.New()
 	// router.HandleFunc("/login/passwordless", pwlessHandler).Methods("GET")
 	// router.HandleFunc("/login/passwordless/auth", verifyLoginHandler).Methods("GET")
-	// router.HandleFunc("/profile/update", updateAccountHandler).Methods("PUT")
-	// router.HandleFunc("/customobj", createCustomObjHandler).Methods("POST")
 	// router.HandleFunc("/customobj", updateCustomObjHandler).Methods("PUT")
 	// router.HandleFunc("/customobj", deleteCustomObjHandler).Methods("DELETE")
-	// router.HandleFunc("/customobj", getCustomObjHandler).Methods("GET")
 	// router.HandleFunc("/mfa/google", mfaResetGoogleHandler).Methods("DELETE")
 	// router.HandleFunc("/mfa/validate", mfaAccessTokenHandler).Methods("GET")
 	// router.HandleFunc("/mfa/google/enable", mfaAccessTokenAuthHandler).Methods("PUT")
@@ -53,6 +51,11 @@ func main() {
 	router.PUT("/api/mfa/google/auth", handleputs.MfaGoogleAuth)
 	router.PUT("/api/profile/changepassword", handleputs.ChangePassword)
 	router.PUT("/api/profile/setpassword", handleputs.SetPassword)
+	router.PUT("/api/profile/update", handleputs.UpdateProfile)
+	router.POST("/api/customobj", handleposts.CustomObject)
+	router.GET("/api/customobj", handlegets.CustomObject)
+	router.PUT("/api/customobj", handleputs.CustomObject)
+	router.DELETE("/api/customobj", handledeletes.CustomObject)
 
 	// if not found look for a static file
 	static := httprouter.New()
