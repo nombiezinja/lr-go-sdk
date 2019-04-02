@@ -26,7 +26,6 @@ func main() {
 	}
 
 	router := httprouter.New()
-	// router.HandleFunc("/mfa/login/email", mfaLoginHandler).Methods("POST")
 	// router.HandleFunc("/mfa/google/auth", mfaLoginAuthHandler).Methods("PUT")
 	// router.HandleFunc("/login/passwordless", pwlessHandler).Methods("GET")
 	// router.HandleFunc("/login/passwordless/auth", verifyLoginHandler).Methods("GET")
@@ -54,6 +53,8 @@ func main() {
 	router.GET("/api/roles", handlegets.Roles)
 	router.POST("/api/forgotpassword", handleposts.ForgotPassword)
 	router.PUT("/api/login/resetpassword", handleputs.ResetPassword)
+	router.POST("/api/mfa/login/email", handleposts.MfaLogin)
+	router.PUT("/api/mfa/google/auth", handleputs.MfaGoogleAuth)
 
 	// if not found look for a static file
 	static := httprouter.New()
