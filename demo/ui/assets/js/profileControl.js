@@ -3,11 +3,12 @@ let update = {};
 $("#btn-user-changepassword").click(function () {
   let data = {
     "oldpassword": $("#user-changepassword-oldpassword").val(),
-    "newpassword": $("#user-changepassword-newpassword").val()
+    "newpassword": $("#user-changepassword-newpassword").val(), 
+    "token": localStorage.getItem("LRTokenKey"), 
   }
   $.ajax({
     method: "PUT",
-    url: serverUrl + "/profile/changepassword?auth=" + localStorage.getItem("LRTokenKey"),
+    url: serverUrl + "/profile/changepassword?",
     data: JSON.stringify(data),
     contentType: "application/json",
     error: function (xhr) {

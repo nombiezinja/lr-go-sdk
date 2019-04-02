@@ -26,12 +26,8 @@ func main() {
 	}
 
 	router := httprouter.New()
-	// router.HandleFunc("/mfa/google/auth", mfaLoginAuthHandler).Methods("PUT")
 	// router.HandleFunc("/login/passwordless", pwlessHandler).Methods("GET")
 	// router.HandleFunc("/login/passwordless/auth", verifyLoginHandler).Methods("GET")
-	// router.HandleFunc("/resetpassword", resetPasswordHandler).Methods("PUT")
-	// router.HandleFunc("/profile/changepassword", changePasswordHandler).Methods("PUT")
-	// router.HandleFunc("/profile/setpassword", setPasswordHandler).Methods("PUT")
 	// router.HandleFunc("/profile/update", updateAccountHandler).Methods("PUT")
 	// router.HandleFunc("/customobj", createCustomObjHandler).Methods("POST")
 	// router.HandleFunc("/customobj", updateCustomObjHandler).Methods("PUT")
@@ -55,6 +51,8 @@ func main() {
 	router.PUT("/api/login/resetpassword", handleputs.ResetPassword)
 	router.POST("/api/mfa/login/email", handleposts.MfaLogin)
 	router.PUT("/api/mfa/google/auth", handleputs.MfaGoogleAuth)
+	router.PUT("/api/profile/changepassword", handleputs.ChangePassword)
+	router.PUT("/api/profile/setpassword", handleputs.SetPassword)
 
 	// if not found look for a static file
 	static := httprouter.New()
