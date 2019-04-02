@@ -1,4 +1,3 @@
-const serverUrl = "http://localhost:3000/api";
 let multiFactorAuthToken;
 
 let custom_interface_option = {};
@@ -11,7 +10,7 @@ let sl_options = {};
 sl_options.onSuccess = function(response) {
     localStorage.setItem("LRTokenKey", response.access_token);
     localStorage.setItem("lr-user-uid", response.Profile.Uid);
-    window.location.replace("profile");
+    window.location.replace("profile.html");
 };
 sl_options.onError = function (errors) {
   let errorMessage = "";
@@ -46,7 +45,7 @@ $("#btn-minimal-login").click(function() {
     }).done(function(ret) {
         localStorage.setItem("LRTokenKey", ret.access_token);
         localStorage.setItem("lr-user-uid", ret.Profile.Uid);
-        window.location.replace("profile");
+        window.location.replace("profile.html");
     });
 });
 
@@ -79,7 +78,7 @@ $("#btn-minimal-mfalogin-next").click(function() {
         } else {
             localStorage.setItem("LRTokenKey", ret.access_token);
             localStorage.setItem("lr-user-uid", ret.Profile.Uid);
-            window.location.replace("profile");
+            window.location.replace("profile.html");
         }
     });
 });
@@ -101,7 +100,7 @@ $("#minimal-mfalogin-next").on('click', "#btn-minimal-mfalogin-login", function(
     }).done(function(ret) {
         localStorage.setItem("LRTokenKey", ret.access_token);
         localStorage.setItem("lr-user-uid", ret.Profile.Uid);
-        window.location.replace("profile");
+        window.location.replace("profile.html");
     });
 });
 

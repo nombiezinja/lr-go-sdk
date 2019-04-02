@@ -1,6 +1,5 @@
 const url = location.href;
 const params = url.split("?")[1];
-const serverUrl = "http://localhost:3000/api";
 let paramsObj = {};
 
 if (params) {
@@ -31,11 +30,11 @@ if (params) {
         }).done(function(ret) {
             localStorage.setItem("LRTokenKey", ret.access_token);
             localStorage.setItem("lr-user-uid", ret.Profile.Uid);
-            window.location.replace("profile");
+            window.location.replace("profile.html");
         });
     } else {
-        window.location.replace("\/");
+        window.location.replace("/");
     }
 } else {
-    window.location.replace("\/");
+    window.location.replace("/");
 }

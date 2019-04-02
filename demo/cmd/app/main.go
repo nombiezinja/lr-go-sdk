@@ -47,6 +47,7 @@ func main() {
 	// router.HandleFunc("/roles", assignRoleHandler).Methods("PUT")
 	// router.GET("/", s.index())
 	// router.GET("/api/", s.api())
+	router.POST("/index", handleposts.Index)
 	router.GET("/api/register/verify/email", handleposts.Verify)
 	router.POST("/api/register", handleposts.Signup)
 	router.POST("/api/login/email", handleposts.Login)
