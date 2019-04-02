@@ -20,7 +20,10 @@ sl_options.onError = function(errors) {
 sl_options.container = "sociallogin-container";
 
 LRObject.util.ready(function() {
-    LRObject.init('socialLogin', sl_options);
+    setTimeout(function(){
+      console.log("initializing sociallogin")
+      LRObject.init('socialLogin', sl_options);
+    }, 5000);
 });
 
 $("#btn-minimal-login").click(function() {
