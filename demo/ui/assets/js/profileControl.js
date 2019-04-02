@@ -1,4 +1,4 @@
-const serverUrl = "http://localhost:3000";
+const serverUrl = "http://localhost:/api";
 let update = {};
 
 $( "#btn-user-changepassword" ).click(function() {

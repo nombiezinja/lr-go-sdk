@@ -2,7 +2,6 @@ $(function () {
   $(window).on('hashchange', function () {
     // On every hash change the render function is called with the new hash.
     // This is how the navigation of our app happens.
-    console.log("hello")
         render(decodeURI(window.location.hash));
     }).trigger('hashchange');
 
@@ -12,9 +11,7 @@ $(function () {
 
         // Get the keyword from the url.
         let temp = url.split('/')[0];
-        console.log("temp is", temp)
         temp = temp.split('?')[0];
-        console.log("temp is", temp)
 
         // Hide whatever page is currently shown.
         $('.right-elem').removeClass('visible');

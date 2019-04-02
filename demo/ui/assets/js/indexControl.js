@@ -1,4 +1,4 @@
-const serverUrl = "http://localhost:3000";
+const serverUrl = "http://localhost:3000/api";
 let multiFactorAuthToken;
 
 let custom_interface_option = {};
@@ -9,21 +9,24 @@ LRObject.util.ready(function() {
 
 let sl_options = {};
 sl_options.onSuccess = function(response) {
-    console.log(response);
     localStorage.setItem("LRTokenKey", response.access_token);
     localStorage.setItem("lr-user-uid", response.Profile.Uid);
     window.location.replace("profile");
 };
-sl_options.onError = function(errors) {
-    console.log(errors);
+sl_options.onError = function (errors) {
+  let errorMessage = "";
+  errors.forEach(function (err) {
+    if (err.Description) {
+      errorMessage = errorMessage + err.Description + " ";
+    }
+  });
+  $("#sociallogin-message").text(errorMessage);
+  $("#sociallogin-message").attr("class", "error-message");
 };
 sl_options.container = "sociallogin-container";
 
 LRObject.util.ready(function() {
-    setTimeout(function(){
-      console.log("initializing sociallogin")
-      LRObject.init('socialLogin', sl_options);
-    }, 5000);
+    LRObject.init('socialLogin', sl_options);
 });
 
 $("#btn-minimal-login").click(function() {

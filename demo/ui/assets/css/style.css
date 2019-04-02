@@ -166,7 +166,7 @@ hr {
     display: inline-block;
     width: 43px;
     height: 40px;
-    background-image:url("../icon-sprite-32.png");
+    background-image:url("../img/icon-sprite-32.png");
     border-radius: 5px;
     /*default*/
     background-position: 0px 0px;

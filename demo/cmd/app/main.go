@@ -45,17 +45,24 @@ func main() {
 	// router.HandleFunc("/roles", createRoleHandler).Methods("POST")
 	// router.HandleFunc("/roles", deleteRoleHandler).Methods("DELETE")
 	// router.HandleFunc("/roles", assignRoleHandler).Methods("PUT")
-	router.ServeFiles("/assets/*filepath", http.Dir(filepath.Join(cwd, "../../ui/assets")))
-	router.GET("/", handlegets.Index)
-	router.GET("/emailverification", handlegets.Verify)
-	router.GET("/register/verify/email", handleposts.Verify)
-	router.GET("/screen", handlegets.Screen)
-	router.POST("/register", handleposts.Signup)
-	router.POST("/login/email", handleposts.Login)
-	router.GET("/profile", handlegets.Profile)
-	router.POST("/profile", handleposts.Profile)
-	router.GET("/roles/get", handlegets.Roles)
-	router.GET("/roles", handlegets.Roles)
+	// router.GET("/", s.index())
+	// router.GET("/api/", s.api())
+	router.GET("/api/register/verify/email", handleposts.Verify)
+	router.POST("/api/register", handleposts.Signup)
+	router.POST("/api/login/email", handleposts.Login)
+	router.POST("/api/profile", handleposts.Profile)
+	router.GET("/api/roles/get", handlegets.Roles)
+	router.GET("/api/roles", handlegets.Roles)
+
+	// if not found look for a static file
+	static := httprouter.New()
+	static.ServeFiles("/*filepath", http.Dir(filepath.Join(cwd, "../../ui/assets")))
+	router.NotFound = static
+
+	// router.GET("/", handlegets.Index)
+	// router.GET("/emailverification", handlegets.Verify)
+	// router.GET("/screen", handlegets.Screen)
+	// router.GET("/profile", handlegets.Profile)
 
 	http.ListenAndServe(":3000", router)
 }
