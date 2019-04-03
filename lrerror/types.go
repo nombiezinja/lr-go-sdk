@@ -108,68 +108,6 @@ func (b baseError) OrigErrs() []error {
 	return b.errs
 }
 
-// So that the Error interface type can be included as an anonymous field
-// in the requestError struct and not conflict with the error.Error() method.
-type lsError Error
-
-// A requestError wraps a request or service error.
-//
-// Composed of baseError for code, message, and original error.
-type requestError struct {
-	lsError
-	statusCode  int
-	description string
-}
-
-// newRequestError returns a wrapped error with additional information for
-// request status code, and service requestID.
-//
-// Should be used to wrap all request which involve service requests. Even if
-// the request failed without a service response, but had an HTTP status code
-// that may be meaningful.
-//
-// Also wraps original errors via the baseError.
-func newRequestError(err Error, statusCode int, description string) *requestError {
-	return &requestError{
-		lsError:     err,
-		statusCode:  statusCode,
-		description: description,
-	}
-}
-
-// Error returns the string representation of the error.
-// Satisfies the error interface.
-func (r requestError) Error() string {
-	extra := fmt.Sprintf("status code: %d, description: %s",
-		r.statusCode, r.description)
-	return SprintError(r.Code(), r.Message(), extra, r.OrigErr())
-}
-
-// String returns the string representation of the error.
-// Alias for Error to satisfy the stringer interface.
-func (r requestError) String() string {
-	return r.Error()
-}
-
-// StatusCode returns the wrapped status code for the error
-func (r requestError) StatusCode() int {
-	return r.statusCode
-}
-
-// Descrption returns the wrapped description
-func (r requestError) Description() string {
-	return r.description
-}
-
-// OrigErrs returns the original errors if one was set. An empty slice is
-// returned if no error was set.
-func (r requestError) OrigErrs() []error {
-	if b, ok := r.lsError.(BatchedErrors); ok {
-		return b.OrigErrs()
-	}
-	return []error{r.OrigErr()}
-}
-
 // An error list that satisfies the golang interface
 type errorList []error
 

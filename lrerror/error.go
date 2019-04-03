@@ -24,7 +24,7 @@ package lrerror
 //                 // operate on original error.
 //             }
 //         } else {
-//             fmt.Println(err.Error())
+//             ...
 //         }
 //     }
 //
@@ -45,9 +45,7 @@ type Error interface {
 // BatchError is a batch of errors which also wraps lower level errors with
 // code, message, and original errors. Calling Error() will include all errors
 // that occurred in the batch.
-//
-// Deprecated: Replaced with BatchedErrors. Only defined for backwards
-// compatibility.
+
 type BatchError interface {
 	// Satisfy the generic error interface.
 	error
@@ -91,55 +89,4 @@ func New(code, message string, origErr error) Error {
 // array of errors.
 func NewBatchError(code, message string, errs []error) BatchedErrors {
 	return newBaseError(code, message, errs)
-}
-
-// A RequestFailure is an interface to extract request failure information from
-// an Error such as the request ID of the failed request returned by a service.
-// RequestFailures may not always have a requestID value if the request failed
-// prior to reaching the service such as a connection error.
-//
-// Example:
-//
-//     output, err := s3manage.Upload(svc, input, opts)
-//     if err != nil {
-//         if reqerr, ok := err.(RequestFailure); ok {
-//             log.Println("Request failed", reqerr.Code(), reqerr.Message(), reqerr.RequestID())
-//         } else {
-//             log.Println("Error:", err.Error())
-//         }
-//     }
-//
-// Combined with lrError.Error:
-//
-//    output, err := s3manage.Upload(svc, input, opts)
-//    if err != nil {
-//        if lrError, ok := err.(lrError.Error); ok {
-//            // Generic AWS Error with Code, Message, and original error (if any)
-//            fmt.Println(lrError.Code(), lrError.Message(), lrError.OrigErr())
-//
-//            if reqErr, ok := err.(lrError.RequestFailure); ok {
-//                // A service error occurred
-//                fmt.Println(reqErr.StatusCode(), reqErr.RequestID())
-//            }
-//        } else {
-//            fmt.Println(err.Error())
-//        }
-//    }
-//
-type RequestFailure interface {
-	Error
-
-	// The status code of the HTTP response.
-	StatusCode() int
-
-	// The request ID returned by the service for a request failure. This will
-	// be empty if no request ID is available such as the request failed due
-	// to a connection error.
-	Description() string
-}
-
-// NewRequestFailure returns a new request error wrapper for the given Error
-// provided.
-func NewRequestFailure(err Error, statusCode int, description string) RequestFailure {
-	return newRequestError(err, statusCode, description)
 }
