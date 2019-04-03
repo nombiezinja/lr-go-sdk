@@ -29,7 +29,6 @@ func main() {
 	router := httprouter.New()
 	// router.HandleFunc("/login/passwordless", pwlessHandler).Methods("GET")
 	// router.HandleFunc("/login/passwordless/auth", verifyLoginHandler).Methods("GET")
-	// router.HandleFunc("/mfa/google", mfaResetGoogleHandler).Methods("DELETE")
 	// router.HandleFunc("/roles", createRoleHandler).Methods("POST")
 	// router.HandleFunc("/roles", deleteRoleHandler).Methods("DELETE")
 	// router.HandleFunc("/roles", assignRoleHandler).Methods("PUT")
@@ -39,7 +38,7 @@ func main() {
 	router.POST("/api/register", handleposts.Signup)
 	router.POST("/api/login/email", handleposts.Login)
 	router.POST("/api/profile", handleposts.Profile)
-	router.GET("/api/roles/get", handlegets.Roles)
+	router.GET("/api/roles/get", handlegets.UserRoles)
 	router.GET("/api/roles", handlegets.Roles)
 	router.POST("/api/forgotpassword", handleposts.ForgotPassword)
 	router.PUT("/api/login/resetpassword", handleputs.ResetPassword)
@@ -55,6 +54,11 @@ func main() {
 	router.GET("/api/mfa/validate", handlegets.Mfa)
 	router.PUT("/api/mfa/google/enable", handleputs.MfaGoogleEnable)
 	router.DELETE("/api/mfa/google", handledeletes.MfaGoogleReset)
+	router.POST("/api/roles", handleposts.Role)
+	router.DELETE("/api/roles", handledeletes.Role)
+	router.PUT("/api/roles", handleputs.Role)
+	router.GET("/api/login/passwordless", handlegets.Passwordless)
+	router.GET("/api/login/passwordless/auth", handlegets.PasswordlessAuth)
 
 	// if not found look for a static file
 	static := httprouter.New()
