@@ -17,7 +17,9 @@ import (
 func TestGetManageAccountProfilesByEmail(t *testing.T) {
 	_, _, testuid, testEmail, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
-	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).GetManageAccountProfilesByEmail(map[string]string{"email": testEmail})
+	response, err := lraccount.Loginradius(lraccount.Loginradius{lrclient}).GetManageAccountProfilesByEmail(
+		map[string]string{"email": testEmail},
+	)
 	if err != nil {
 		t.Errorf("Error making call to GetManageAccountProfilesByEmail: %+v", err)
 	}

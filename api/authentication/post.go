@@ -7,9 +7,14 @@ import (
 )
 
 // PostAuthAddEmail is used to add additional emails to a user's account.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-add-email#
+
 // Pass data in struct lrbody.AddEmail as body to help ensure parameters satisfy API requirements
-// Required queries: apiKey; optional queries: verificationurl, emailtemplate
-// Body params: email(string), type(string)
+
+// Required query parameters: apiKey; optional queries: verificationurl, emailtemplate
+
+// Required body parameters: email(string), type(string)
 func (lr Loginradius) PostAuthAddEmail(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
 	request, err := lr.Client.NewPostReqWithToken("/identity/v2/auth/email", body)
 	if err != nil {
@@ -35,9 +40,15 @@ func (lr Loginradius) PostAuthAddEmail(body interface{}, queries ...interface{})
 }
 
 // PostAuthForgotPassword is used to send the reset password url to a specified account.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-forgot-password
+
 // Note: If you have the UserName workflow enabled, you may replace the 'email' parameter with 'username'
+
 // Pass data in struct lrbody.EmailStr as body to help ensure parameters satisfy API requirements
-// Required queries: apiKey, resetpasswordurl; optional queries: emailtemplate
+
+// Required query parameters: apiKey, resetpasswordurl; optional queries: emailtemplate
+
 // Required post parameter:email: string
 func (lr Loginradius) PostAuthForgotPassword(body interface{}, queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"resetpasswordurl": true, "emailtemplate": true}
