@@ -11,6 +11,7 @@ import (
 	lr "github.com/nombiezinja/lr-go-sdk"
 	lraccount "github.com/nombiezinja/lr-go-sdk/api/account"
 	lrauthentication "github.com/nombiezinja/lr-go-sdk/api/authentication"
+	lrbody "github.com/nombiezinja/lr-go-sdk/lrbody"
 	"github.com/nombiezinja/lr-go-sdk/lrerror"
 	"github.com/nombiezinja/lr-go-sdk/lrjson"
 	"github.com/nombiezinja/lr-go-sdk/lrstruct"
@@ -39,16 +40,16 @@ func TestPostAuthUserRegistrationByEmail(t *testing.T) {
 	loginradius := lrauthentication.Loginradius{lrclient}
 
 	testEmail := "lrtest" + strconv.FormatInt(time.Now().Unix(), 10) + "@mailinator.com"
-	user := User{}
+	user := lrbody.RegistrationUser{}
 
 	res, err := lrauthentication.Loginradius(loginradius).PostAuthUserRegistrationByEmail(user)
 	if err == nil || err.(lrerror.Error).Code() != "LoginradiusRespondedWithError" {
 		t.Errorf("PostAuthUserRegistrationByEmail Fail: Expected Error %v, instead received res: %+v, received error: %+v", "LoginradiusRespondedWithError", res, err)
 	}
 
-	user = User{
-		Email: []Email{
-			Email{
+	user = lrbody.RegistrationUser{
+		Email: []lrbody.AuthEmail{
+			lrbody.AuthEmail{
 				Type:  "Primary",
 				Value: testEmail,
 			},
@@ -200,11 +201,17 @@ func TestPostAuthLoginByEmailInvalidQuery(t *testing.T) {
 }
 
 func TestPostAuthLoginByUsername(t *testing.T) {
-	_, userName, _, testEmail, lrclient, teardownTestCase := setupAccount(t)
+	_, userName, _, email, lrclient, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
 
-	testLogin := TestUsernameLogin{userName, testEmail}
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthLoginByUsername(testLogin)
+	body := struct {
+		Username string
+		Password string
+	}{
+		userName,
+		email, // uses generated email as password
+	}
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthLoginByUsername(body)
 	if err != nil {
 		t.Errorf("Error making PostAuthLoginByUsername call: %v", err)
 	}
@@ -227,7 +234,8 @@ func TestPostAuthLoginByUsernameInvalid(t *testing.T) {
 func TestGetAuthCheckEmailAvailability(t *testing.T) {
 	_, _, _, testEmail, loginradius, teardownTestCase := setupAccount(t)
 	defer teardownTestCase(t)
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{loginradius}).GetAuthCheckEmailAvailability(map[string]string{"email": testEmail})
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{loginradius}).
+		GetAuthCheckEmailAvailability(map[string]string{"email": testEmail})
 	if err != nil {
 		t.Errorf("Error making GetAuthCheckEmailAvailability call: %v", err)
 	}

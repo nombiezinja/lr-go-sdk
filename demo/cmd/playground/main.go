@@ -6,10 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
-	lr "bitbucket.org/nombiezinja/lr-go-sdk"
-	lrauthentication "bitbucket.org/nombiezinja/lr-go-sdk/api/authentication"
+	lr "github.com/nombiezinja/lr-go-sdk"
 
 	"github.com/joho/godotenv"
+	lrauthentication "github.com/nombiezinja/lr-go-sdk/api/authentication"
+	"github.com/nombiezinja/lr-go-sdk/lrbody"
 )
 
 func main() {
@@ -30,21 +31,16 @@ func main() {
 	}
 	lrclient, _ := lr.NewLoginradius(&cfg)
 
-	// lrclient, _ := lr.NewLoginradius(&cfg, map[string]string{"token": "9c3208ae-2848-4ac5-baef-41dd4103e263"})
-	// loginradius := lrauth.Loginradius{initLr}
-
-	// queries := map[string]string{}
-	// body := lrbody.RegistrationUser{}
-	// response, err := lrauth.Loginradius(loginradius).PostAuthUserRegistrationByEmail(queries, body)
-	// res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthReadProfilesByToken()
-	// res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSendWelcomeEmail(map[string]string{})
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetAuthSocialIdentity()
-
-	if err != nil {
-		fmt.Printf("%+v", err)
+	user := lrbody.RegistrationUser{
+		Email: []lrbody.AuthEmail{
+			lrbody.AuthEmail{
+				Type:  "Primary",
+				Value: "hello123@mailazy.com",
+			},
+		},
+		Password: "password",
 	}
 
-	fmt.Printf("%+v", res)
-	// fmt.Printf("%+v", lrclient.Context)
-
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).PostAuthUserRegistrationByEmail(user)
+	fmt.Println(res, err)
 }

@@ -13,7 +13,7 @@ import (
 
 // Documentation:https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-verify-email
 
-// Required query parameters: apiKey, verificationtoken;  Optional queries: url
+// Required query parameters: apiKey, verificationtoken;  Optional query parameter: url
 func (lr Loginradius) GetAuthVerifyEmail(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{
 		"url": true, "verificationtoken": true,
@@ -118,7 +118,7 @@ func (lr Loginradius) GetAuthSendWelcomeEmail(queries ...interface{}) (*httpruti
 }
 
 // GetAuthSocialIdentity is called just before account linking API and it prevents
-// the raas profile of the second account from getting created.
+// the profile of the second account from getting created.
 
 // Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-social-identity
 

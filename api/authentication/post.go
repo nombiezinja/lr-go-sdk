@@ -14,7 +14,7 @@ import (
 
 // Required query parameters: apiKey; optional queries: verificationurl, emailtemplate
 
-// Required body parameters: email(string), type(string)
+// Required body parameters: email -string, type -string
 func (lr Loginradius) PostAuthAddEmail(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
 	request, err := lr.Client.NewPostReqWithToken("/identity/v2/auth/email", body)
 	if err != nil {
@@ -45,11 +45,11 @@ func (lr Loginradius) PostAuthAddEmail(body interface{}, queries ...interface{})
 
 // Note: If you have the UserName workflow enabled, you may replace the 'email' parameter with 'username'
 
+// Required query parameters: apikey, resetpasswordurl; optional query parameter: emailtemplate
+
+// Required post parameter - email: string
+
 // Pass data in struct lrbody.EmailStr as body to help ensure parameters satisfy API requirements
-
-// Required query parameters: apiKey, resetpasswordurl; optional queries: emailtemplate
-
-// Required post parameter:email: string
 func (lr Loginradius) PostAuthForgotPassword(body interface{}, queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"resetpasswordurl": true, "emailtemplate": true}
 	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
@@ -67,7 +67,11 @@ func (lr Loginradius) PostAuthForgotPassword(body interface{}, queries interface
 }
 
 // PostAuthUserRegistrationByEmail creates a user in the database as well as sends a verification email to the user.
-// Post parameters are an array of email objects (Check docs for more info) and password: string
+
+// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-user-registration-by-email
+
+// Required post parameter: email - array(Check docs for more info); password: string
+
 // Pass data in struct lrbody.RegistrationUser as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) PostAuthUserRegistrationByEmail(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
 	sott := sott.Generate(lr.Client.Context.ApiKey, lr.Client.Context.ApiSecret)
@@ -95,9 +99,14 @@ func (lr Loginradius) PostAuthUserRegistrationByEmail(body interface{}, queries 
 
 // PostAuthLoginByEmail retrieves a copy of the user data based on the Email after verifying
 // the validity of submitted credentials
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-login-by-email
+
 // Pass data in struct lrbody.EmailLogin as body to help ensure parameters satisfy API requirements
-// Required queries: apiKey; optional queries: verificationurl, loginurl, emailtemplate, g-recaptcha-response
-// Required body param: email, password; optional body param: security answer
+
+// Required query parameters: apiKey; optional query parameters: verificationurl, loginurl, emailtemplate, g-recaptcha-response
+
+// Required body parameters: email, password; optional body parameters: security answer
 func (lr Loginradius) PostAuthLoginByEmail(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
 	request, err := lr.Client.NewPostReq("/identity/v2/auth/login", body)
 	for _, arg := range queries {
@@ -119,7 +128,11 @@ func (lr Loginradius) PostAuthLoginByEmail(body interface{}, queries ...interfac
 
 // PostAuthLoginByUsername retrieves a copy of the user data based on the Username after verifying
 // the validity of submitted credentials
-// Post parameters are username: string, password: string and optional securityanswer: string
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-login-by-username
+
+// Required post parameters - username: string, password: string; optional post parameter - securityanswer: string
+
 // Pass data in struct lrbody.UsernameLogin as body to help ensure parameters satisfy API requirements
 func (lr Loginradius) PostAuthLoginByUsername(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
 	request, err := lr.Client.NewPostReq("/identity/v2/auth/login", body)
