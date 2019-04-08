@@ -168,7 +168,7 @@ func (lr Loginradius) GetAuthDeleteAccount(queries interface{}) (*httprutils.Res
 
 // Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/authentication/auth-invalidate-access-token
 
-// Required query parameters: apiKey
+// Required query parameter: apiKey; optional query parameter: preventRefresh
 func (lr Loginradius) GetAuthInvalidateAccessToken() (*httprutils.Response, error) {
 	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/access_token/invalidate")
 	if err != nil {
@@ -181,7 +181,9 @@ func (lr Loginradius) GetAuthInvalidateAccessToken() (*httprutils.Response, erro
 // GetAuthSecurityQuestionByAccessToken is used to retrieve the
 // list of questions that are configured on the respective LoginRadius site for the user.
 // Will return error unless security question is enabled
-// Refer to this document: https://docs.loginradius.com/api/v2/dashboard/platform-security/password-policy
+
+// Documentation: https://docs.loginradius.com/api/v2/dashboard/platform-security/password-policy
+
 // Required query parameters: apiKey
 func (lr Loginradius) GetAuthSecurityQuestionByAccessToken() (*httprutils.Response, error) {
 	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/securityquestion/accesstoken")
@@ -195,8 +197,10 @@ func (lr Loginradius) GetAuthSecurityQuestionByAccessToken() (*httprutils.Respon
 // GetAuthSecurityQuestionByEmail is used to retrieve the
 // list of questions that are configured on the respective LoginRadius site for the user.
 // Will return error unless security question feature is enabled
-// Follow instructions in this document: https://docs.loginradius.com/api/v2/dashboard/platform-security/password-policy
-// Required query parameters: apiKey
+
+// Documentation: https://docs.loginradius.com/api/v2/dashboard/platform-security/password-policy
+
+// Required query parameters: apiKey, email
 func (lr Loginradius) GetAuthSecurityQuestionByEmail(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"email": true}
 	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
@@ -215,7 +219,9 @@ func (lr Loginradius) GetAuthSecurityQuestionByEmail(queries interface{}) (*http
 // GetAuthSecurityQuestionByUsername is used to retrieve the
 // list of questions that are configured on the respective LoginRadius site for the user.
 // Will return error unless security question feature is enabled.
-// Follow instructions in this document: https://docs.loginradius.com/api/v2/dashboard/platform-security/password-policy
+
+// Documentation: https://docs.loginradius.com/api/v2/dashboard/platform-security/password-policy
+
 // Required query parameters: apikey
 func (lr Loginradius) GetAuthSecurityQuestionByUsername(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"username": true}
@@ -235,7 +241,9 @@ func (lr Loginradius) GetAuthSecurityQuestionByUsername(queries interface{}) (*h
 // GetAuthSecurityQuestionByPhone is used to retrieve the
 // list of questions that are configured on the respective LoginRadius site for the user.
 // Will return error unless security question feature is enabled
-// Follow instructions in this document: https://docs.loginradius.com/api/v2/dashboard/platform-security/password-policy
+
+// Documentation: https://docs.loginradius.com/api/v2/dashboard/platform-security/password-policy
+
 // Required query parameters: phone
 func (lr Loginradius) GetAuthSecurityQuestionByPhone(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"phone": true}
@@ -253,6 +261,9 @@ func (lr Loginradius) GetAuthSecurityQuestionByPhone(queries interface{}) (*http
 }
 
 // GetPasswordlessLoginByEmail is used to send a Passwordless Login verification link to the provided Email ID.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/passwordless-login/passwordless-login-by-email
+
 // Required query parameters: email, apiKey; optional queries: passwordlesslogintemplate, verificationurl
 func (lr Loginradius) GetPasswordlessLoginByEmail(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{
