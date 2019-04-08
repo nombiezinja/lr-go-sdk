@@ -5,6 +5,9 @@ import (
 )
 
 // DeleteManageAccount is used to delete the Users account and allows them to re-register for a new account.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/account-email-delete
+
 // Required template variable: uid
 func (lr Loginradius) DeleteManageAccount(uid string) (*httprutils.Response, error) {
 	request := lr.Client.NewDeleteReq("/identity/v2/manage/account/")
@@ -16,7 +19,11 @@ func (lr Loginradius) DeleteManageAccount(uid string) (*httprutils.Response, err
 }
 
 // DeleteManageAccount is used to delete the Users account and allows them to re-register for a new account.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/account-delete
+
 // Required template variable: uid
+
 // Required body parameter: email
 func (lr Loginradius) DeleteManageAccountEmail(uid string, body interface{}) (*httprutils.Response, error) {
 	encoded, err := httprutils.EncodeBody(body)

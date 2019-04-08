@@ -7,10 +7,17 @@ import (
 
 // PostManageAccountCreate is used to create an account in Cloud Storage.
 // This API bypasses the normal email verification process and manually creates the user.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/account-create
+
 // In order to use this API, you need to format a JSON request body with all of the mandatory fields
+
 // Required post parameters: email - object; Password - string. Rest are optional profile parameters.
+
 // Required query parameters: apiKey, apiSecret
-// Pass data in struct lrbody.AccountCreate as body to help ensure parameters satisfy API requirements
+
+// Pass data in struct lrbody.AccountCreate as body to help ensure parameters satisfy API requirements; alternatively,
+// []byte or map[string]string{} could also be passed as body
 func (lr Loginradius) PostManageAccountCreate(body interface{}) (*httprutils.Response, error) {
 	request, err := lr.Client.NewPostReq("/identity/v2/manage/account", body)
 	if err != nil {
@@ -25,9 +32,15 @@ func (lr Loginradius) PostManageAccountCreate(body interface{}) (*httprutils.Res
 
 // PostManageForgotPasswordToken returns a forgot password token. Note: If you have the
 // UserName workflow enabled, you may replace the 'email' parameter with 'username'.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/get-forgot-password-token
+
 // Required post parameters: email - string OR username - string
-// Pass data in struct lrbody.Username or lrbody.Email as body to help ensure parameters satisfy API requirements
-// Optional query parameters: sendemail - string; emailTemplate-string; resetPasswordUrl-string
+
+// Optional query parameters: sendemail; emailTemplate; resetPasswordUrl
+
+// Pass data in struct lrbody.Username or lrbody.Email as body to help ensure parameters satisfy API requirements; alternatively,
+// []byte or map[string]string{} could also be passed as body
 func (lr Loginradius) PostManageForgotPasswordToken(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
 	request, err := lr.Client.NewPostReq("/identity/v2/manage/account/forgot/token", body)
 	if err != nil {
@@ -55,8 +68,13 @@ func (lr Loginradius) PostManageForgotPasswordToken(body interface{}, queries ..
 }
 
 // PostManageEmailVerificationToken Returns an Email Verification token.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/get-email-verification-token
+
 // Post parameter - email: string
-// Pass data in struct lrbody.EmailForVToken as body to help ensure parameters satisfy API requirements
+
+// Pass data in struct lrbody.EmailForVToken as body to help ensure parameters satisfy API requirements; alternatively,
+// []byte or map[string]string{} could also be passed as body
 func (lr Loginradius) PostManageEmailVerificationToken(body interface{}) (*httprutils.Response, error) {
 	request, err := lr.Client.NewPostReq("/identity/v2/manage/account/verify/token", body)
 	if err != nil {

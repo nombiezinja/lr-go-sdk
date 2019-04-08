@@ -8,7 +8,10 @@ import (
 // GetManageAccountProfilesByEmail is used to retrieve all of the profile data,
 // associated with the specified account by email in Cloud Storage.
 // This end point returns a single profile
-// Required query param: email - string
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/account-profiles-by-email
+
+// Required query parameter: email
 func (lr Loginradius) GetManageAccountProfilesByEmail(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"email": true}
 	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
@@ -24,7 +27,10 @@ func (lr Loginradius) GetManageAccountProfilesByEmail(queries interface{}) (*htt
 // GetManageAccountProfilesByUsername is used to retrieve all of the profile data,
 // associated with the specified account by username in Cloud Storage.
 // This end point returns a single profile
-// Required query param: username - string
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/account-profiles-by-user-name
+
+// Required query parameter: username
 func (lr Loginradius) GetManageAccountProfilesByUsername(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"username": true}
 	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
@@ -40,7 +46,10 @@ func (lr Loginradius) GetManageAccountProfilesByUsername(queries interface{}) (*
 // GetManageAccountProfilesByPhoneID is used to retrieve all of the profile data,
 // associated with the specified account by PhoneID in Cloud Storage.
 // This end point returns a single profile
-// Required query param: phone - string
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/account-profiles-by-phone-id
+
+// Required query param: phone
 func (lr Loginradius) GetManageAccountProfilesByPhoneID(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"phone": true}
 	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
@@ -56,7 +65,10 @@ func (lr Loginradius) GetManageAccountProfilesByPhoneID(queries interface{}) (*h
 // GetManageAccountProfilesByUid is used to retrieve all of the profile data,
 // associated with the specified account by uid in Cloud Storage.
 // This end point returns a single profile
-// Required template param: uid - string
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/account-profiles-by-uid
+
+// Required template param: uid - string representing uid
 func (lr Loginradius) GetManageAccountProfilesByUid(uid string) (*httprutils.Response, error) {
 	request := lr.Client.NewGetReq("/identity/v2/manage/account/" + uid)
 	lr.Client.AddApiCredentialsToReqHeader(request)
@@ -67,11 +79,15 @@ func (lr Loginradius) GetManageAccountProfilesByUid(uid string) (*httprutils.Res
 // GetManageAccountIdentitiesByEmail is used to retrieve all of the identities (UID and Profiles),
 // associated with a specified email in Cloud Storage.
 // Note: This is intended for specific workflows where an email may be associated to multiple UIDs.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/account-identities-by-email
+
 // This end point returns data in an array, the response needs to be handled like so:
 // 						body, _ := lrjson.DynamicUnmarshal(response.Body) // unmarshals body
 // 						profiles := body["Data"].([]interface{}) // type assertion
 // 						profile := profiles[0].(map[string]interface{}) // get first profile
 // 						uid := profile["Uid"].(string) // get id of first profile
+
 // Required query param: email - string
 func (lr Loginradius) GetManageAccountIdentitiesByEmail(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"email": true}
@@ -86,8 +102,10 @@ func (lr Loginradius) GetManageAccountIdentitiesByEmail(queries interface{}) (*h
 }
 
 // GetManageAccessTokenUID is used to get LoginRadius access token based on UID.
-// Required query params: uid
+
 // Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/account-impersonation-api
+
+// Required query params: uid
 func (lr Loginradius) GetManageAccessTokenUID(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{"uid": true}
 	validatedQueries, err := lrvalidate.Validate(allowedQueries, queries)
@@ -101,6 +119,9 @@ func (lr Loginradius) GetManageAccessTokenUID(queries interface{}) (*httprutils.
 }
 
 // GetManageAccountPassword is used to retrieve the hashed password of a specified account in Cloud Storage.
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/account/account-password
+
 // Required template parameter: string representing uid
 func (lr Loginradius) GetManageAccountPassword(uid string) (*httprutils.Response, error) {
 	request := lr.Client.NewGetReq("/identity/v2/manage/account/" + uid + "/password")
