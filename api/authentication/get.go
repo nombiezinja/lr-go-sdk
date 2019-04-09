@@ -1,4 +1,3 @@
-// lrauthentication contains APIs for Loginradius authentication end points
 package lrauthentication
 
 import (

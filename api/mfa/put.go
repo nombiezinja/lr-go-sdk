@@ -54,9 +54,13 @@ func (lr Loginradius) PutMFAValidateOTP(queries, body interface{}) (*httprutils.
 }
 
 //PutMFAUpdateByToken  used to Enable Multi-factor authentication by access token on user login.
+
 // Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/update-mfa-by-access-token
+
 // Required query parameters: apikey
+
 // Optional query parameter: smstemplate
+
 // Rerquired post parameters: googleauthenticatorcode - string
 func (lr Loginradius) PutMFAUpdateByToken(body interface{}, queries ...interface{}) (*httprutils.Response, error) {
 	req, err := lr.Client.NewPutReqWithToken("/identity/v2/auth/account/2FA/Verification/GoogleAuthenticatorCode", body)
