@@ -6,8 +6,11 @@ import (
 )
 
 // DeleteMFAResetGoogleAuthenticatorByToken resets the Google Authenticator configurations on a given account via the access_token.
-// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-reset-google-authenticator-by-token
+
+// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/google-authenticator/mfa-reset-google-authenticator-by-token
+
 // Required query parameter: apikey
+
 // Required body parameter: googleauthenticator - pass true as value
 func (lr Loginradius) DeleteMFAResetGoogleAuthenticatorByToken() (*httprutils.Response, error) {
 	req, err := lr.Client.NewDeleteReqWithToken(
@@ -24,8 +27,11 @@ func (lr Loginradius) DeleteMFAResetGoogleAuthenticatorByToken() (*httprutils.Re
 }
 
 // DeleteMFAResetSMSAuthenticatorByToken resets the SMS Authenticator configurations on a given account via the access_token.
-// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-reset-sms-authenticator-by-token
+
+// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/sms-authenticator/mfa-reset-sms-authenticator-by-token
+
 // Required query parameter: apikey
+
 // Required body parameter: otpauthenticator - pass true as value
 func (lr Loginradius) DeleteMFAResetSMSAuthenticatorByToken() (*httprutils.Response, error) {
 	req, err := lr.Client.NewDeleteReqWithToken(
@@ -42,8 +48,10 @@ func (lr Loginradius) DeleteMFAResetSMSAuthenticatorByToken() (*httprutils.Respo
 }
 
 // DeleteMFAResetSMSAuthenticatorByUid resets the SMS Authenticator configurations on a given account via the access_token.
-// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-reset-sms-authenticator-by-uid
+
+// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/sms-authenticator/mfa-reset-sms-authenticator-by-uid
 // Required query parameter: apikey, apisecret, uid
+
 // Required body parameter: otpauthenticator - pass true as value
 func (lr Loginradius) DeleteMFAResetSMSAuthenticatorByUid(queries interface{}) (*httprutils.Response, error) {
 	queryParams := map[string]string{}
@@ -73,8 +81,11 @@ func (lr Loginradius) DeleteMFAResetSMSAuthenticatorByUid(queries interface{}) (
 }
 
 // DeleteMFAResetGoogleAuthenticatorByUid resets the SMS Authenticator configurations on a given account via the access_token.
-// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/mfa-reset-google-authenticator-by-uid
+
+// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/google-authenticator/mfa-reset-google-authenticator-by-uid
+
 // Required query parameter: apikey, apisecret, uid
+
 // Required body parameter: googleauthenticator - pass true as value
 func (lr Loginradius) DeleteMFAResetGoogleAuthenticatorByUid(queries interface{}) (*httprutils.Response, error) {
 	queryParams := map[string]string{}

@@ -769,3 +769,32 @@ func TestGetMFAReAuthenticate(t *testing.T) {
 		t.Errorf("Error returned from GetMFAReAuthenticate:%v, %v", err, result)
 	}
 }
+
+// To run this test, uncomment t.SkipNow() and set a manually created user with mfa turned on
+// then obtain a valid access_token
+func TestPutMFAUpdateSettings(t *testing.T) {
+	t.SkipNow()
+	SetTestEnv()
+
+	cfg := lr.Config{
+		ApiKey:    os.Getenv("APIKEY"),
+		ApiSecret: os.Getenv("APISECRET"),
+	}
+
+	lrclient, _ := lr.NewLoginradius(&cfg)
+
+	// set valid access_token here
+	lrclient.Context.Token = "96688431-0945-4ed5-9115-733521a13a53"
+	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PutMFAUpdateSettings(
+		// manually set otp obtained from sms authenticator here
+		map[string]string{"otp": "245212"}
+	)
+	if err != nil {
+		t.Errorf("Error making call to PutMFAUpdateSettings: %v", err)
+	}
+
+	result, err := lrjson.DynamicUnmarshal(res.Body)
+	if err != nil {
+		t.Errorf("Error returned from PutMFAUpdateSettings:%v, %v", err, result)
+	}
+}

@@ -124,8 +124,11 @@ func (lr Loginradius) GetMFAResetBackUpCodeByUID(queries interface{}) (*httpruti
 }
 
 // This API is used to trigger the Multi-Factor Autentication workflow for the provided access_token
+
 // Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/multi-factor-authentication/re-authentication/mfa-re-authenticate
+
 // Required query parameters: apikey
+
 // Optional query parameter: smstemplate2fa
 func (lr Loginradius) GetMFAReAuthenticate(queries ...interface{}) (*httprutils.Response, error) {
 	req, err := lr.Client.NewGetReqWithToken("/identity/v2/auth/account/reauth/2fa")
