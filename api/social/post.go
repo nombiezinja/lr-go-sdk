@@ -14,6 +14,9 @@ import (
 // you can send messages to the retrieved contacts. This API requires setting permissions in your LoginRadius Dashboard.
 // Please ensure the access to Post Messages on behalf of your user is enabled through your admin console:
 // Platform Configuration >> Social Login >> Profile Access Permissions
+
+// Documentation https://www.loginradius.com/docs/api/v2/customer-identity-api/social-login/advanced-social-api/post-message-api
+
 // Required query parameters: to - string; subject - string; message - string; access_token - string
 func (lr Loginradius) PostSocialMessageAPI(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{
@@ -45,6 +48,9 @@ func (lr Loginradius) PostSocialMessageAPI(queries interface{}) (*httprutils.Res
 
 // PostSocialStatusPost is used to update the status on the user’s wall.
 // Supported Providers: Facebook, Twitter, LinkedIn
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/social-login/advanced-social-api/trackable-status-posting
+
 // Required query parameters: url - string; title - string; imageurl-string; status-string; caption - string; description - string;
 func (lr Loginradius) PostSocialStatusPost(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{
