@@ -16,6 +16,7 @@ import (
 func main() {
 	cwd, _ := os.Getwd()
 
+	// load environment variables
 	err := godotenv.Load(
 		filepath.Join(cwd, "../../config/secret.env"),
 		filepath.Join(cwd, "../../config/public.env"),
@@ -25,12 +26,14 @@ func main() {
 		log.Fatal("Error loading env files, please configure your secret.env and public.env.")
 	}
 
+	// Intializing the LoginRadius API client
 	cfg := lr.Config{
 		ApiKey:    os.Getenv("APIKEY"),
 		ApiSecret: os.Getenv("APISECRET"),
 	}
 	lrclient, _ := lr.NewLoginradius(&cfg)
 
+	// An example API call
 	user := lrbody.RegistrationUser{
 		Email: []lrbody.AuthEmail{
 			lrbody.AuthEmail{

@@ -281,7 +281,10 @@ func (lr Loginradius) GetPasswordlessLoginByEmail(queries interface{}) (*httprut
 }
 
 // GetPasswordlessLoginByUsername is used to send a Passwordless Login verification link to the provided Username.
+
 // Required query parameters: username, apiKey; optional queries: passwordlesslogintemplate, verificationurl
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/passwordless-login/passwordless-login-by-username
 func (lr Loginradius) GetPasswordlessLoginByUsername(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{
 		"username": true, "passwordlesslogintemplate": true, "verificationurl": true,
@@ -298,7 +301,10 @@ func (lr Loginradius) GetPasswordlessLoginByUsername(queries interface{}) (*http
 }
 
 // GetPasswordlessLoginVerification is used to verify the Passwordless Login verification link.
+
 // Required query parameters: verificationtoken; optional queries: welcomeemailtemplate
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/passwordless-login/passwordless-login-verification
 func (lr Loginradius) GetPasswordlessLoginVerification(queries interface{}) (*httprutils.Response, error) {
 	allowedQueries := map[string]bool{
 		"verificationtoken": true, "welcomeemailtemplate": true,

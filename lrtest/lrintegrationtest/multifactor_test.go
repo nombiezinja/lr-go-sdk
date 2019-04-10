@@ -787,7 +787,7 @@ func TestPutMFAUpdateSettings(t *testing.T) {
 	lrclient.Context.Token = "96688431-0945-4ed5-9115-733521a13a53"
 	res, err := mfa.Loginradius(mfa.Loginradius{lrclient}).PutMFAUpdateSettings(
 		// manually set otp obtained from sms authenticator here
-		map[string]string{"otp": "245212"}
+		map[string]string{"otp": "245212"},
 	)
 	if err != nil {
 		t.Errorf("Error making call to PutMFAUpdateSettings: %v", err)

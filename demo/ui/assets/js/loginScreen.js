@@ -1,14 +1,3 @@
-// LRObject.util.ready(function () {
-//   LRObject.loginScreen("loginscreen-container", options)
-// });
-
-// let options = {
-//   redirecturl: {
-//     afterlogin: "",
-//     afterreset: ""
-//   }
-// }
-
 var options = {
   redirecturl: {
     afterlogin: "http://localhost:3000/index",

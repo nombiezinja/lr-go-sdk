@@ -27,11 +27,6 @@ func main() {
 	}
 
 	router := httprouter.New()
-	// router.HandleFunc("/login/passwordless", pwlessHandler).Methods("GET")
-	// router.HandleFunc("/login/passwordless/auth", verifyLoginHandler).Methods("GET")
-	// router.HandleFunc("/roles", createRoleHandler).Methods("POST")
-	// router.HandleFunc("/roles", deleteRoleHandler).Methods("DELETE")
-	// router.HandleFunc("/roles", assignRoleHandler).Methods("PUT")
 
 	router.POST("/index", handleposts.Index)
 	router.GET("/api/register/verify/email", handleposts.Verify)

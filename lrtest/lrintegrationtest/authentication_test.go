@@ -747,7 +747,9 @@ func TestDeleteAuthUnlinkSocialIdentities(t *testing.T) {
 func TestGetPasswordlessLoginByEmail(t *testing.T) {
 	_, _, _, email, _, lrclient, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetPasswordlessLoginByEmail(map[string]string{"email": email})
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetPasswordlessLoginByEmail(
+		map[string]string{"email": email},
+	)
 	if err != nil {
 		t.Errorf("Error making call to GetPasswordlessLoginByEmail: %+v", err)
 	}
@@ -760,7 +762,9 @@ func TestGetPasswordlessLoginByEmail(t *testing.T) {
 func TestGetPasswordlessLoginByUsername(t *testing.T) {
 	_, username, _, _, _, lrclient, teardownTestCase := setupLogin(t)
 	defer teardownTestCase(t)
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetPasswordlessLoginByUsername(map[string]string{"username": username})
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetPasswordlessLoginByUsername(
+		map[string]string{"username": username},
+	)
 	if err != nil {
 		t.Errorf("Error making call to GetPasswordlessLoginByUsername: %+v", err)
 	}
@@ -783,7 +787,9 @@ func TestGetPasswordlessLoginVerification(t *testing.T) {
 	}
 
 	lrclient, _ := lr.NewLoginradius(&cfg)
-	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetPasswordlessLoginVerification(map[string]string{"verificationtoken": "7108eccb667940dcbcf6a6c31685f96a"})
+	res, err := lrauthentication.Loginradius(lrauthentication.Loginradius{lrclient}).GetPasswordlessLoginVerification(
+		map[string]string{"verificationtoken": "7108eccb667940dcbcf6a6c31685f96a"},
+	)
 	if err != nil {
 		t.Errorf("Error making call to GetPasswordlessLoginVerification: %+v", err)
 	}
