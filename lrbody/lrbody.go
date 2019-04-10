@@ -10,7 +10,7 @@
 // The usage of the structs in this package is optional and provided for convenience only
 // Majority of methods take map[string]string as body parameter as well.
 
-// Note: these structs provide reference only, and do not include optional parameters
+// These structs provide reference only, and do not include optional parameters
 package lrbody
 
 // Used by PostAuthUserRegistrationByEmail
