@@ -1,15 +1,11 @@
 // The lrbody package holds the structs to be encoded as the body in POST and PUT calls
-
 // These structs are meant to serve as convenient measures assisting API calls provided by the Loginradius
 // Go SDK
-
 // All functions in this SDK takes interface{} as the body, but initiating your
 // data in the appropriate struct and passing in place of the body when calling the SDK functions
 // will ensure the parameters submitted are correctly formatted and named for the LoginRadius APIs
-
 // The usage of the structs in this package is optional and provided for convenience only
 // Majority of methods take map[string]string as body parameter as well.
-
 // These structs provide reference only, and do not include optional parameters
 package lrbody
 
