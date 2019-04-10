@@ -381,8 +381,12 @@ func (lr Loginradius) GetSocialUserProfile() (*httprutils.Response, error) {
 
 // GetSocialPage is used to get the page data from the user’s social account.
 // Supported Providers: Facebook, LinkedIn
+
 // Required query parameters: access_token - string; pagename - string
+
 // Please ensure that your app has been reviewed and you have permission to request this information from your users
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/social-login/advanced-social-api/page
 func (lr Loginradius) GetSocialPage(pagename string) (*httprutils.Response, error) {
 	if lr.Client.Context.Token == "" {
 		errMsg := "Must initialize Loginradius with access token for this API call."
@@ -399,9 +403,14 @@ func (lr Loginradius) GetSocialPage(pagename string) (*httprutils.Response, erro
 }
 
 // GetSocialPhoto is used to get the photo data from the user’s social account.
+
 // Supported Providers: Facebook, Foursquare, Google, Live, Vkontakte
+
 // Required query parameters: access_token - string; albumid - string
+
 // Please ensure that your app has been reviewed and you have permission to request this information from your users
+
+// Documentation: https://www.loginradius.com/docs/api/v2/customer-identity-api/social-login/advanced-social-api/photo
 func (lr Loginradius) GetSocialPhoto(albumid string) (*httprutils.Response, error) {
 	if lr.Client.Context.Token == "" {
 		errMsg := "Must initialize Loginradius with access token for this API call."
@@ -418,9 +427,14 @@ func (lr Loginradius) GetSocialPhoto(albumid string) (*httprutils.Response, erro
 }
 
 // GetSocialPost is used to get post message data from the user’s social account.
+
 // Supported Providers: Facebook
+
 // Required query parameters: access_token - string
+
 // Please ensure that your app has been reviewed and you have permission to request this information from your users
+
+// Documentation - https://www.loginradius.com/docs/api/v2/customer-identity-api/social-login/advanced-social-api/post
 func (lr Loginradius) GetSocialPost() (*httprutils.Response, error) {
 	if lr.Client.Context.Token == "" {
 		errMsg := "Must initialize Loginradius with access token for this API call."
@@ -437,9 +451,14 @@ func (lr Loginradius) GetSocialPost() (*httprutils.Response, error) {
 }
 
 // GetSocialStatusFetch is used to get the status messages from the user’s social account.
+
 // Supported Providers: Facebook, LinkedIn, Twitter, Vkontakte
+
 // Required query parameters: access_token - string
+
 // Please ensure that your app has been reviewed and you have permission to request this information from your users
+
+// Documentation - https://www.loginradius.com/docs/api/v2/customer-identity-api/social-login/advanced-social-api/status-fetching
 func (lr Loginradius) GetSocialStatus() (*httprutils.Response, error) {
 	if lr.Client.Context.Token == "" {
 		errMsg := "Must initialize Loginradius with access token for this API call."
@@ -456,9 +475,14 @@ func (lr Loginradius) GetSocialStatus() (*httprutils.Response, error) {
 }
 
 // GetSocialVideo is used to get video files data from the user’s social account.
+
 // Supported Providers: Facebook, Google, Live, Vkontakte
+
 // Required query parameters: next_cursor - string
+
 // Please ensure that your app has been reviewed and you have permission to request this information from your users
+
+// Documentation - https://www.loginradius.com/docs/api/v2/customer-identity-api/social-login/advanced-social-api/video
 func (lr Loginradius) GetSocialVideo(queries ...interface{}) (*httprutils.Response, error) {
 	if lr.Client.Context.Token == "" {
 		errMsg := "Must initialize Loginradius with access token for this API call."
