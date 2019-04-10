@@ -1,3 +1,4 @@
+// Package lrintegrationtest contains integration tests for all API calls.
 package lrintegrationtest
 
 import (

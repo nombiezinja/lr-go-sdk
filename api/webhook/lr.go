@@ -1,3 +1,4 @@
+// Package webhook contains methods for calling LoginRadius webhook APIs.
 package webhook
 
 import (

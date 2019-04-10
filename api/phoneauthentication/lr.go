@@ -1,3 +1,4 @@
+// Package phoneauthentication contains methods for calling the LoginRadius phone authentication APIs
 package phoneauthentication
 
 import (
